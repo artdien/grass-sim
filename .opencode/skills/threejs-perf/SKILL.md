@@ -36,6 +36,6 @@ description: Use when optimizing render performance, diagnosing FPS drops or stu
 
 ## Good-enough targets for a WebGL app
 
-- 60 FPS on the target machine; a stable frame *rate* matters more than peak FPS.
+- 60 FPS on the target machine; a stable frame _rate_ matters more than peak FPS.
 - Draw calls: aim for low hundreds at most; in the high hundreds/thousands, reach for instancing/batched geometry **before** optimizing shaders.
 - Heap should plateau, not trend upward, after steady-state interaction.

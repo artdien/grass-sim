@@ -18,6 +18,16 @@ There is **no test suite** — no test script or test dependencies exist. Verify
 - ESLint runs Prettier rules via `eslint-plugin-prettier`, so `npm run lint` reports formatting violations. It is also **type-aware** (`recommendedTypeChecked` with `projectService`, plus `react-x`/`react-dom` plugins) — lint failures can include type-level and React-specific rules, and lint is slower than a plain pass.
 - Tailwind v4 is configured via the `@tailwindcss/vite` plugin; there is **no `tailwind.config.js`** — configuration lives in CSS (`src/index.css`).
 
+## UI design system
+
+All UI uses a **light, green-based Tailwind theme — simple and clean, since the 3D render output is the focus** (no custom CSS tokens yet; styling lives in component class lists). Reference implementations: `src/Navbar.tsx` (app chrome) and `src/LoadPage.tsx` (card/notice). Keep new UI consistent with these choices:
+
+- **Backgrounds:** app base `bg-green-50`; navbar/chrome `bg-white` with `border-stone-200` separators; cards `rounded-xl border border-stone-200 bg-white shadow-sm`; the 3D scene background stays black (`#000000`) so the render remains the focal point.
+- **Text:** primary `text-stone-900`; secondary/inactive `text-stone-500` (links get `hover:text-stone-900`); body copy `text-stone-600`.
+- **Accent — green only:** active nav links `text-green-700`; icons `text-green-600`; focus state `focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white`. Do not introduce other accent hues.
+- **Typography:** system font stack (no web fonts); chrome/nav titles `text-base leading-tight font-semibold`; page headings `text-xl font-semibold`; body and links `text-sm`.
+- **Layout shell:** `App.tsx` is a flex column — `Navbar` on top, page content in `<main className="relative min-h-0 flex-1 overflow-hidden">` below it. UI placed over the canvas follows the layering rules in the `tailwind-3d-ui` skill.
+
 ## TypeScript
 
 - `verbatimModuleSyntax`: use `import type` for type-only imports.
@@ -32,6 +42,6 @@ There is **no test suite** — no test script or test dependencies exist. Verify
 
 ## Architecture notes
 
-- Entry flow: `index.html` → `src/main.tsx` (React Router 7 is set up **here**, single route) → `src/App.tsx` → `src/Renderer.tsx`.
+- Entry flow: `index.html` → `src/main.tsx` (React Router 7 is set up **here**: `App` is the layout route — `Navbar` + `<Outlet />`; children: `ConfigurationPage` at `/configuration`, `LoadPage` at `/load`; `/` and the catch-all redirect to `/configuration`) → `src/ConfigurationPage.tsx` → `src/Renderer.tsx`.
 - `Renderer.tsx` does all Three.js setup (scene, camera, renderer, rAF loop) inside a `useEffect` with full teardown (dispose, rAF cancel, DOM removal). **StrictMode is on**, so in dev this effect runs mount → cleanup → mount; the cleanup is what keeps it from leaking/crashing. Preserve this pattern when extending the renderer.
 - The scene is sized from the container div (`clientWidth/Height`), not the window — the renderer div must keep its full-size classes.

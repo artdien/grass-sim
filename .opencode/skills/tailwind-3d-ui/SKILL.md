@@ -15,7 +15,7 @@ description: Use when adding or restyling UI over the Three.js canvas — HUDs, 
 
 1. Add it as a sibling of the canvas wrapper inside the relative root (`<main className="relative h-screen ...">` pattern in `App.tsx`).
 2. Choose a slot: top bar, bottom HUD, left/right inspector panel. Pin with `absolute` + edge utilities (`top-0 left-0 right-0` or `inset-x-0`), and `z-10`+ so it stays above the canvas.
-3. Style for a dark 3D backdrop: solid or translucent panels (`bg-slate-900/80` + `backdrop-blur`), light text (`text-slate-100`), clear focus rings for keyboard users.
+3. Style for a dark 3D backdrop using the repo palette (AGENTS.md `## UI design system` is canonical): slate-900/950 backgrounds, `border-slate-800`, light text (`text-slate-100`), and **sky-400 as the only accent** (active states, focus rings — `focus-visible:ring-2 focus-visible:ring-sky-400 ...`). Solid cards (`bg-slate-950/60`) or translucent panels over the canvas (`bg-slate-900/80` + `backdrop-blur`).
 4. Responsive: panels should collapse or stack under a reasonable small-viewport breakpoint; verify nothing important is buried under a panel on mobile-sized widths.
 5. If the panel is a container of many controls, keep `flex`/`grid` structure explicit — Tailwind-only, no inline styles.
 6. Finish with `npm run format` (Tailwind class sorting), `npm run lint`, and a visual check on the dev server (port 3000).
@@ -29,6 +29,7 @@ description: Use when adding or restyling UI over the Three.js canvas — HUDs, 
 
 ## Checklist: before shipping UI over the canvas
 
+- [ ] Styling follows the AGENTS.md UI design system (slate palette, sky-400 accent, `border-slate-800`).
 - [ ] Sibling layering with canvas at `z-0`, UI above; renderer div untouched and full-bleed.
 - [ ] `pointer-events` handled: transparent wrappers don't block canvas interaction.
 - [ ] Panels readable against the 3D background (contrast, and checked with the scene bright and dark).

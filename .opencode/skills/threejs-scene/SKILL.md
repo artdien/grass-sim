@@ -50,7 +50,9 @@ useEffect(() => {
   };
   animate();
 
-  const onResize = () => { /* camera.aspect, updateProjectionMatrix, renderer.setSize */ };
+  const onResize = () => {
+    /* camera.aspect, updateProjectionMatrix, renderer.setSize */
+  };
   window.addEventListener('resize', onResize);
 
   return () => {
