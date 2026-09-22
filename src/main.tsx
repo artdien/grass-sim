@@ -5,6 +5,7 @@ import '@/index.css';
 import { App } from '@/App';
 import { ConfigurationPage } from '@/ConfigurationPage';
 import { LoadPage } from '@/LoadPage';
+import { NotFoundPage } from '@/NotFoundPage';
 
 const router = createBrowserRouter([
   {
@@ -25,7 +26,7 @@ const router = createBrowserRouter([
       },
       {
         path: '*',
-        element: <Navigate to="/configuration" replace />,
+        element: <NotFoundPage />,
       },
     ],
   },
