@@ -25,7 +25,7 @@ export const Renderer: React.FC = () => {
 
     // Rotated cube as an example
     const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x3b82f6, wireframe: true });
+    const material = new THREE.MeshBasicMaterial({ color: 0x4ade80, wireframe: true });
     const cube = new THREE.Mesh(geometry, material);
     scene.add(cube);
 

@@ -1,11 +1,13 @@
-import { Renderer } from '@/Renderer';
+import { Outlet } from 'react-router-dom';
+import { Navbar } from '@/Navbar';
 
 export const App = () => {
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-slate-900">
-      <div className="absolute inset-0 z-0">
-        <Renderer />
-      </div>
-    </main>
+    <div className="flex h-dvh flex-col overflow-hidden bg-green-50">
+      <Navbar />
+      <main className="relative min-h-0 flex-1 overflow-hidden">
+        <Outlet />
+      </main>
+    </div>
   );
 };
