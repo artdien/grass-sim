@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Renderer } from '@/Renderer';
-import { SideBar } from '@/SideBar';
+import { Renderer } from '@/scene/Renderer';
+import { SideBar } from '@/components/SideBar';
 import type { Configuration } from '@/types';
 
 export const ConfigurationPage = () => {
