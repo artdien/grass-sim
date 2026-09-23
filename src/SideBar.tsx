@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import { CollapsibleSection } from '@/CollapsibleSection';
+import type { Configuration } from '@/types';
 
-export const SideBar = () => {
-  const [cubeColor, setCubeColor] = useState('#4ade80');
-  const [rotationSpeed, setRotationSpeed] = useState(1);
+interface Props {
+  configuration: Configuration;
+  onChange: (next: Configuration) => void;
+}
+
+export const SideBar = ({ configuration, onChange }: Props) => {
+  const { cubeColor, rotationSpeed } = configuration;
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -44,7 +49,9 @@ export const SideBar = () => {
                   type="color"
                   aria-label="Cube color"
                   value={cubeColor}
-                  onChange={(event) => setCubeColor(event.target.value)}
+                  onChange={(event) =>
+                    onChange({ ...configuration, cubeColor: event.target.value })
+                  }
                   className="h-8 w-12 cursor-pointer rounded-md border border-stone-200 bg-white p-0.5 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
                 />
               </span>
@@ -67,7 +74,9 @@ export const SideBar = () => {
                 max={10}
                 step={0.1}
                 value={rotationSpeed}
-                onChange={(event) => setRotationSpeed(Number(event.target.value))}
+                onChange={(event) =>
+                  onChange({ ...configuration, rotationSpeed: Number(event.target.value) })
+                }
                 className="w-full accent-green-600 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
               />
             </div>
