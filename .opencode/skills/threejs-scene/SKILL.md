@@ -9,7 +9,8 @@ description: Use when creating or modifying the Three.js scene in this app — r
 
 - **One component owns the renderer.** Scene, camera, and renderer are created inside a `useEffect` and fully torn down in its cleanup. This app runs React StrictMode, so in dev the effect runs mount → cleanup → mount. A half-cleanup leaks WebGL state and leaves duplicate canvases.
 - **Three.js objects live outside React state.** Never put `THREE.*` instances in `useState` — the scene mutates in place and React state is for values that drive re-rendering. Share references via `useRef` or effect-local variables.
-- **React state flows one way:** into the scene via effect dependencies or ref-mirrored values; out of the scene via event handlers that call `setState`. The scene never triggers re-renders directly.
+- **Shared state (Zustand) flows into the scene imperatively:** `Scene.tsx` reads the store via `useSimulationStore.getState()` inside the rAF loop — never as a React subscription and never in effect dependencies. That is what guarantees a store update only changes what the _next frame_ renders and can never recreate the renderer.
+- **State flows one way:** scene output that must reach React goes into the store via event handlers; the scene never triggers re-renders directly.
 - The renderer div must keep full-size classes (`h-full w-full` / `inset-0`) — scene sizing is measured from `container.clientWidth/Height`, not the window.
 
 ## Workflow: adding a new scene element
@@ -70,6 +71,7 @@ useEffect(() => {
 
 - [ ] Cleanup is complete: rAF cancelled, every `addEventListener` has a matching `removeEventListener`, all owned geometries/materials/textures disposed, canvas removed from the container.
 - [ ] No `THREE.*` instances in React state or effect dependencies.
+- [ ] Any shared (Zustand) state the scene reads is fetched via `useStore.getState()` inside the loop, so the mount effect stays dependency-free and store updates can't recreate the renderer.
 - [ ] Animations use delta time, not per-frame constants.
 - [ ] Resize handler updates camera aspect + `updateProjectionMatrix()` + `renderer.setSize()`, and any viewport-relative object state.
 - [ ] StrictMode-safe: re-running the effect from scratch produces an identical scene (no reliance on globals or previously leaked objects).

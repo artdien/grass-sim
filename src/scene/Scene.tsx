@@ -1,20 +1,9 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import type { SimulationSettings } from '@/types';
+import { useSimulationStore } from '@/store/simulation';
 
-interface Props {
-  settings: SimulationSettings;
-}
-
-export const Scene = ({ settings }: Props) => {
-  // Mirror the latest settings into a ref so the animation loop can read
-  // fresh values every frame without recreating the Three.js scene on change.
-  const settingsRef = useRef(settings);
+export const Scene = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    settingsRef.current = settings;
-  }, [settings]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -37,8 +26,11 @@ export const Scene = ({ settings }: Props) => {
 
     // Rotated cube as an example
     const geometry = new THREE.BoxGeometry(1, 1, 1);
+    // Read the settings from the store imperatively: the store is never a
+    // React subscription here, so store updates can only change what the
+    // next frame renders and never recreate the renderer.
     const material = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(settingsRef.current.cubeColor),
+      color: new THREE.Color(useSimulationStore.getState().settings.cubeColor),
       wireframe: true,
     });
     const cube = new THREE.Mesh(geometry, material);
@@ -51,13 +43,13 @@ export const Scene = ({ settings }: Props) => {
       timer.update();
       animationFrameId = requestAnimationFrame(animate);
 
-      // Apply the latest settings before issuing the next render call so
-      // sidebar changes take effect on the very next frame.
-      const { cubeColor, rotationSpeed } = settingsRef.current;
+      // Pull fresh settings out of the store every frame so sidebar changes
+      // take effect on the very next render without re-rendering React.
+      const settings = useSimulationStore.getState().settings;
 
-      material.color.set(cubeColor);
-      cube.rotation.x += 0.6 * rotationSpeed * timer.getDelta();
-      cube.rotation.y += 0.6 * rotationSpeed * timer.getDelta();
+      material.color.set(settings.cubeColor);
+      cube.rotation.x += 0.6 * settings.rotationSpeed * timer.getDelta();
+      cube.rotation.y += 0.6 * settings.rotationSpeed * timer.getDelta();
 
       renderer.render(scene, camera);
     };

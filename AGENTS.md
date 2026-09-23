@@ -13,10 +13,11 @@ src/
 ├── types.ts        # shared types
 ├── components/     # app-level / reusable UI (Navbar, Sidebar, CollapsibleSection)
 ├── pages/          # one component per route
+├── store/          # Zustand stores for shared app state (e.g. SimulationSettings)
 └── scene/          # all Three.js code (Scene)
 ```
 
-New code goes in these buckets: route-level pages → `pages/`, app-level or reusable UI → `components/`, anything that touches Three.js → `scene/`.
+New code goes in these buckets: route-level pages → `pages/`, app-level or reusable UI → `components/`, shared app state → `store/`, anything that touches Three.js → `scene/`.
 
 ## Commands
 
@@ -56,6 +57,14 @@ All UI uses a **light, green-based Tailwind theme — simple and clean, since th
 - **Named exports with arrow functions, always:** `export const Component = () => { ... };` — no default exports, no function declarations.
 - **One React component per file**, named after the component.
 - **Placement:** route-level pages in `src/pages/`, app-level or reusable UI in `src/components/`, anything that touches Three.js in `src/scene/` (see src layout above).
+
+## State management
+
+Shared app state — state used by more than one page or outside a component subtree (e.g. **`SimulationSettings`**, consumed by both `SimulationPage` and `ImportSettingsPage`) — is managed with **Zustand**, not `useState` + prop drilling.
+
+- **Stores live in `src/store/`** — one file per domain (e.g. `store/simulation.ts`), each exporting a `use`-prefixed hook built with `create` from `zustand`. The shared model from `src/types.ts` is stored as **one section object** (e.g. `settings: SimulationSettings`), not as flat per-field state, and is replaced wholesale through a single setter named `updateSettings` (not `setSettings`, so it doesn't read like a `useState` setter).
+- **Components read through selectors:** `useSimulationStore((state) => state.settings)`. Updates provide a **copy** of the model with the changed value(s) replaced — `updateSettings({ ...settings, cubeColor: event.target.value })` — never mutating the stored object, and never passing settings down as props from a page.
+- **The scene never subscribes to the store in React.** `Scene.tsx` reads it imperatively via `useSimulationStore.getState()` inside the rAF loop. That keeps the Three.js mount effect's deps at `[]` and guarantees store updates only change what the _next frame_ renders — they can never recreate the renderer.
 
 ## Architecture notes
 

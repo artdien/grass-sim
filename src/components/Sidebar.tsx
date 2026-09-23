@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { CollapsibleSection } from '@/components/CollapsibleSection';
-import type { SimulationSettings } from '@/types';
+import { useSimulationStore } from '@/store/simulation';
 
-interface Props {
-  settings: SimulationSettings;
-  onChange: (next: SimulationSettings) => void;
-}
-
-export const Sidebar = ({ settings, onChange }: Props) => {
-  const { cubeColor, rotationSpeed } = settings;
+export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
+
+  const settings = useSimulationStore((state) => state.settings);
+  const updateSettings = useSimulationStore((state) => state.updateSettings);
 
   return (
     <aside
@@ -44,12 +41,16 @@ export const Sidebar = ({ settings, onChange }: Props) => {
             <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-stone-600">
               Cube color
               <span className="flex flex-wrap items-center justify-end gap-2">
-                <span className="font-mono text-xs text-stone-500 uppercase">{cubeColor}</span>
+                <span className="font-mono text-xs text-stone-500 uppercase">
+                  {settings.cubeColor}
+                </span>
                 <input
                   type="color"
                   aria-label="Cube color"
-                  value={cubeColor}
-                  onChange={(event) => onChange({ ...settings, cubeColor: event.target.value })}
+                  value={settings.cubeColor}
+                  onChange={(event) =>
+                    updateSettings({ ...settings, cubeColor: event.target.value })
+                  }
                   className="h-8 w-12 cursor-pointer rounded-md border border-stone-200 bg-white p-0.5 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
                 />
               </span>
@@ -63,7 +64,9 @@ export const Sidebar = ({ settings, onChange }: Props) => {
                 className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-sm text-stone-600"
               >
                 Rotation speed
-                <span className="font-mono text-xs text-stone-500">{rotationSpeed.toFixed(1)}</span>
+                <span className="font-mono text-xs text-stone-500">
+                  {settings.rotationSpeed.toFixed(1)}
+                </span>
               </label>
               <input
                 id="rotation-speed"
@@ -71,9 +74,9 @@ export const Sidebar = ({ settings, onChange }: Props) => {
                 min={0}
                 max={10}
                 step={0.1}
-                value={rotationSpeed}
+                value={settings.rotationSpeed}
                 onChange={(event) =>
-                  onChange({ ...settings, rotationSpeed: Number(event.target.value) })
+                  updateSettings({ ...settings, rotationSpeed: Number(event.target.value) })
                 }
                 className="w-full accent-green-600 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
               />
