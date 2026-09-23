@@ -40,22 +40,26 @@ export const Renderer: React.FC = () => {
     };
     animate();
 
-    // Resize
-    const handleResize = () => {
-      if (!container) return;
+    // Track the container, not the window, so the canvas also resizes
+    // when the sidebar collapses and the layout reflows.
+    const resizeObserver = new ResizeObserver(() => {
       const newWidth = container.clientWidth;
       const newHeight = container.clientHeight;
+      if (newWidth === 0 || newHeight === 0) {
+        return;
+      }
 
       camera.aspect = newWidth / newHeight;
       camera.updateProjectionMatrix();
 
       renderer.setSize(newWidth, newHeight);
-    };
-    window.addEventListener('resize', handleResize);
+    });
+    resizeObserver.observe(container);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
+
+      resizeObserver.disconnect();
 
       geometry.dispose();
       material.dispose();

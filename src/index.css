@@ -1,1 +1,7 @@
 @import 'tailwindcss';
+
+/* The app is intentionally a light theme.
+   Keep native form controls (e.g. the <input type="color"> picker) light even when the OS is in dark mode. */
+:root {
+  color-scheme: light;
+}
