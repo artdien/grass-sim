@@ -20,7 +20,7 @@ export const NotFoundPage = () => {
         <p className="mt-2 text-sm leading-relaxed text-stone-600">
           The URL you entered did not match any page.
           <br />
-          Use the navbar above to head back to Configuration or Load.
+          Use the navbar above to head back to Simulation or Import Settings.
         </p>
       </div>
     </div>

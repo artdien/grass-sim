@@ -1,6 +1,6 @@
 # grass-sim
 
-React 19 + TypeScript + Vite web app rendering a Three.js (WebGL) scene. Early scaffold: `src/scene/Renderer.tsx` is a placeholder rotating wireframe cube. Single package, no workspaces, no CI.
+React 19 + TypeScript + Vite web app rendering a Three.js (WebGL) scene. Early scaffold: `src/scene/Scene.tsx` is a placeholder rotating wireframe cube. Single package, no workspaces, no CI.
 
 ## src layout
 
@@ -11,9 +11,9 @@ src/
 ├── App.tsx         # app shell — Navbar + <Outlet />
 ├── index.css       # the only source CSS (Tailwind v4)
 ├── types.ts        # shared types
-├── components/     # app-level / reusable UI (Navbar, SideBar, CollapsibleSection)
+├── components/     # app-level / reusable UI (Navbar, Sidebar, CollapsibleSection)
 ├── pages/          # one component per route
-└── scene/          # all Three.js code (Renderer)
+└── scene/          # all Three.js code (Scene)
 ```
 
 New code goes in these buckets: route-level pages → `pages/`, app-level or reusable UI → `components/`, anything that touches Three.js → `scene/`.
@@ -36,7 +36,7 @@ There is **no test suite** — no test script or test dependencies exist. Verify
 
 ## UI design system
 
-All UI uses a **light, green-based Tailwind theme — simple and clean, since the 3D render output is the focus** (no custom CSS tokens yet; styling lives in component class lists). Reference implementations: `src/components/Navbar.tsx` (app chrome) and `src/pages/LoadPage.tsx` (card/notice). Keep new UI consistent with these choices:
+All UI uses a **light, green-based Tailwind theme — simple and clean, since the 3D render output is the focus** (no custom CSS tokens yet; styling lives in component class lists). Reference implementations: `src/components/Navbar.tsx` (app chrome) and `src/pages/ImportSettingsPage.tsx` (card/notice). Keep new UI consistent with these choices:
 
 - **Backgrounds:** app base `bg-green-50`; navbar/chrome `bg-white` with `border-stone-200` separators; cards `rounded-xl border border-stone-200 bg-white shadow-sm`; the 3D scene background stays black (`#000000`) so the render remains the focal point.
 - **Text:** primary `text-stone-900`; secondary/inactive `text-stone-500` (links get `hover:text-stone-900`); body copy `text-stone-600`.
@@ -49,7 +49,7 @@ All UI uses a **light, green-based Tailwind theme — simple and clean, since th
 - `verbatimModuleSyntax`: use `import type` for type-only imports.
 - `erasableSyntaxOnly`: no enums, namespaces, or parameter properties.
 - `noUnusedLocals`/`noUnusedParameters` are on.
-- **`@/` path alias, extension-less imports:** all in-project imports use the `@/` alias (mapped to `src/` in both tsconfig `paths` and Vite `resolve.alias`) with **no** file extension — e.g. `import { Renderer } from '@/scene/Renderer'`. Do not use relative `./`/`../` paths or `.tsx`/`.ts` extensions. Enforced by ESLint `no-restricted-imports` (lint fails) and by `allowImportingTsExtensions` being off (build fails).
+- **`@/` path alias, extension-less imports:** all in-project imports use the `@/` alias (mapped to `src/` in both tsconfig `paths` and Vite `resolve.alias`) with **no** file extension — e.g. `import { Scene } from '@/scene/Scene'`. Do not use relative `./`/`../` paths or `.tsx`/`.ts` extensions. Enforced by ESLint `no-restricted-imports` (lint fails) and by `allowImportingTsExtensions` being off (build fails).
 
 ## Components
 
@@ -59,6 +59,6 @@ All UI uses a **light, green-based Tailwind theme — simple and clean, since th
 
 ## Architecture notes
 
-- Entry flow: `index.html` → `src/main.tsx` (mount only) → `src/router.tsx` (React Router 7 is set up **there**: `App` is the layout route — `Navbar` + `<Outlet />`; children: `ConfigurationPage` at `/configuration`, `LoadPage` at `/load`; `/` and the catch-all redirect to `/configuration`) → `src/pages/ConfigurationPage.tsx` → `src/scene/Renderer.tsx`.
-- `src/scene/Renderer.tsx` does all Three.js setup (scene, camera, renderer, rAF loop) inside a `useEffect` with full teardown (dispose, rAF cancel, DOM removal). **StrictMode is on**, so in dev this effect runs mount → cleanup → mount; the cleanup is what keeps it from leaking/crashing. Preserve this pattern when extending the renderer.
+- Entry flow: `index.html` → `src/main.tsx` (mount only) → `src/router.tsx` (React Router 7 is set up **there**: `App` is the layout route — `Navbar` + `<Outlet />`; children: `SimulationPage` at `/simulation`, `ImportSettingsPage` at `/import-settings`; `/` and the catch-all redirect to `/simulation`) → `src/pages/SimulationPage.tsx` → `src/scene/Scene.tsx`.
+- `src/scene/Scene.tsx` does all Three.js setup (scene, camera, renderer, rAF loop) inside a `useEffect` with full teardown (dispose, rAF cancel, DOM removal). **StrictMode is on**, so in dev this effect runs mount → cleanup → mount; the cleanup is what keeps it from leaking/crashing. Preserve this pattern when extending the scene.
 - The scene is sized from the container div (`clientWidth/Height`), not the window — the renderer div must keep its full-size classes.

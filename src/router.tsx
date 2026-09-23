@@ -1,8 +1,8 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { App } from '@/App';
-import { ConfigurationPage } from '@/pages/ConfigurationPage';
-import { LoadPage } from '@/pages/LoadPage';
+import { ImportSettingsPage } from '@/pages/ImportSettingsPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
+import { SimulationPage } from '@/pages/SimulationPage';
 
 export const router = createBrowserRouter([
   {
@@ -11,15 +11,15 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="/configuration" replace />,
+        element: <Navigate to="/simulation" replace />,
       },
       {
-        path: 'configuration',
-        element: <ConfigurationPage />,
+        path: 'simulation',
+        element: <SimulationPage />,
       },
       {
-        path: 'load',
-        element: <LoadPage />,
+        path: 'import-settings',
+        element: <ImportSettingsPage />,
       },
       {
         path: '*',

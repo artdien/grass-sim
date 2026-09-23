@@ -1,20 +1,20 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import type { Configuration } from '@/types';
+import type { SimulationSettings } from '@/types';
 
 interface Props {
-  configuration: Configuration;
+  settings: SimulationSettings;
 }
 
-export const Renderer = ({ configuration }: Props) => {
-  // Mirror the latest configuration into a ref so the animation loop can read
+export const Scene = ({ settings }: Props) => {
+  // Mirror the latest settings into a ref so the animation loop can read
   // fresh values every frame without recreating the Three.js scene on change.
-  const configurationRef = useRef(configuration);
+  const settingsRef = useRef(settings);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    configurationRef.current = configuration;
-  }, [configuration]);
+    settingsRef.current = settings;
+  }, [settings]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -38,7 +38,7 @@ export const Renderer = ({ configuration }: Props) => {
     // Rotated cube as an example
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(configurationRef.current.cubeColor),
+      color: new THREE.Color(settingsRef.current.cubeColor),
       wireframe: true,
     });
     const cube = new THREE.Mesh(geometry, material);
@@ -51,9 +51,9 @@ export const Renderer = ({ configuration }: Props) => {
       timer.update();
       animationFrameId = requestAnimationFrame(animate);
 
-      // Apply the latest configuration before issuing the next render call so
+      // Apply the latest settings before issuing the next render call so
       // sidebar changes take effect on the very next frame.
-      const { cubeColor, rotationSpeed } = configurationRef.current;
+      const { cubeColor, rotationSpeed } = settingsRef.current;
 
       material.color.set(cubeColor);
       cube.rotation.x += 0.6 * rotationSpeed * timer.getDelta();

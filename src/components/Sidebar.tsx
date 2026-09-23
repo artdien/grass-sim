@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { CollapsibleSection } from '@/components/CollapsibleSection';
-import type { Configuration } from '@/types';
+import type { SimulationSettings } from '@/types';
 
 interface Props {
-  configuration: Configuration;
-  onChange: (next: Configuration) => void;
+  settings: SimulationSettings;
+  onChange: (next: SimulationSettings) => void;
 }
 
-export const SideBar = ({ configuration, onChange }: Props) => {
-  const { cubeColor, rotationSpeed } = configuration;
+export const Sidebar = ({ settings, onChange }: Props) => {
+  const { cubeColor, rotationSpeed } = settings;
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -49,9 +49,7 @@ export const SideBar = ({ configuration, onChange }: Props) => {
                   type="color"
                   aria-label="Cube color"
                   value={cubeColor}
-                  onChange={(event) =>
-                    onChange({ ...configuration, cubeColor: event.target.value })
-                  }
+                  onChange={(event) => onChange({ ...settings, cubeColor: event.target.value })}
                   className="h-8 w-12 cursor-pointer rounded-md border border-stone-200 bg-white p-0.5 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
                 />
               </span>
@@ -75,7 +73,7 @@ export const SideBar = ({ configuration, onChange }: Props) => {
                 step={0.1}
                 value={rotationSpeed}
                 onChange={(event) =>
-                  onChange({ ...configuration, rotationSpeed: Number(event.target.value) })
+                  onChange({ ...settings, rotationSpeed: Number(event.target.value) })
                 }
                 className="w-full accent-green-600 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
               />

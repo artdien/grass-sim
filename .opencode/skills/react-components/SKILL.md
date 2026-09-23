@@ -24,7 +24,7 @@ description: Use when creating or refactoring React components or hooks, writing
 
 - `verbatimModuleSyntax`: type-only imports must be `import type { ... } from ...`.
 - `erasableSyntaxOnly`: no `enum`, no namespaces, no parameter properties — use string-literal unions and plain interfaces.
-- **All in-project imports use the `@/` path alias with no file extension:** `import { Renderer } from '@/scene/Renderer'` (alias maps to `src/` in both `tsconfig.app.json` `paths` and Vite `resolve.alias`). Do not use relative paths like `./` or `../` for project files, and do not add `.tsx`/`.ts` extensions — this is **enforced**: ESLint `no-restricted-imports` fails lint, and `allowImportingTsExtensions` being off fails the build.
+- **All in-project imports use the `@/` path alias with no file extension:** `import { Scene } from '@/scene/Scene'` (alias maps to `src/` in both `tsconfig.app.json` `paths` and Vite `resolve.alias`). Do not use relative paths like `./` or `../` for project files, and do not add `.tsx`/`.ts` extensions — this is **enforced**: ESLint `no-restricted-imports` fails lint, and `allowImportingTsExtensions` being off fails the build.
 - `noUnusedLocals` / `noUnusedParameters` are on — no dead code or unused args.
 - Prefer `unknown` + narrowing over `any`; reach for generics sparingly.
 

@@ -1,4 +1,4 @@
-export const LoadPage = () => {
+export const ImportSettingsPage = () => {
   return (
     <div className="flex h-full items-center justify-center px-6">
       <div className="max-w-sm rounded-xl border border-stone-200 bg-white px-10 py-9 text-center shadow-sm">
@@ -19,7 +19,7 @@ export const LoadPage = () => {
         </svg>
         <h1 className="mt-4 text-xl font-semibold text-stone-900">Under construction</h1>
         <p className="mt-2 text-sm leading-relaxed text-stone-600">
-          This page is still a work in progress. Head back to Configuration in the meantime.
+          This page is still a work in progress. Head back to Simulation in the meantime.
         </p>
       </div>
     </div>

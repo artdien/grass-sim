@@ -25,11 +25,11 @@ export const Navbar = () => {
         Simulation
       </span>
       <div className="flex items-center gap-6">
-        <NavLink to="/configuration" className={linkClassName(isActive('/configuration'))}>
-          Configuration
+        <NavLink to="/simulation" className={linkClassName(isActive('/simulation'))}>
+          Simulation
         </NavLink>
-        <NavLink to="/load" className={linkClassName(isActive('/load'))}>
-          Load
+        <NavLink to="/import-settings" className={linkClassName(isActive('/import-settings'))}>
+          Import Settings
         </NavLink>
       </div>
     </nav>

@@ -14,7 +14,7 @@ description: Use when creating or modifying the Three.js scene in this app — r
 
 ## Workflow: adding a new scene element
 
-1. Decide the owner: default to the existing renderer component (`src/scene/Renderer.tsx`); split into a component of its own only when the entity has a distinct lifecycle or props of its own.
+1. Decide the owner: default to the existing scene component (`src/scene/Scene.tsx`); split into a component of its own only when the entity has a distinct lifecycle or props of its own.
 2. Create the geometry / material / object in the effect (or a factory function called from it) and add it to the scene graph.
 3. Drive it from the rAF loop as needed. Animations must be **frame-rate independent**: use delta time (`clock.getDelta()`), never bare per-frame constants.
 4. Register every listener or subscription it needs; remove every one in the cleanup.
@@ -23,7 +23,7 @@ description: Use when creating or modifying the Three.js scene in this app — r
 
 ## Canonical setup/teardown pattern
 
-Follow the shape in `src/scene/Renderer.tsx`:
+Follow the shape in `src/scene/Scene.tsx`:
 
 ```tsx
 useEffect(() => {
