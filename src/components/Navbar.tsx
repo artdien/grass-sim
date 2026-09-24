@@ -13,6 +13,7 @@ export const Navbar = () => {
   // while unrelated paths (e.g. "/page/doesnotexist") do not highlight any link.
   const normalizedPathname = pathname.replace(/\/+$/, '') || '/';
   const isActive = (to: string) => normalizedPathname === to;
+  const onImportSettings = isActive('/import-settings');
 
   return (
     <nav
@@ -32,6 +33,15 @@ export const Navbar = () => {
           Import Settings
         </NavLink>
       </div>
+      {onImportSettings && (
+        <button
+          type="button"
+          title="Imports simulation settings from an external JSON file"
+          className="ml-auto rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+        >
+          Import
+        </button>
+      )}
     </nav>
   );
 };
