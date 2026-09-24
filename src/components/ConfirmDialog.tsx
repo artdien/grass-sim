@@ -1,14 +1,31 @@
 import { useEffect } from 'react';
 
+type ConfirmTone = 'danger' | 'primary';
+
 interface Props {
   title: string;
   message: string;
   confirmLabel: string;
+  confirmTone?: ConfirmTone;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-export const ConfirmDialog = ({ title, message, confirmLabel, onConfirm, onCancel }: Props) => {
+const confirmToneClasses: Record<ConfirmTone, string> = {
+  danger:
+    'rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-red-700 focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none',
+  primary:
+    'rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none',
+};
+
+export const ConfirmDialog = ({
+  title,
+  message,
+  confirmLabel,
+  confirmTone = 'danger',
+  onConfirm,
+  onCancel,
+}: Props) => {
   useEffect(() => {
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === 'Escape') onCancel();
@@ -47,11 +64,7 @@ export const ConfirmDialog = ({ title, message, confirmLabel, onConfirm, onCance
           >
             Cancel
           </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            className="rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-red-700 focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
-          >
+          <button type="button" onClick={onConfirm} className={confirmToneClasses[confirmTone]}>
             {confirmLabel}
           </button>
         </div>

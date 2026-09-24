@@ -1,7 +1,6 @@
 import { create } from 'zustand';
-import type { Result } from '@/types';
 
-import type { SimulationSettings, StoredSimulationSettings } from '@/types';
+import type { Result, SimulationSettings, StoredSimulationSettings } from '@/types';
 
 interface SimulationState {
   activeSettings: SimulationSettings;
@@ -12,6 +11,7 @@ interface SimulationState {
     name: string,
     image: string,
   ) => Result<void, 'EMPTY_NAME' | 'EMPTY_IMAGE' | 'DUPLICATE_ENTRY'>;
+  importSettings: (entry: StoredSimulationSettings) => void;
   restoreSettings: (entry: StoredSimulationSettings) => void;
   deleteSettings: (name: string) => void;
 }
@@ -48,6 +48,17 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
 
     return { ok: true, data: undefined };
   },
+  // Replace an entry with the same name (overwrite) or append a new one.
+  // Unlike `saveSettings`, this never refuses on a duplicate: importing is a
+  // deliberate replace, so the UI confirms before calling this.
+  importSettings: (entry) =>
+    set((state) => {
+      const exists = state.storedSettings.some((item) => item.name === entry.name);
+      const storedSettings = exists
+        ? state.storedSettings.map((item) => (item.name === entry.name ? entry : item))
+        : [...state.storedSettings, entry];
+      return { storedSettings };
+    }),
   restoreSettings: (entry) => set({ activeSettings: { ...entry.settings } }),
   deleteSettings: (name) =>
     set((state) => ({ storedSettings: state.storedSettings.filter((item) => item.name !== name) })),

@@ -5,6 +5,23 @@ import { ImportSettingsCard } from '@/components/ImportSettingsCard';
 import { useSimulationStore } from '@/store/simulation';
 import type { StoredSimulationSettings } from '@/types';
 
+// Serializes a stored entry to JSON and triggers a browser download named
+// after the entry (e.g. "meadow.json"). The format round-trips against
+// `parseSimulationSettings`, so a downloaded file can be imported back in.
+function downloadSettings(entry: StoredSimulationSettings) {
+  const blob = new Blob([JSON.stringify(entry, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `${entry.name}.json`;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+
+  URL.revokeObjectURL(url);
+}
+
 export const ImportSettingsPage = () => {
   const navigate = useNavigate();
   const [pendingDelete, setPendingDelete] = useState<StoredSimulationSettings | null>(null);
@@ -60,6 +77,7 @@ export const ImportSettingsPage = () => {
                 key={entry.name}
                 entry={entry}
                 onRestore={() => handleRestore(entry)}
+                onDownload={() => downloadSettings(entry)}
                 onAskDelete={() => setPendingDelete(entry)}
               />
             ))}

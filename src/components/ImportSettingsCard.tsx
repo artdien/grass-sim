@@ -3,10 +3,11 @@ import type { StoredSimulationSettings } from '@/types';
 interface Props {
   entry: StoredSimulationSettings;
   onRestore: () => void;
+  onDownload: () => void;
   onAskDelete: () => void;
 }
 
-export const ImportSettingsCard = ({ entry, onRestore, onAskDelete }: Props) => {
+export const ImportSettingsCard = ({ entry, onRestore, onDownload, onAskDelete }: Props) => {
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
       <header className="flex items-center justify-between gap-2 px-4 py-3">
@@ -55,6 +56,8 @@ export const ImportSettingsCard = ({ entry, onRestore, onAskDelete }: Props) => 
         <button
           type="button"
           title="Downloads these simulation settings as a JSON file"
+          aria-label={`Download ${entry.name}`}
+          onClick={onDownload}
           className="flex-1 rounded-md border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium text-stone-600 shadow-sm transition-colors hover:text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
         >
           Download

@@ -1,4 +1,9 @@
+import { useRef, useState, type ChangeEvent } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { parseSimulationSettings } from '@/store/parsing';
+import { useSimulationStore } from '@/store/simulation';
+import type { StoredSimulationSettings } from '@/types';
 
 const linkClassName = (isActive: boolean) =>
   [
@@ -13,7 +18,42 @@ export const Navbar = () => {
   // while unrelated paths (e.g. "/page/doesnotexist") do not highlight any link.
   const normalizedPathname = pathname.replace(/\/+$/, '') || '/';
   const isActive = (to: string) => normalizedPathname === to;
-  const onImportSettings = isActive('/import-settings');
+  const showImport = isActive('/import-settings');
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const storedSettings = useSimulationStore((state) => state.storedSettings);
+  const importSettings = useSimulationStore((state) => state.importSettings);
+
+  const [pendingImport, setPendingImport] = useState<StoredSimulationSettings | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+
+  const handleImportClick = () => {
+    setImportError(null);
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // Reset so re-selecting the same file fires another change event.
+    event.target.value = '';
+    if (!file) {
+      return;
+    }
+
+    const result = parseSimulationSettings(await file.text());
+
+    if (!result.ok) {
+      setImportError(result.error);
+      return;
+    }
+
+    const entry = result.data;
+    if (storedSettings.some((item) => item.name === entry.name)) {
+      setPendingImport(entry);
+    } else {
+      importSettings(entry);
+    }
+  };
 
   return (
     <nav
@@ -33,14 +73,50 @@ export const Navbar = () => {
           Import Settings
         </NavLink>
       </div>
-      {onImportSettings && (
-        <button
-          type="button"
-          title="Imports simulation settings from an external JSON file"
-          className="ml-auto rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
-        >
-          Import
-        </button>
+      {showImport && (
+        <>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json"
+            className="hidden"
+            onChange={(event) => {
+              void handleFileChange(event);
+            }}
+          />
+          <button
+            type="button"
+            title="Imports simulation settings from an external JSON file"
+            onClick={handleImportClick}
+            className="ml-auto rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+          >
+            Import
+          </button>
+        </>
+      )}
+
+      {pendingImport && (
+        <ConfirmDialog
+          title={`Overwrite "${pendingImport.name}"?`}
+          message="A stored entry with this name already exists. Importing will replace its saved values."
+          confirmLabel="Overwrite"
+          onConfirm={() => {
+            importSettings(pendingImport);
+            setPendingImport(null);
+          }}
+          onCancel={() => setPendingImport(null)}
+        />
+      )}
+
+      {importError && (
+        <ConfirmDialog
+          title="Import failed"
+          message={importError}
+          confirmLabel="Close"
+          confirmTone="primary"
+          onConfirm={() => setImportError(null)}
+          onCancel={() => setImportError(null)}
+        />
       )}
     </nav>
   );
