@@ -103,6 +103,7 @@ export const Navbar = () => {
           title={`Overwrite "${pendingImport.name}"?`}
           message="A stored entry with this name already exists. Importing will replace its saved values."
           confirmLabel="Overwrite"
+          cancelLabel="Cancel"
           onConfirm={() => {
             importSettings(pendingImport);
             setPendingImport(null);

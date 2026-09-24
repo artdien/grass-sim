@@ -6,6 +6,7 @@ interface Props {
   title: string;
   message: string;
   confirmLabel: string;
+  cancelLabel?: string;
   confirmTone?: ConfirmTone;
   onConfirm: () => void;
   onCancel: () => void;
@@ -22,6 +23,7 @@ export const ConfirmDialog = ({
   title,
   message,
   confirmLabel,
+  cancelLabel,
   confirmTone = 'danger',
   onConfirm,
   onCancel,
@@ -56,15 +58,22 @@ export const ConfirmDialog = ({
           {message}
         </p>
         <div className="mt-5 flex justify-end gap-2">
+          {cancelLabel !== undefined && (
+            <button
+              type="button"
+              autoFocus
+              onClick={onCancel}
+              className="rounded-md border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium text-stone-600 shadow-sm transition-colors hover:text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+            >
+              {cancelLabel}
+            </button>
+          )}
           <button
             type="button"
-            autoFocus
-            onClick={onCancel}
-            className="rounded-md border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium text-stone-600 shadow-sm transition-colors hover:text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+            autoFocus={cancelLabel === undefined}
+            onClick={onConfirm}
+            className={confirmToneClasses[confirmTone]}
           >
-            Cancel
-          </button>
-          <button type="button" onClick={onConfirm} className={confirmToneClasses[confirmTone]}>
             {confirmLabel}
           </button>
         </div>

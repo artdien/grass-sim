@@ -90,6 +90,7 @@ export const ImportSettingsPage = () => {
           title={`Delete "${pendingDelete.name}"?`}
           message="These simulation settings will be permanently deleted. This cannot be undone."
           confirmLabel="Delete"
+          cancelLabel="Cancel"
           onConfirm={() => {
             deleteSettings(pendingDelete.name);
             setPendingDelete(null);
