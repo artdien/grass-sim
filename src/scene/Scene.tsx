@@ -1,9 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, memo } from 'react';
 import { useSimulationStore } from '@/store/simulation';
 import { registerSceneScreenshot, type ScreenshotResult } from '@/scene/screenshot';
 import * as THREE from 'three';
 
-export const Scene = () => {
+// Since WebGLRenderer is decoupled from the re-rendering logic of React,
+// we can memoize the Scene component. This also has the benefit of making it
+// it immediately known if future changes require re-rendering (which they should not).
+export const Scene = memo(() => {
   const containerRef = useRef<HTMLDivElement>(null);
   const fpsRef = useRef<HTMLSpanElement>(null);
 
@@ -137,4 +140,4 @@ export const Scene = () => {
       </span>
     </div>
   );
-};
+});
