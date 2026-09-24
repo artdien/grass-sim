@@ -5,6 +5,7 @@ import * as THREE from 'three';
 
 export const Scene = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const fpsRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -39,22 +40,31 @@ export const Scene = () => {
 
     const timer = new THREE.Timer();
     let animationFrameId: number;
+    let hasPreviousFrame = false;
 
-    const animate = () => {
-      timer.update();
+    const animate = (frameTime: number) => {
+      timer.update(frameTime);
       animationFrameId = requestAnimationFrame(animate);
 
       // Pull fresh settings out of the store every frame so sidebar changes
       // take effect on the very next render without re-rendering React.
       const settings = useSimulationStore.getState().activeSettings;
+      const delta = timer.getDelta();
 
       material.color.set(settings.cubeColor);
-      cube.rotation.x += 0.6 * settings.rotationSpeed * timer.getDelta();
-      cube.rotation.y += 0.6 * settings.rotationSpeed * timer.getDelta();
+      cube.rotation.x += 0.6 * settings.rotationSpeed * delta;
+      cube.rotation.y += 0.6 * settings.rotationSpeed * delta;
 
       renderer.render(scene, camera);
+
+      // Update the counter imperatively.
+      // Routing it through React state would force a re-render at display refresh rate.
+      if (hasPreviousFrame && delta > 0 && fpsRef.current !== null) {
+        fpsRef.current.textContent = `${Math.round(1 / delta)} FPS`;
+      }
+      hasPreviousFrame = true;
     };
-    animate();
+    animate(performance.now());
 
     // Snapshot the current render to a fixed width so the stored image stays
     // small even when the window is maximized. The result is a base64 PNG
@@ -117,5 +127,14 @@ export const Scene = () => {
     };
   }, []);
 
-  return <div ref={containerRef} className="h-full min-h-full w-full overflow-hidden" />;
+  return (
+    <div ref={containerRef} className="relative h-full min-h-full w-full overflow-hidden">
+      <span
+        ref={fpsRef}
+        className="pointer-events-none absolute top-3 right-3 z-10 rounded-md bg-stone-950/60 px-2 py-0.5 font-mono text-xs text-stone-300 tabular-nums select-none"
+      >
+        -- FPS
+      </span>
+    </div>
+  );
 };
