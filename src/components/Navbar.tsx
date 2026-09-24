@@ -60,11 +60,14 @@ export const Navbar = () => {
       aria-label="Main"
       className="flex items-center gap-8 border-b border-stone-200 bg-white px-6 py-3"
     >
-      <span className="text-base leading-tight font-semibold text-stone-900" aria-hidden="true">
-        Grass
-        <br />
-        Simulation
-      </span>
+      <div className="flex items-center gap-2">
+        <img src="/icon.svg" alt="" className="h-9 w-9 shrink-0" aria-hidden="true" />
+        <span className="text-base leading-tight font-semibold text-stone-900" aria-hidden="true">
+          Grass
+          <br />
+          Simulation
+        </span>
+      </div>
       <div className="flex items-center gap-6">
         <NavLink to="/simulation" className={linkClassName(isActive('/simulation'))}>
           Simulation
