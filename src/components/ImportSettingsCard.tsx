@@ -2,10 +2,11 @@ import type { StoredSimulationSettings } from '@/types';
 
 interface Props {
   entry: StoredSimulationSettings;
+  onRestore: () => void;
   onAskDelete: () => void;
 }
 
-export const ImportSettingsCard = ({ entry, onAskDelete }: Props) => {
+export const ImportSettingsCard = ({ entry, onRestore, onAskDelete }: Props) => {
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
       <header className="flex items-center justify-between gap-2 px-4 py-3">
@@ -38,7 +39,7 @@ export const ImportSettingsCard = ({ entry, onAskDelete }: Props) => {
 
       <img
         src={`data:image/png;base64,${entry.image}`}
-        alt={`Render snapshot of ${entry.name}`}
+        alt={`Render screenshot of ${entry.name}`}
         className="aspect-video w-full bg-stone-100 object-cover"
       />
 
@@ -46,6 +47,7 @@ export const ImportSettingsCard = ({ entry, onAskDelete }: Props) => {
         <button
           type="button"
           title="Restores these simulation settings and applies them to the current simulation"
+          onClick={onRestore}
           className="flex-1 rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
         >
           Restore

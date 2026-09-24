@@ -1,42 +1,24 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ImportSettingsCard } from '@/components/ImportSettingsCard';
+import { useSimulationStore } from '@/store/simulation';
 import type { StoredSimulationSettings } from '@/types';
 
-// Hard-coded placeholder data with black images and dummy values. Will be replaced by real stored state in a later task.
-const STORED_SETTINGS: StoredSimulationSettings[] = [
-  {
-    name: 'Meadow default',
-    image:
-      'iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAAAxUlEQVR4Ae3BAQEAAACCIP1/ugsOCOQyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8sGqJ8AZeonWEsAAAAASUVORK5CYII=',
-    cubeColor: '#4ade80',
-    rotationSpeed: 1.0,
-  },
-  {
-    name: 'Highlands',
-    image:
-      'iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAAAxUlEQVR4Ae3BAQEAAACCIP1/ugsOCOQyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8sGqJ8AZeonWEsAAAAASUVORK5CYII=',
-    cubeColor: '#22c55e',
-    rotationSpeed: 2.5,
-  },
-  {
-    name: 'Sunset grass',
-    image:
-      'iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAAAxUlEQVR4Ae3BAQEAAACCIP1/ugsOCOQyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8sGqJ8AZeonWEsAAAAASUVORK5CYII=',
-    cubeColor: '#a3e635',
-    rotationSpeed: 0.5,
-  },
-  {
-    name: 'Alpine field',
-    image:
-      'iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAAAxUlEQVR4Ae3BAQEAAACCIP1/ugsOCOQyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8vkMrlMLpPL5DK5TC6Ty+QyuUwuk8sGqJ8AZeonWEsAAAAASUVORK5CYII=',
-    cubeColor: '#86efac',
-    rotationSpeed: 4.0,
-  },
-];
-
 export const ImportSettingsPage = () => {
+  const navigate = useNavigate();
   const [pendingDelete, setPendingDelete] = useState<StoredSimulationSettings | null>(null);
+
+  const storedSettings = useSimulationStore((state) => state.storedSettings);
+  const restoreSettings = useSimulationStore((state) => state.restoreSettings);
+  const deleteSettings = useSimulationStore((state) => state.deleteSettings);
+
+  const handleRestore = (entry: StoredSimulationSettings) => {
+    // Applying to the store is enough for the scene: it reads the settings
+    // out of the store every frame. Navigate so the result is visible there.
+    restoreSettings(entry);
+    void navigate('/simulation');
+  };
 
   return (
     <div className="h-full overflow-y-auto">
@@ -46,7 +28,7 @@ export const ImportSettingsPage = () => {
           Restore, download, or delete simulation settings you have stored here.
         </p>
 
-        {STORED_SETTINGS.length === 0 ? (
+        {storedSettings.length === 0 ? (
           <div className="mt-6 flex flex-col items-center rounded-xl border border-dashed border-stone-200 bg-white px-6 py-16 text-center">
             <svg
               className="h-10 w-10 text-green-600"
@@ -73,10 +55,11 @@ export const ImportSettingsPage = () => {
           </div>
         ) : (
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {STORED_SETTINGS.map((entry) => (
+            {storedSettings.map((entry) => (
               <ImportSettingsCard
                 key={entry.name}
                 entry={entry}
+                onRestore={() => handleRestore(entry)}
                 onAskDelete={() => setPendingDelete(entry)}
               />
             ))}
@@ -89,7 +72,10 @@ export const ImportSettingsPage = () => {
           title={`Delete "${pendingDelete.name}"?`}
           message="These simulation settings will be permanently deleted. This cannot be undone."
           confirmLabel="Delete"
-          onConfirm={() => setPendingDelete(null)}
+          onConfirm={() => {
+            deleteSettings(pendingDelete.name);
+            setPendingDelete(null);
+          }}
           onCancel={() => setPendingDelete(null)}
         />
       )}

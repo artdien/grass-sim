@@ -1,12 +1,55 @@
 import { useState } from 'react';
 import { CollapsibleSection } from '@/components/CollapsibleSection';
+import { SaveSettingsDialog } from '@/components/SaveSettingsDialog';
+import type { Result } from '@/types';
+import { captureSceneScreenshot } from '@/scene/screenshot';
 import { useSimulationStore } from '@/store/simulation';
+
+const SCREENSHOT_WIDTH = 400;
 
 export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
+  const [pendingSave, setPendingSave] = useState(false);
 
-  const settings = useSimulationStore((state) => state.settings);
-  const updateSettings = useSimulationStore((state) => state.updateSettings);
+  const activeSettings = useSimulationStore((state) => state.activeSettings);
+  const updateActiveSettings = useSimulationStore((state) => state.updateActiveSettings);
+  const saveSettings = useSimulationStore((state) => state.saveSettings);
+
+  const handleSave = async (name: string): Promise<Result> => {
+    const screenshot = await captureSceneScreenshot(SCREENSHOT_WIDTH);
+
+    if (!screenshot.ok) {
+      console.warn('Scene screenshot capture failed with error type:', screenshot.error);
+
+      return {
+        ok: false,
+        error: 'Could not capture a snapshot of the current render. Please try again.',
+      };
+    }
+
+    const result = saveSettings(name, screenshot.data);
+
+    if (result.ok) {
+      return { ok: true, data: undefined };
+    }
+
+    switch (result.error) {
+      case 'EMPTY_NAME':
+        return { ok: false, error: 'Name is empty.' };
+
+      case 'EMPTY_IMAGE':
+        return {
+          ok: false,
+          error: 'Could not capture a screenshot of the current render. Please try again.',
+        };
+
+      case 'DUPLICATE_ENTRY':
+        return { ok: false, error: 'Settings with this name are already stored.' };
+
+      default:
+        return { ok: false, error: 'Please enter a name for the settings.' };
+    }
+  };
 
   return (
     <aside
@@ -42,14 +85,14 @@ export const Sidebar = () => {
               Cube color
               <span className="flex flex-wrap items-center justify-end gap-2">
                 <span className="font-mono text-xs text-stone-500 uppercase">
-                  {settings.cubeColor}
+                  {activeSettings.cubeColor}
                 </span>
                 <input
                   type="color"
                   aria-label="Cube color"
-                  value={settings.cubeColor}
+                  value={activeSettings.cubeColor}
                   onChange={(event) =>
-                    updateSettings({ ...settings, cubeColor: event.target.value })
+                    updateActiveSettings({ ...activeSettings, cubeColor: event.target.value })
                   }
                   className="h-8 w-12 cursor-pointer rounded-md border border-stone-200 bg-white p-0.5 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
                 />
@@ -65,7 +108,7 @@ export const Sidebar = () => {
               >
                 Rotation speed
                 <span className="font-mono text-xs text-stone-500">
-                  {settings.rotationSpeed.toFixed(1)}
+                  {activeSettings.rotationSpeed.toFixed(1)}
                 </span>
               </label>
               <input
@@ -74,15 +117,30 @@ export const Sidebar = () => {
                 min={0}
                 max={10}
                 step={0.1}
-                value={settings.rotationSpeed}
+                value={activeSettings.rotationSpeed}
                 onChange={(event) =>
-                  updateSettings({ ...settings, rotationSpeed: Number(event.target.value) })
+                  updateActiveSettings({
+                    ...activeSettings,
+                    rotationSpeed: Number(event.target.value),
+                  })
                 }
                 className="w-full accent-green-600 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
               />
             </div>
           </CollapsibleSection>
+
+          <button
+            type="button"
+            onClick={() => setPendingSave(true)}
+            className="mt-auto w-full rounded-md bg-green-600 px-3 py-2 text-center text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-green-50 focus-visible:outline-none"
+          >
+            Save
+          </button>
         </>
+      )}
+
+      {pendingSave && (
+        <SaveSettingsDialog onSubmit={handleSave} onClose={() => setPendingSave(false)} />
       )}
     </aside>
   );
