@@ -5,20 +5,6 @@ import { ImportSettingsCard } from '@/components/ImportSettingsCard';
 import { useSimulationStore } from '@/store/simulation';
 import type { StoredSimulationSettings } from '@/types';
 
-function downloadSettings(entry: StoredSimulationSettings) {
-  const blob = new Blob([JSON.stringify(entry, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = `${entry.name}.json`;
-  document.body.append(anchor);
-  anchor.click();
-  anchor.remove();
-
-  URL.revokeObjectURL(url);
-}
-
 /** Lists stored settings entries with restore, download, and delete. */
 export const ImportSettingsPage = () => {
   const navigate = useNavigate();
@@ -33,6 +19,20 @@ export const ImportSettingsPage = () => {
     // out of the store every frame. Navigate so the result is visible there.
     restoreSettings(entry);
     void navigate('/simulation');
+  };
+
+  const downloadSettings = (entry: StoredSimulationSettings) => {
+    const blob = new Blob([JSON.stringify(entry, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `${entry.name}.json`;
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+
+    URL.revokeObjectURL(url);
   };
 
   return (
