@@ -38,8 +38,10 @@ interface SimulationState {
 /** Zustand store: the active simulation settings plus the saved settings entries. */
 export const useSimulationStore = create<SimulationState>()((set, get) => ({
   activeSettings: {
-    cubeColor: '#4ade80',
-    rotationSpeed: 1,
+    terrain: {
+      size: 10,
+      segments: 512,
+    },
   },
   storedSettings: [],
   updateActiveSettings: (settings) => set({ activeSettings: settings }),
@@ -56,11 +58,13 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
       return { ok: false, error: 'DUPLICATE_ENTRY' };
     }
 
-    // Copy the active settings so later edits don't mutate the saved entry.
+    // Copy the active settings (including the nested sections) so later edits
+    // don't mutate the saved entry.
+    const active = get().activeSettings;
     const entry: StoredSimulationSettings = {
       name: trimmedName,
       image,
-      settings: { ...get().activeSettings },
+      settings: { terrain: { ...active.terrain } },
     };
 
     set((state) => ({ storedSettings: [...state.storedSettings, entry] }));
@@ -75,7 +79,7 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
         : [...state.storedSettings, entry];
       return { storedSettings };
     }),
-  restoreSettings: (entry) => set({ activeSettings: { ...entry.settings } }),
+  restoreSettings: (entry) => set({ activeSettings: { terrain: { ...entry.settings.terrain } } }),
   deleteSettings: (name) =>
     set((state) => ({ storedSettings: state.storedSettings.filter((item) => item.name !== name) })),
 }));

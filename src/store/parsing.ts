@@ -34,14 +34,21 @@ export function parseSimulationSettings(text: string): Result<StoredSimulationSe
   }
 
   const settings = settingsField as Record<string, unknown>;
-  const cubeColor = settings.cubeColor;
-  const rotationSpeed = settings.rotationSpeed;
+  const terrain = settings.terrain;
 
-  if (typeof cubeColor !== 'string' || cubeColor.length === 0) {
-    return { ok: false, error: 'The cube color is missing or invalid.' };
+  if (typeof terrain !== 'object' || terrain === null) {
+    return { ok: false, error: 'The terrain settings are missing or invalid.' };
   }
-  if (typeof rotationSpeed !== 'number' || !Number.isFinite(rotationSpeed)) {
-    return { ok: false, error: 'The rotation speed is missing or invalid.' };
+
+  const terrainFields = terrain as Record<string, unknown>;
+  const size = terrainFields.size;
+  const segments = terrainFields.segments;
+
+  if (typeof size !== 'number' || !Number.isInteger(size) || size < 1) {
+    return { ok: false, error: 'The terrain size is missing or invalid.' };
+  }
+  if (typeof segments !== 'number' || !Number.isInteger(segments) || segments < 1) {
+    return { ok: false, error: 'The terrain segments are missing or invalid.' };
   }
 
   return {
@@ -49,7 +56,7 @@ export function parseSimulationSettings(text: string): Result<StoredSimulationSe
     data: {
       name: name.trim(),
       image,
-      settings: { cubeColor, rotationSpeed },
+      settings: { terrain: { size, segments } },
     },
   };
 }

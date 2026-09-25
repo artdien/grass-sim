@@ -1,11 +1,17 @@
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { CollapsibleSection } from '@/components/CollapsibleSection';
 import { SaveSettingsDialog } from '@/components/SaveSettingsDialog';
-import type { Result } from '@/types';
+import type { Result, TerrainSettings } from '@/types';
 import { captureSceneScreenshot } from '@/scene/screenshot';
 import { useSimulationStore } from '@/store/simulation';
 
 const SCREENSHOT_WIDTH = 400;
+
+/** Parses a terrain field input; null when it is not an integer ≥ 1. */
+const parseTerrainValue = (value: string): number | null => {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 1 ? parsed : null;
+};
 
 /** Collapsible settings panel: live scene settings and saving them under a name. */
 export const Sidebar = () => {
@@ -52,6 +58,21 @@ export const Sidebar = () => {
     }
   };
 
+  // Invalid input is not committed, so the field snaps back to its last valid value.
+  const handleTerrainChange = (
+    field: keyof TerrainSettings,
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const parsed = parseTerrainValue(event.target.value);
+    if (parsed === null) {
+      return;
+    }
+    updateActiveSettings({
+      ...activeSettings,
+      terrain: { ...activeSettings.terrain, [field]: parsed },
+    });
+  };
+
   return (
     <aside
       className={`flex h-full shrink-0 flex-col overflow-y-auto border-r border-stone-200 bg-green-50 transition-[width] duration-200 ${
@@ -84,52 +105,39 @@ export const Sidebar = () => {
 
       {isOpen && (
         <>
-          <CollapsibleSection title="Color Settings">
-            <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-stone-600">
-              Cube color
-              <span className="flex flex-wrap items-center justify-end gap-2">
-                <span className="font-mono text-xs text-stone-500 uppercase">
-                  {activeSettings.cubeColor}
-                </span>
-                <input
-                  type="color"
-                  aria-label="Cube color"
-                  value={activeSettings.cubeColor}
-                  onChange={(event) =>
-                    updateActiveSettings({ ...activeSettings, cubeColor: event.target.value })
-                  }
-                  className="h-8 w-12 cursor-pointer rounded-md border border-stone-200 bg-white p-0.5 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
-                />
-              </span>
-            </div>
-          </CollapsibleSection>
-
-          <CollapsibleSection title="Motion Settings">
-            <div className="space-y-2">
+          <CollapsibleSection title="Terrain">
+            <div className="space-y-3">
               <label
-                htmlFor="rotation-speed"
-                className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-sm text-stone-600"
+                htmlFor="terrain-size"
+                className="flex items-center justify-between gap-2 text-sm text-stone-600"
               >
-                Rotation speed
-                <span className="font-mono text-xs text-stone-500">
-                  {activeSettings.rotationSpeed.toFixed(1)}
-                </span>
+                Size
+                <input
+                  id="terrain-size"
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={activeSettings.terrain.size}
+                  onChange={(event) => handleTerrainChange('size', event)}
+                  className="w-24 rounded-md border border-stone-200 bg-white px-2 py-1 text-right font-mono text-xs text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:outline-none"
+                />
               </label>
-              <input
-                id="rotation-speed"
-                type="range"
-                min={0}
-                max={10}
-                step={0.1}
-                value={activeSettings.rotationSpeed}
-                onChange={(event) =>
-                  updateActiveSettings({
-                    ...activeSettings,
-                    rotationSpeed: Number(event.target.value),
-                  })
-                }
-                className="w-full accent-green-600 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
-              />
+
+              <label
+                htmlFor="terrain-segments"
+                className="flex items-center justify-between gap-2 text-sm text-stone-600"
+              >
+                Segments
+                <input
+                  id="terrain-segments"
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={activeSettings.terrain.segments}
+                  onChange={(event) => handleTerrainChange('segments', event)}
+                  className="w-24 rounded-md border border-stone-200 bg-white px-2 py-1 text-right font-mono text-xs text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:outline-none"
+                />
+              </label>
             </div>
           </CollapsibleSection>
 

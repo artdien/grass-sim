@@ -1,10 +1,14 @@
 import { useEffect, useRef, memo } from 'react';
-import { useSimulationStore } from '@/store/simulation';
 import { registerSceneScreenshot, type ScreenshotResult } from '@/scene/screenshot';
 import * as THREE from 'three';
+import { useSimulationStore } from '@/store/simulation';
+
+// Assets
+import terrainVertexShader from '@/assets/shaders/terrain.vert';
+import terrainFragmentShader from '@/assets/shaders/terrain.frag';
 
 /**
- * The Three.js scene: renders the settings-driven cube and exposes a render
+ * The Three.js scene: renders the settings-driven terrain and exposes a render
  * snapshot. Memoized because the renderer is decoupled from React re-renders,
  * which makes any future change forcing one immediately visible.
  */
@@ -25,22 +29,54 @@ export const Scene = memo(() => {
     scene.background = new THREE.Color('#000000');
 
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    camera.position.z = 5;
+    camera.position.set(0, 5, 15);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(width, height);
     container.appendChild(renderer.domElement);
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    // Read the settings from the store imperatively: the store is never a
-    // React subscription here, so store updates can only change what the
-    // next frame renders and never recreate the renderer.
-    const material = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(useSimulationStore.getState().activeSettings.cubeColor),
-      wireframe: true,
+    /* Terrain */
+
+    const terrainSettings = useSimulationStore.getState().activeSettings.terrain;
+    const terrainGeometry = new THREE.PlaneGeometry(
+      1,
+      1,
+      terrainSettings.segments,
+      terrainSettings.segments,
+    );
+
+    const terrainUniforms = {};
+    const terrainMaterial = new THREE.ShaderMaterial({
+      glslVersion: THREE.GLSL3,
+      vertexShader: terrainVertexShader,
+      fragmentShader: terrainFragmentShader,
+      uniforms: terrainUniforms,
     });
-    const cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
+
+    const terrainMesh = new THREE.Mesh(terrainGeometry, terrainMaterial);
+    terrainMesh.rotateX(-Math.PI / 2); // rotate to lie in XZ plane
+    terrainMesh.scale.setScalar(terrainSettings.size);
+    scene.add(terrainMesh);
+
+    // Rebuilding the plane geometry is expensive, so it only happens when the
+    // segment count actually changes and the replaced geometry is disposed.
+    let syncedSize = terrainSettings.size;
+    let syncedSegments = terrainSettings.segments;
+    const applyTerrainSettings = (size: number, segments: number) => {
+      if (size !== syncedSize) {
+        syncedSize = size;
+        terrainMesh.scale.setScalar(size);
+      }
+
+      if (segments !== syncedSegments) {
+        syncedSegments = segments;
+        const oldGeometry = terrainMesh.geometry;
+        terrainMesh.geometry = new THREE.PlaneGeometry(1, 1, segments, segments);
+        oldGeometry.dispose();
+      }
+    };
+
+    /* Render loop */
 
     const timer = new THREE.Timer();
     let animationFrameId: number;
@@ -50,12 +86,10 @@ export const Scene = memo(() => {
       timer.update(frameTime);
       animationFrameId = requestAnimationFrame(animate);
 
-      const settings = useSimulationStore.getState().activeSettings;
-      const delta = timer.getDelta();
+      const { size, segments } = useSimulationStore.getState().activeSettings.terrain;
+      applyTerrainSettings(size, segments);
 
-      material.color.set(settings.cubeColor);
-      cube.rotation.x += 0.6 * settings.rotationSpeed * delta;
-      cube.rotation.y += 0.6 * settings.rotationSpeed * delta;
+      const delta = timer.getDelta();
 
       renderer.render(scene, camera);
 
@@ -120,8 +154,9 @@ export const Scene = memo(() => {
 
       resizeObserver.disconnect();
 
-      geometry.dispose();
-      material.dispose();
+      terrainMesh.geometry.dispose();
+      terrainMesh.material.dispose();
+      terrainMesh.dispose();
       renderer.dispose();
 
       container.removeChild(renderer.domElement);

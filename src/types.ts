@@ -5,13 +5,18 @@
  */
 export type Result<T = void, E = string> = { ok: true; data: T } | { ok: false; error: E };
 
+/** Terrain generation settings: how large it is and how finely it is subdivided. */
+export interface TerrainSettings {
+  /** Terrain size in world units (an integer ≥ 1). */
+  size: number;
+
+  /** Grid subdivisions of the terrain plane per edge (an integer ≥ 1). */
+  segments: number;
+}
+
 /** Live settings the scene reads on every frame and the user adjusts via the sidebar. */
 export interface SimulationSettings {
-  /** CSS color string for the scene's cube. */
-  cubeColor: string;
-
-  /** Multiplier for the scene's rotation speed (1 is the default). */
-  rotationSpeed: number;
+  terrain: TerrainSettings;
 }
 
 /** A saved settings entry: the settings plus a name and a render snapshot. */
