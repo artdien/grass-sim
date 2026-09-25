@@ -1,12 +1,15 @@
 import { useEffect, useRef, memo } from 'react';
 import { registerSceneScreenshot, type ScreenshotResult } from '@/scene/screenshot';
 import * as THREE from 'three';
-import type { LightingSettings } from '@/types';
+import type { LightingSettings, TerrainNoiseType, TerrainSettings } from '@/types';
 import { useSimulationStore } from '@/store/simulation';
 
 // Assets
 import terrainVertexShader from '@/assets/shaders/terrain.vert';
 import terrainFragmentShader from '@/assets/shaders/terrain.frag';
+
+// Index into the noise function chosen by the shader (see terrain.vert).
+const NOISE_TYPE_INDEX: Record<TerrainNoiseType, number> = { perlin: 0, simplex: 1 };
 
 /**
  * The Three.js scene: renders the settings-driven terrain and exposes a render
@@ -50,6 +53,9 @@ export const Scene = memo(() => {
     );
 
     const terrainUniforms = {
+      uNoiseType: { value: NOISE_TYPE_INDEX[terrainSettings.noiseType] },
+      uHeight: { value: terrainSettings.height },
+      uFrequency: { value: terrainSettings.frequency },
       uTerrainColor: { value: new THREE.Color(terrainSettings.color) },
       uSkyColor: { value: new THREE.Color(lightingSettings.hemisphere.skyColor) },
       uGroundColor: { value: new THREE.Color(lightingSettings.hemisphere.groundColor) },
@@ -76,27 +82,45 @@ export const Scene = memo(() => {
     terrainMesh.scale.setScalar(terrainSettings.size);
     scene.add(terrainMesh);
 
-    // Rebuilding the plane geometry is expensive, so it only happens when the
-    // segment count actually changes and the replaced geometry is disposed.
     let syncedSize = terrainSettings.size;
     let syncedSegments = terrainSettings.segments;
     let syncedTerrainColor = terrainSettings.color;
-    const applyTerrainSettings = (size: number, segments: number, color: string) => {
-      if (size !== syncedSize) {
-        syncedSize = size;
-        terrainMesh.scale.setScalar(size);
+    let syncedNoiseType = terrainSettings.noiseType;
+    let syncedHeight = terrainSettings.height;
+    let syncedFrequency = terrainSettings.frequency;
+    const applyTerrainSettings = (terrain: TerrainSettings) => {
+      if (terrain.size !== syncedSize) {
+        syncedSize = terrain.size;
+        terrainMesh.scale.setScalar(terrain.size);
       }
 
-      if (segments !== syncedSegments) {
-        syncedSegments = segments;
+      // Rebuilding the plane geometry is expensive, so it only happens when the
+      // segment count actually changes and the replaced geometry is disposed.
+      if (terrain.segments !== syncedSegments) {
+        syncedSegments = terrain.segments;
         const oldGeometry = terrainMesh.geometry;
-        terrainMesh.geometry = new THREE.PlaneGeometry(1, 1, segments, segments);
+        terrainMesh.geometry = new THREE.PlaneGeometry(1, 1, terrain.segments, terrain.segments);
         oldGeometry.dispose();
       }
 
-      if (color !== syncedTerrainColor) {
-        syncedTerrainColor = color;
-        terrainUniforms.uTerrainColor.value.set(color);
+      if (terrain.color !== syncedTerrainColor) {
+        syncedTerrainColor = terrain.color;
+        terrainUniforms.uTerrainColor.value.set(terrain.color);
+      }
+
+      if (terrain.noiseType !== syncedNoiseType) {
+        syncedNoiseType = terrain.noiseType;
+        terrainUniforms.uNoiseType.value = NOISE_TYPE_INDEX[terrain.noiseType];
+      }
+
+      if (terrain.height !== syncedHeight) {
+        syncedHeight = terrain.height;
+        terrainUniforms.uHeight.value = terrain.height;
+      }
+
+      if (terrain.frequency !== syncedFrequency) {
+        syncedFrequency = terrain.frequency;
+        terrainUniforms.uFrequency.value = terrain.frequency;
       }
     };
 
@@ -154,11 +178,7 @@ export const Scene = memo(() => {
       animationFrameId = requestAnimationFrame(animate);
 
       const settings = useSimulationStore.getState().activeSettings;
-      applyTerrainSettings(
-        settings.terrain.size,
-        settings.terrain.segments,
-        settings.terrain.color,
-      );
+      applyTerrainSettings(settings.terrain);
       applyLightingSettings(settings.lighting);
 
       const delta = timer.getDelta();

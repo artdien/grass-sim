@@ -2,11 +2,17 @@ import { useState, type ChangeEvent } from 'react';
 import { CollapsibleSection } from '@/components/CollapsibleSection';
 import { ColorField } from '@/components/ColorField';
 import { SaveSettingsDialog } from '@/components/SaveSettingsDialog';
-import type { Result } from '@/types';
+import type { Result, TerrainNoiseType } from '@/types';
 import { captureSceneScreenshot } from '@/scene/screenshot';
 import { useSimulationStore } from '@/store/simulation';
 
 const SCREENSHOT_WIDTH = 400;
+
+/** Noise fields the sidebar can select, matched to the shader's uNoiseType index. */
+const NOISE_OPTIONS: { value: TerrainNoiseType; label: string }[] = [
+  { value: 'perlin', label: 'Perlin' },
+  { value: 'simplex', label: 'Simplex' },
+];
 
 /** Parses a terrain field input; null when it is not an integer ≥ 1. */
 const parseTerrainValue = (value: string): number | null => {
@@ -28,6 +34,12 @@ const parseShininessValue = (value: string): number | null => {
 
 /** Parses the specular intensity; null when it is not a number ≥ 0. */
 const parseIntensityValue = (value: string): number | null => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+};
+
+/** Parses a terrain float (height amplitude / noise frequency); null when not a number ≥ 0. */
+const parseTerrainFloat = (value: string): number | null => {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
 };
@@ -96,6 +108,27 @@ export const Sidebar = () => {
     updateActiveSettings({
       ...activeSettings,
       terrain: { ...activeSettings.terrain, color: event.target.value },
+    });
+  };
+
+  const handleNoiseTypeChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    updateActiveSettings({
+      ...activeSettings,
+      terrain: { ...activeSettings.terrain, noiseType: event.target.value as TerrainNoiseType },
+    });
+  };
+
+  const handleTerrainFloatChange = (
+    field: 'height' | 'frequency',
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const parsed = parseTerrainFloat(event.target.value);
+    if (parsed === null) {
+      return;
+    }
+    updateActiveSettings({
+      ...activeSettings,
+      terrain: { ...activeSettings.terrain, [field]: parsed },
     });
   };
 
@@ -224,6 +257,57 @@ export const Sidebar = () => {
                   step={1}
                   value={activeSettings.terrain.segments}
                   onChange={(event) => handleTerrainChange('segments', event)}
+                  className="w-24 rounded-md border border-stone-200 bg-white px-2 py-1 text-right font-mono text-xs text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:outline-none"
+                />
+              </label>
+
+              <label
+                htmlFor="terrain-noise"
+                className="flex items-center justify-between gap-2 text-sm text-stone-600"
+              >
+                Noise
+                <select
+                  id="terrain-noise"
+                  value={activeSettings.terrain.noiseType}
+                  onChange={handleNoiseTypeChange}
+                  className="w-24 cursor-pointer rounded-md border border-stone-200 bg-white px-2 py-1 text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:outline-none"
+                >
+                  {NOISE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label
+                htmlFor="terrain-height"
+                className="flex items-center justify-between gap-2 text-sm text-stone-600"
+              >
+                Height
+                <input
+                  id="terrain-height"
+                  type="number"
+                  min={0}
+                  step={0.05}
+                  value={activeSettings.terrain.height}
+                  onChange={(event) => handleTerrainFloatChange('height', event)}
+                  className="w-24 rounded-md border border-stone-200 bg-white px-2 py-1 text-right font-mono text-xs text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:outline-none"
+                />
+              </label>
+
+              <label
+                htmlFor="terrain-frequency"
+                className="flex items-center justify-between gap-2 text-sm text-stone-600"
+              >
+                Frequency
+                <input
+                  id="terrain-frequency"
+                  type="number"
+                  min={0}
+                  step={0.05}
+                  value={activeSettings.terrain.frequency}
+                  onChange={(event) => handleTerrainFloatChange('frequency', event)}
                   className="w-24 rounded-md border border-stone-200 bg-white px-2 py-1 text-right font-mono text-xs text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:outline-none"
                 />
               </label>

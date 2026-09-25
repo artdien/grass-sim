@@ -5,7 +5,10 @@
  */
 export type Result<T = void, E = string> = { ok: true; data: T } | { ok: false; error: E };
 
-/** Terrain generation settings: how large it is, how finely it is subdivided, and its base color. */
+/** The noise field the terrain height is displaced by, chosen in the sidebar. */
+export type TerrainNoiseType = 'perlin' | 'simplex';
+
+/** Terrain generation settings: how large it is, how finely it is subdivided, its base color, and its height field. */
 export interface TerrainSettings {
   /** Terrain size in world units (an integer ≥ 1). */
   size: number;
@@ -15,6 +18,15 @@ export interface TerrainSettings {
 
   /** Base color of the terrain as a hex string (#rrggbb). */
   color: string;
+
+  /** Which noise function drives the terrain height. */
+  noiseType: TerrainNoiseType;
+
+  /** How far the noise can move the surface, in world units (≥ 0). */
+  height: number;
+
+  /** Spatial scale of the noise field (a positive number); higher is finer. 0 is flat. */
+  frequency: number;
 }
 
 /** Lighting applied to the terrain: hemispherical ambient, lambertian diffuse, and Blinn-Phong specular. */

@@ -59,6 +59,20 @@ export function parseSimulationSettings(text: string): Result<StoredSimulationSe
     return { ok: false, error: 'The terrain color is missing or invalid.' };
   }
 
+  const noiseType = terrainFields.noiseType;
+  if (noiseType !== undefined && noiseType !== 'perlin' && noiseType !== 'simplex') {
+    return { ok: false, error: 'The terrain noise type is missing or invalid.' };
+  }
+
+  const height = terrainFields.height;
+  if (typeof height !== 'number' || !Number.isFinite(height) || height < 0) {
+    return { ok: false, error: 'The terrain height is missing or invalid.' };
+  }
+  const frequency = terrainFields.frequency;
+  if (typeof frequency !== 'number' || !Number.isFinite(frequency) || frequency < 0) {
+    return { ok: false, error: 'The terrain frequency is missing or invalid.' };
+  }
+
   const lighting = settings.lighting;
   if (typeof lighting !== 'object' || lighting === null) {
     return { ok: false, error: 'The lighting settings are missing or invalid.' };
@@ -131,7 +145,14 @@ export function parseSimulationSettings(text: string): Result<StoredSimulationSe
       name: name.trim(),
       image,
       settings: {
-        terrain: { size, segments, color },
+        terrain: {
+          size,
+          segments,
+          color,
+          noiseType: noiseType ?? 'perlin',
+          height: height,
+          frequency: frequency,
+        },
         lighting: {
           hemisphere: { skyColor, groundColor },
           diffuse: {

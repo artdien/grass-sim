@@ -41,7 +41,10 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
     terrain: {
       size: 10,
       segments: 512,
-      color: '#4a7c3a',
+      color: '#8a6d4b',
+      noiseType: 'perlin',
+      height: 0.75,
+      frequency: 0.5,
     },
     lighting: {
       hemisphere: {
