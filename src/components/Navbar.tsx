@@ -1,6 +1,7 @@
 import { useRef, useState, type ChangeEvent } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useFullscreenStore } from '@/store/fullscreen';
 import { parseSimulationSettings } from '@/store/parsing';
 import { useSimulationStore } from '@/store/simulation';
 import type { StoredSimulationSettings } from '@/types';
@@ -19,6 +20,7 @@ export const Navbar = () => {
   const normalizedPathname = pathname.replace(/\/+$/, '') || '/';
   const isActive = (to: string) => normalizedPathname === to;
   const showImport = isActive('/import-settings');
+  const showFullscreen = isActive('/simulation');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const storedSettings = useSimulationStore((state) => state.storedSettings);
@@ -26,6 +28,8 @@ export const Navbar = () => {
 
   const [pendingImport, setPendingImport] = useState<StoredSimulationSettings | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
+
+  const enterFullscreen = useFullscreenStore((state) => state.enterFullscreen);
 
   const handleImportClick = () => {
     setImportError(null);
@@ -96,6 +100,17 @@ export const Navbar = () => {
             Import
           </button>
         </>
+      )}
+
+      {showFullscreen && (
+        <button
+          type="button"
+          title="Enters fullscreen mode so only the scene is visible"
+          onClick={enterFullscreen}
+          className="ml-auto rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+        >
+          Fullscreen
+        </button>
       )}
 
       {pendingImport && (
