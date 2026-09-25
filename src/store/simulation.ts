@@ -41,6 +41,21 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
     terrain: {
       size: 10,
       segments: 512,
+      color: '#4a7c3a',
+    },
+    lighting: {
+      hemisphere: {
+        skyColor: '#87ceeb',
+        groundColor: '#856a4f',
+      },
+      diffuse: {
+        color: '#ffffff',
+        direction: { x: -0.5, y: -1, z: 0.5 },
+      },
+      specular: {
+        shininess: 32,
+        intensity: 0.5,
+      },
     },
   },
   storedSettings: [],
@@ -64,7 +79,17 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
     const entry: StoredSimulationSettings = {
       name: trimmedName,
       image,
-      settings: { terrain: { ...active.terrain } },
+      settings: {
+        terrain: { ...active.terrain },
+        lighting: {
+          hemisphere: { ...active.lighting.hemisphere },
+          diffuse: {
+            color: active.lighting.diffuse.color,
+            direction: { ...active.lighting.diffuse.direction },
+          },
+          specular: { ...active.lighting.specular },
+        },
+      },
     };
 
     set((state) => ({ storedSettings: [...state.storedSettings, entry] }));
@@ -79,7 +104,20 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
         : [...state.storedSettings, entry];
       return { storedSettings };
     }),
-  restoreSettings: (entry) => set({ activeSettings: { terrain: { ...entry.settings.terrain } } }),
+  restoreSettings: (entry) =>
+    set({
+      activeSettings: {
+        terrain: { ...entry.settings.terrain },
+        lighting: {
+          hemisphere: { ...entry.settings.lighting.hemisphere },
+          diffuse: {
+            color: entry.settings.lighting.diffuse.color,
+            direction: { ...entry.settings.lighting.diffuse.direction },
+          },
+          specular: { ...entry.settings.lighting.specular },
+        },
+      },
+    }),
   deleteSettings: (name) =>
     set((state) => ({ storedSettings: state.storedSettings.filter((item) => item.name !== name) })),
 }));

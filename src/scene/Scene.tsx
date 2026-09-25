@@ -1,6 +1,7 @@
 import { useEffect, useRef, memo } from 'react';
 import { registerSceneScreenshot, type ScreenshotResult } from '@/scene/screenshot';
 import * as THREE from 'three';
+import type { LightingSettings } from '@/types';
 import { useSimulationStore } from '@/store/simulation';
 
 // Assets
@@ -37,7 +38,10 @@ export const Scene = memo(() => {
 
     /* Terrain */
 
-    const terrainSettings = useSimulationStore.getState().activeSettings.terrain;
+    const initialSettings = useSimulationStore.getState().activeSettings;
+    const terrainSettings = initialSettings.terrain;
+    const lightingSettings = initialSettings.lighting;
+
     const terrainGeometry = new THREE.PlaneGeometry(
       1,
       1,
@@ -45,7 +49,21 @@ export const Scene = memo(() => {
       terrainSettings.segments,
     );
 
-    const terrainUniforms = {};
+    const terrainUniforms = {
+      uTerrainColor: { value: new THREE.Color(terrainSettings.color) },
+      uSkyColor: { value: new THREE.Color(lightingSettings.hemisphere.skyColor) },
+      uGroundColor: { value: new THREE.Color(lightingSettings.hemisphere.groundColor) },
+      uDiffuseColor: { value: new THREE.Color(lightingSettings.diffuse.color) },
+      uLightDirection: {
+        value: new THREE.Vector3(
+          lightingSettings.diffuse.direction.x,
+          lightingSettings.diffuse.direction.y,
+          lightingSettings.diffuse.direction.z,
+        ),
+      },
+      uShininess: { value: lightingSettings.specular.shininess },
+      uSpecularIntensity: { value: lightingSettings.specular.intensity },
+    };
     const terrainMaterial = new THREE.ShaderMaterial({
       glslVersion: THREE.GLSL3,
       vertexShader: terrainVertexShader,
@@ -62,7 +80,8 @@ export const Scene = memo(() => {
     // segment count actually changes and the replaced geometry is disposed.
     let syncedSize = terrainSettings.size;
     let syncedSegments = terrainSettings.segments;
-    const applyTerrainSettings = (size: number, segments: number) => {
+    let syncedTerrainColor = terrainSettings.color;
+    const applyTerrainSettings = (size: number, segments: number, color: string) => {
       if (size !== syncedSize) {
         syncedSize = size;
         terrainMesh.scale.setScalar(size);
@@ -73,6 +92,54 @@ export const Scene = memo(() => {
         const oldGeometry = terrainMesh.geometry;
         terrainMesh.geometry = new THREE.PlaneGeometry(1, 1, segments, segments);
         oldGeometry.dispose();
+      }
+
+      if (color !== syncedTerrainColor) {
+        syncedTerrainColor = color;
+        terrainUniforms.uTerrainColor.value.set(color);
+      }
+    };
+
+    let syncedSkyColor = lightingSettings.hemisphere.skyColor;
+    let syncedGroundColor = lightingSettings.hemisphere.groundColor;
+    let syncedLightColor = lightingSettings.diffuse.color;
+    let syncedDirection = { ...lightingSettings.diffuse.direction };
+    let syncedShininess = lightingSettings.specular.shininess;
+    let syncedIntensity = lightingSettings.specular.intensity;
+    const applyLightingSettings = (lighting: LightingSettings) => {
+      if (lighting.hemisphere.skyColor !== syncedSkyColor) {
+        syncedSkyColor = lighting.hemisphere.skyColor;
+        terrainUniforms.uSkyColor.value.set(syncedSkyColor);
+      }
+
+      if (lighting.hemisphere.groundColor !== syncedGroundColor) {
+        syncedGroundColor = lighting.hemisphere.groundColor;
+        terrainUniforms.uGroundColor.value.set(syncedGroundColor);
+      }
+
+      if (lighting.diffuse.color !== syncedLightColor) {
+        syncedLightColor = lighting.diffuse.color;
+        terrainUniforms.uDiffuseColor.value.set(syncedLightColor);
+      }
+
+      const direction = lighting.diffuse.direction;
+      if (
+        direction.x !== syncedDirection.x ||
+        direction.y !== syncedDirection.y ||
+        direction.z !== syncedDirection.z
+      ) {
+        syncedDirection = { ...direction };
+        terrainUniforms.uLightDirection.value.set(direction.x, direction.y, direction.z);
+      }
+
+      if (lighting.specular.shininess !== syncedShininess) {
+        syncedShininess = lighting.specular.shininess;
+        terrainUniforms.uShininess.value = syncedShininess;
+      }
+
+      if (lighting.specular.intensity !== syncedIntensity) {
+        syncedIntensity = lighting.specular.intensity;
+        terrainUniforms.uSpecularIntensity.value = syncedIntensity;
       }
     };
 
@@ -86,8 +153,13 @@ export const Scene = memo(() => {
       timer.update(frameTime);
       animationFrameId = requestAnimationFrame(animate);
 
-      const { size, segments } = useSimulationStore.getState().activeSettings.terrain;
-      applyTerrainSettings(size, segments);
+      const settings = useSimulationStore.getState().activeSettings;
+      applyTerrainSettings(
+        settings.terrain.size,
+        settings.terrain.segments,
+        settings.terrain.color,
+      );
+      applyLightingSettings(settings.lighting);
 
       const delta = timer.getDelta();
 
