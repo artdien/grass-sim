@@ -2,10 +2,17 @@ import { useEffect, useState, type SubmitEvent } from 'react';
 import type { Result } from '@/types';
 
 interface Props {
+  /**
+   * Runs the save with the given name. Closes the dialog on `ok`; on failure the
+   * `error` message is shown so the user can correct and retry.
+   */
   onSubmit: (name: string) => Promise<Result>;
+
+  /** Closes the dialog (cancel button, backdrop, or Escape). */
   onClose: () => void;
 }
 
+/** Modal dialog capturing a name to save the current settings under. */
 export const SaveSettingsDialog = ({ onSubmit, onClose }: Props) => {
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);

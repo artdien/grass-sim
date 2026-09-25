@@ -3,9 +3,11 @@ import { useSimulationStore } from '@/store/simulation';
 import { registerSceneScreenshot, type ScreenshotResult } from '@/scene/screenshot';
 import * as THREE from 'three';
 
-// Since WebGLRenderer is decoupled from the re-rendering logic of React,
-// we can memoize the Scene component. This also has the benefit of making it
-// it immediately known if future changes require re-rendering (which they should not).
+/**
+ * The Three.js scene: renders the settings-driven cube and exposes a render
+ * snapshot. Memoized because the renderer is decoupled from React re-renders,
+ * which makes any future change forcing one immediately visible.
+ */
 export const Scene = memo(() => {
   const containerRef = useRef<HTMLDivElement>(null);
   const fpsRef = useRef<HTMLSpanElement>(null);
@@ -29,7 +31,6 @@ export const Scene = memo(() => {
     renderer.setSize(width, height);
     container.appendChild(renderer.domElement);
 
-    // Rotated cube as an example
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     // Read the settings from the store imperatively: the store is never a
     // React subscription here, so store updates can only change what the
@@ -49,8 +50,6 @@ export const Scene = memo(() => {
       timer.update(frameTime);
       animationFrameId = requestAnimationFrame(animate);
 
-      // Pull fresh settings out of the store every frame so sidebar changes
-      // take effect on the very next render without re-rendering React.
       const settings = useSimulationStore.getState().activeSettings;
       const delta = timer.getDelta();
 
@@ -70,8 +69,7 @@ export const Scene = memo(() => {
     animate(performance.now());
 
     // Snapshot the current render to a fixed width so the stored image stays
-    // small even when the window is maximized. The result is a base64 PNG
-    // without the data-URL prefix (stored settings hold the raw base64).
+    // small even when the window is maximized.
     // `image.decode()` rejects when the load fails, so the async function
     // propagates the error instead of needing an onerror callback.
     const captureScreenshot = async (width: number): Promise<ScreenshotResult> => {

@@ -13,6 +13,7 @@ const linkClassName = (isActive: boolean) =>
     isActive ? 'text-green-700' : 'text-stone-500 hover:text-stone-900',
   ].join(' ');
 
+/** App top bar: navigation, with page-specific Import and Fullscreen actions. */
 export const Navbar = () => {
   const { pathname } = useLocation();
   // Normalize trailing slashes so both "/page" and "/page/" count as the same page,

@@ -1,6 +1,6 @@
 # grass-sim
 
-React 19 + TypeScript + Vite web app rendering a Three.js (WebGL) scene. Early scaffold: `src/scene/Scene.tsx` is a placeholder rotating wireframe cube. Single package, no workspaces, no CI.
+React 19 + TypeScript + Vite web app rendering a Three.js (WebGL) scene. The scene currently renders a placeholder rotating wireframe cube; the grass simulation it is named for is not implemented yet. Single package, no workspaces, no CI.
 
 ## src layout
 
@@ -11,10 +11,10 @@ src/
 ├── App.tsx         # app shell — Navbar + <Outlet />
 ├── index.css       # the only source CSS (Tailwind v4)
 ├── types.ts        # shared types
-├── components/     # app-level / reusable UI (Navbar, Sidebar, CollapsibleSection)
+├── components/     # app-level / reusable UI (e.g. Navbar, Sidebar)
 ├── pages/          # one component per route
 ├── store/          # Zustand stores for shared app state (e.g. SimulationSettings)
-└── scene/          # all Three.js code (Scene)
+└── scene/          # all Three.js code (e.g. Scene, render capture)
 ```
 
 New code goes in these buckets: route-level pages → `pages/`, app-level or reusable UI → `components/`, shared app state → `store/`, anything that touches Three.js → `scene/`.
@@ -58,6 +58,16 @@ All UI uses a **light, green-based Tailwind theme — simple and clean, since th
 - **One React component per file**, named after the component.
 - **Placement:** route-level pages in `src/pages/`, app-level or reusable UI in `src/components/`, anything that touches Three.js in `src/scene/` (see src layout above).
 
+## Code documentation
+
+Documentation splits into two kinds with opposite rules. **Contract docs on public surfaces are good style, not noise:** every `export`ed symbol — types, functions, store hooks (including their state shape), components (including their props) — is documented with a leading JSDoc, even where the description is obvious or redundant from the name; in that case keep it short. For public surfaces, **consistency is the key**: every export is documented, none left out.
+
+**Inline comments are the noise risk**, and a liability, not an asset: each is a claim that must be kept true as the code changes, and a stale comment is worse than none. The **default is no inline comment**. An inline comment earns its place only when (1) a reader could reasonably make a specific wrong decision or delete the code without it, (2) the fact is not derivable from this code or from the file that actually owns it, and (3) it describes behavior this file itself introduces — not platform behavior or another component's internals.
+
+- **Explain the why, never the what.** The code already shows what a line does; an inline comment states the non-obvious reason it exists or the invariant it protects. Never restate mechanics the code already makes visible.
+- **One owner per fact.** A behavior is documented in the file that implements it. Consumers and sibling files never restate another file's internals — that duplication is how comments go stale. If a fact is needed by callers, it belongs on the shared type or in a skill, not echoed at the call site.
+- **Keep it current or delete it.** A comment is updated in the same change as the code it describes; if it can no longer be kept true, delete it. When torn between keeping and deleting a marginal comment, delete it.
+
 ## State management
 
 Shared app state — state used by more than one page or outside a component subtree (e.g. **`SimulationSettings`**, consumed by both `SimulationPage` and `ImportSettingsPage`) — is managed with **Zustand**, not `useState` + prop drilling.
@@ -68,6 +78,6 @@ Shared app state — state used by more than one page or outside a component sub
 
 ## Architecture notes
 
-- Entry flow: `index.html` → `src/main.tsx` (mount only) → `src/router.tsx` (React Router 7 is set up **there**: `App` is the layout route — `Navbar` + `<Outlet />`; children: `SimulationPage` at `/simulation`, `ImportSettingsPage` at `/import-settings`; `/` and the catch-all redirect to `/simulation`) → `src/pages/SimulationPage.tsx` → `src/scene/Scene.tsx`.
+- Entry flow: `index.html` → `src/main.tsx` (mount only) → `src/router.tsx` (React Router 7 is set up **there**: `App` is the layout route — `Navbar` + `<Outlet />`; children: `SimulationPage` at `/simulation`, `ImportSettingsPage` at `/import-settings`, `NotFoundPage` at the `*` catch-all; the index `/` redirects to `/simulation`) → `src/pages/SimulationPage.tsx` → `src/scene/Scene.tsx`.
 - `src/scene/Scene.tsx` does all Three.js setup (scene, camera, renderer, rAF loop) inside a `useEffect` with full teardown (dispose, rAF cancel, DOM removal). **StrictMode is on**, so in dev this effect runs mount → cleanup → mount; the cleanup is what keeps it from leaking/crashing. Preserve this pattern when extending the scene.
 - The scene is sized from the container div (`clientWidth/Height`), not the window — the renderer div must keep its full-size classes.

@@ -7,6 +7,7 @@ import { useSimulationStore } from '@/store/simulation';
 
 const SCREENSHOT_WIDTH = 400;
 
+/** Collapsible settings panel: live scene settings and saving them under a name. */
 export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [pendingSave, setPendingSave] = useState(false);

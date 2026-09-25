@@ -1,3 +1,4 @@
+/** Catch-all page for unmatched routes. */
 export const NotFoundPage = () => {
   return (
     <div className="flex h-full items-center justify-center px-6">

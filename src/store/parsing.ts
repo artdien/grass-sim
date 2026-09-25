@@ -1,9 +1,10 @@
 import type { Result, StoredSimulationSettings } from '@/types';
 
-// Validates and shapes the JSON of an imported settings file into a
-// StoredSimulationSettings, so an imported file round-trips against the values
-// the app itself saves. Returns a friendly error message when the shape is
-// wrong so the caller can surface it directly.
+/**
+ * Parses and validates an imported settings file's JSON into a
+ * `StoredSimulationSettings`. On a bad shape it resolves to a `Result` error
+ * carrying a user-facing message the caller can display directly.
+ */
 export function parseSimulationSettings(text: string): Result<StoredSimulationSettings> {
   let parsed: unknown;
 

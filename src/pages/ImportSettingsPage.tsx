@@ -5,9 +5,6 @@ import { ImportSettingsCard } from '@/components/ImportSettingsCard';
 import { useSimulationStore } from '@/store/simulation';
 import type { StoredSimulationSettings } from '@/types';
 
-// Serializes a stored entry to JSON and triggers a browser download named
-// after the entry (e.g. "meadow.json"). The format round-trips against
-// `parseSimulationSettings`, so a downloaded file can be imported back in.
 function downloadSettings(entry: StoredSimulationSettings) {
   const blob = new Blob([JSON.stringify(entry, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -22,6 +19,7 @@ function downloadSettings(entry: StoredSimulationSettings) {
   URL.revokeObjectURL(url);
 }
 
+/** Lists stored settings entries with restore, download, and delete. */
 export const ImportSettingsPage = () => {
   const navigate = useNavigate();
   const [pendingDelete, setPendingDelete] = useState<StoredSimulationSettings | null>(null);

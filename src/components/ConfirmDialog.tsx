@@ -3,12 +3,25 @@ import { useEffect } from 'react';
 type ConfirmTone = 'danger' | 'primary';
 
 interface Props {
+  /** Dialog heading. */
   title: string;
+
+  /** Body copy below the heading. */
   message: string;
+
+  /** Label for the always-shown confirm button. */
   confirmLabel: string;
+
+  /** Omit to hide the cancel button and show only the confirm action. */
   cancelLabel?: string;
+
+  /** `danger` (red) for destructive confirmations, `primary` (green) otherwise. */
   confirmTone?: ConfirmTone;
+
+  /** Invoked when the user confirms. */
   onConfirm: () => void;
+
+  /** Invoked when the user dismisses (cancel button, backdrop, or Escape). */
   onCancel: () => void;
 }
 
@@ -19,6 +32,7 @@ const confirmToneClasses: Record<ConfirmTone, string> = {
     'rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none',
 };
 
+/** Modal confirmation dialog: heading, message, and a confirm (and optional cancel) action. */
 export const ConfirmDialog = ({
   title,
   message,

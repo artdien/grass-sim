@@ -4,6 +4,7 @@ import { ImportSettingsPage } from '@/pages/ImportSettingsPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { SimulationPage } from '@/pages/SimulationPage';
 
+/** App route table: the `App` layout route with `/simulation`, `/import-settings`, and a catch-all. */
 export const router = createBrowserRouter([
   {
     path: '/',

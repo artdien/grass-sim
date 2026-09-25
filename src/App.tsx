@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { useFullscreenStore } from '@/store/fullscreen';
 
+/** App shell: the navbar (hidden in fullscreen) above the routed page. */
 export const App = () => {
   const isFullscreen = useFullscreenStore((state) => state.isFullscreen);
 

@@ -2,10 +2,14 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 
 interface Props {
+  /** Section heading in the header row. */
   title: string;
+
+  /** Section content, shown while the section is open. */
   children: ReactNode;
 }
 
+/** Card with a toggleable header and content, open by default. */
 export const CollapsibleSection = ({ title, children }: Props) => {
   const [isOpen, setIsOpen] = useState(true);
 

@@ -1,12 +1,20 @@
 import type { StoredSimulationSettings } from '@/types';
 
 interface Props {
+  /** The stored entry this card renders. */
   entry: StoredSimulationSettings;
+
+  /** Applies the entry's settings as the active settings. */
   onRestore: () => void;
+
+  /** Downloads the entry's JSON. */
   onDownload: () => void;
+
+  /** Requests deletion — expected to open a confirmation, not delete directly. */
   onAskDelete: () => void;
 }
 
+/** Card for one stored settings entry: its snapshot plus restore, download, and delete. */
 export const ImportSettingsCard = ({ entry, onRestore, onDownload, onAskDelete }: Props) => {
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">

@@ -4,7 +4,10 @@
 
 import type { Result } from '@/types';
 
+/** Result type for a screenshot: either contains the data as base64 PNG or an error */
 export type ScreenshotResult = Result<string, 'NOT_MOUNTED' | 'CAPTURE_FAILED'>;
+
+/** A mounted scene's capture: render once and return a fixed-width base64 PNG. */
 export type ScreenshotCapture = (width: number) => Promise<ScreenshotResult>;
 
 let capture: ScreenshotCapture | null = null;
