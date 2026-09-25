@@ -12,6 +12,7 @@ description: Use when creating or modifying the Three.js scene in this app — r
 - **Shared state (Zustand) flows into the scene imperatively:** `Scene.tsx` reads the store via `useSimulationStore.getState()` inside the rAF loop — never as a React subscription and never in effect dependencies. That is what guarantees a store update only changes what the _next frame_ renders and can never recreate the renderer.
 - **State flows one way:** scene output that must reach React goes into the store via event handlers; the scene never triggers re-renders directly.
 - The renderer div must keep full-size classes (`h-full w-full` / `inset-0`) — scene sizing is measured from `container.clientWidth/Height`, not the window.
+- **Shader code is not scene code.** All GLSL lives in `src/assets/shaders` (`.vert`/`.frag`/`.glsl`, plain `@/` imports via `vite-plugin-glsl`) and is written per the `threejs-shaders` skill.
 
 ## Workflow: adding a new scene element
 

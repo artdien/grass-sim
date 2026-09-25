@@ -14,6 +14,7 @@ src/
 ├── components/     # app-level / reusable UI (e.g. Navbar, Sidebar)
 ├── pages/          # one component per route
 ├── store/          # Zustand stores for shared app state (e.g. SimulationSettings)
+├── assets/         # static sources — shaders/ (GLSL .vert/.frag/.glsl), models/
 └── scene/          # all Three.js code (e.g. Scene, render capture)
 ```
 
@@ -57,6 +58,10 @@ All UI uses a **light, green-based Tailwind theme — simple and clean, since th
 - **Named exports with arrow functions, always:** `export const Component = () => { ... };` — no default exports, no function declarations.
 - **One React component per file**, named after the component.
 - **Placement:** route-level pages in `src/pages/`, app-level or reusable UI in `src/components/`, anything that touches Three.js in `src/scene/` (see src layout above).
+
+## Shaders
+
+Shaders are always written in **GLSL** under **`src/assets/shaders`** — `.vert` for vertex shaders, `.frag` for fragment shaders, `.glsl` for shared chunks inlined from shader sources with `#include "./chunk.glsl";` — and imported with the `@/` alias as-is, e.g. `import vertexShader from '@/assets/shaders/shader.vert';` (`vite-plugin-glsl` in `vite.config.ts` makes shader files importable as JS modules — no `?raw`; `vite-plugin-glsl/ext` in `tsconfig.app.json` provides the types). Never as template strings in TS. Use modern `in`/`out` qualifiers (never the legacy `attribute`/`varying`) and prefix interface variables: `u` for uniforms, `v` for varyings, `a` for attributes. Full rules, the Three.js built-in surface, and a worked example: the `threejs-shaders` skill.
 
 ## Code documentation
 
