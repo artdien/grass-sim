@@ -29,7 +29,7 @@ export interface TerrainSettings {
   frequency: number;
 }
 
-/** Lighting applied to the terrain: hemispherical ambient, lambertian diffuse, and Blinn-Phong specular. */
+/** Lighting applied to the terrain: hemispherical ambient, lambertian diffuse, Blinn-Phong specular, and environment-map reflection. */
 export interface LightingSettings {
   /** Hemispherical (ambient) term: the tint seen between ground and sky. */
   hemisphere: {
@@ -60,6 +60,12 @@ export interface LightingSettings {
 
     /** Specular contribution multiplier (≥ 0). */
     intensity: number;
+  };
+
+  /** Environment-map (reflection) term. */
+  environment: {
+    /** Environment-map contribution multiplier (a number in [0, 1]). */
+    strength: number;
   };
 }
 

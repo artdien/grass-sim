@@ -2,6 +2,7 @@ import type { ChangeEvent } from 'react';
 import { CollapsibleSection } from '@/components/CollapsibleSection';
 import { ColorField } from '@/components/ColorField';
 import { NumberField } from '@/components/NumberField';
+import { SliderField } from '@/components/SliderField';
 import { useSimulationStore } from '@/store/simulation';
 
 /** Parses a light direction component; null when it is not a finite number. */
@@ -22,7 +23,13 @@ const parseIntensityValue = (value: string): number | null => {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
 };
 
-/** The Lighting settings section: hemispherical, diffuse (directional), and specular terms. */
+/** Parses the environment strength; null when it is not a number in [0, 1]. */
+const parseEnvironmentStrength = (value: string): number | null => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 && parsed <= 1 ? parsed : null;
+};
+
+/** The Lighting settings section: hemispherical, diffuse (directional), specular, and environment terms. */
 export const LightingSettingsSection = () => {
   const activeSettings = useSimulationStore((state) => state.activeSettings);
   const updateActiveSettings = useSimulationStore((state) => state.updateActiveSettings);
@@ -87,6 +94,20 @@ export const LightingSettingsSection = () => {
       lighting: {
         ...activeSettings.lighting,
         specular: { ...activeSettings.lighting.specular, [field]: parsed },
+      },
+    });
+  };
+
+  const handleEnvironmentStrengthChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const parsed = parseEnvironmentStrength(event.target.value);
+    if (parsed === null) {
+      return;
+    }
+    updateActiveSettings({
+      ...activeSettings,
+      lighting: {
+        ...activeSettings.lighting,
+        environment: { ...activeSettings.lighting.environment, strength: parsed },
       },
     });
   };
@@ -161,6 +182,18 @@ export const LightingSettingsSection = () => {
           step={0.1}
           value={activeSettings.lighting.specular.intensity}
           onChange={(event) => handleSpecularChange('intensity', event)}
+        />
+
+        <h3 className="pt-1 text-xs font-semibold tracking-wide text-stone-500">Environment</h3>
+
+        <SliderField
+          id="lighting-environment-strength"
+          label="Strength"
+          min={0}
+          max={1}
+          step={0.01}
+          value={activeSettings.lighting.environment.strength}
+          onChange={handleEnvironmentStrengthChange}
         />
       </div>
     </CollapsibleSection>

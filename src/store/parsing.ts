@@ -123,9 +123,17 @@ function parseLightingSettings(input: unknown): Result<LightingSettings> {
   const specular = parseSpecularLightingSettings(fields.specular);
   if (!specular.ok) return { ok: false, error: specular.error };
 
+  const environment = parseEnvironmentLightingSettings(fields.environment);
+  if (!environment.ok) return { ok: false, error: environment.error };
+
   return {
     ok: true,
-    data: { hemisphere: hemisphere.data, diffuse: diffuse.data, specular: specular.data },
+    data: {
+      hemisphere: hemisphere.data,
+      diffuse: diffuse.data,
+      specular: specular.data,
+      environment: environment.data,
+    },
   };
 }
 
@@ -203,4 +211,19 @@ function parseSpecularLightingSettings(input: unknown): Result<LightingSettings[
   }
 
   return { ok: true, data: { shininess, intensity } };
+}
+
+/** Parses the environment lighting section. Files saved before this term existed */
+function parseEnvironmentLightingSettings(input: unknown): Result<LightingSettings['environment']> {
+  if (typeof input !== 'object' || input === null) {
+    return { ok: false, error: 'The environment lighting settings are missing or invalid.' };
+  }
+
+  const fields = input as Record<string, unknown>;
+  const strength = fields.strength;
+  if (typeof strength !== 'number' || !Number.isFinite(strength) || strength < 0 || strength > 1) {
+    return { ok: false, error: 'The environment strength is missing or invalid.' };
+  }
+
+  return { ok: true, data: { strength } };
 }

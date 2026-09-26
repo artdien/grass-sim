@@ -59,6 +59,9 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
         shininess: 32,
         intensity: 0.5,
       },
+      environment: {
+        strength: 0.5,
+      },
     },
   },
   storedSettings: [],
@@ -91,6 +94,7 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
             direction: { ...active.lighting.diffuse.direction },
           },
           specular: { ...active.lighting.specular },
+          environment: { ...active.lighting.environment },
         },
       },
     };
@@ -118,6 +122,7 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
             direction: { ...entry.settings.lighting.diffuse.direction },
           },
           specular: { ...entry.settings.lighting.specular },
+          environment: { ...entry.settings.lighting.environment },
         },
       },
     }),

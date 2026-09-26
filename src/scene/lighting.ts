@@ -9,16 +9,17 @@ export interface LightingUniforms {
   uLightDirection: THREE.IUniform<THREE.Vector3>;
   uShininess: THREE.IUniform<number>;
   uSpecularIntensity: THREE.IUniform<number>;
+  uEnvironmentStrength: THREE.IUniform<number>;
 }
 
 /**
  * Shared lighting: a bag of shader uniforms plus a change-detecting sync.
  *
- * Lighting is scene-global (hemispherical ambient, diffuse, and specular) and
- * currently consumed only by the terrain, but is kept in its own module so a
- * future entity (e.g. grass) can spread the same uniform objects into its own
- * material — `apply` then updates every consumer at once, since they all share
- * these underlying uniform objects.
+ * Lighting is scene-global (hemispherical ambient, diffuse, specular, and
+ * environment-map reflection) and currently consumed only by the terrain, but
+ * is kept in its own module so a future entity (e.g. grass) can spread the same
+ * uniform objects into its own material — `apply` then updates every consumer
+ * at once, since they all share these underlying uniform objects.
  */
 export interface Lighting {
   /** The lighting uniform objects to spread into a `ShaderMaterial`. */
@@ -29,11 +30,11 @@ export interface Lighting {
 }
 
 /**
- * Creates a `Lighting` from the initial `lighting` settings. Owns the six
- * lighting uniform objects (uSkyColor, uGroundColor, uDiffuseColor,
- * uLightDirection, uShininess, uSpecularIntensity) and a `sync`. Pure data +
- * sync: it owns no material and has no disposal to perform, since its uniform
- * values are plain numbers, vectors, and colors.
+ * Creates a `Lighting` from the initial `lighting` settings. Owns the seven
+ * lighting uniform objects (uSkyColor, uGroundColor, uLightColor,
+ * uLightDirection, uShininess, uSpecularIntensity, uEnvironmentStrength) and a
+ * `sync`. Pure data + sync: it owns no material and has no disposal to perform,
+ * since its uniform values are plain numbers, vectors, and colors.
  */
 export const createLighting = (settings: LightingSettings): Lighting => {
   const uniforms: LightingUniforms = {
@@ -49,6 +50,7 @@ export const createLighting = (settings: LightingSettings): Lighting => {
     },
     uShininess: { value: settings.specular.shininess },
     uSpecularIntensity: { value: settings.specular.intensity },
+    uEnvironmentStrength: { value: settings.environment.strength },
   };
 
   let syncedSkyColor = settings.hemisphere.skyColor;
@@ -57,6 +59,7 @@ export const createLighting = (settings: LightingSettings): Lighting => {
   let syncedDirection = { ...settings.diffuse.direction };
   let syncedShininess = settings.specular.shininess;
   let syncedIntensity = settings.specular.intensity;
+  let syncedEnvironmentStrength = settings.environment.strength;
 
   const apply = (lighting: LightingSettings) => {
     if (lighting.hemisphere.skyColor !== syncedSkyColor) {
@@ -92,6 +95,11 @@ export const createLighting = (settings: LightingSettings): Lighting => {
     if (lighting.specular.intensity !== syncedIntensity) {
       syncedIntensity = lighting.specular.intensity;
       uniforms.uSpecularIntensity.value = syncedIntensity;
+    }
+
+    if (lighting.environment.strength !== syncedEnvironmentStrength) {
+      syncedEnvironmentStrength = lighting.environment.strength;
+      uniforms.uEnvironmentStrength.value = syncedEnvironmentStrength;
     }
   };
 
