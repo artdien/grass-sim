@@ -3,13 +3,15 @@ import { useEffect, useRef, memo } from 'react';
 import { useSimulationStore } from '@/store/simulation';
 import { createLighting } from '@/scene/lighting';
 import { createTerrain } from '@/scene/terrain';
+import { createEnvironment } from '@/scene/environment';
 import { registerSceneScreenshot, createSceneCapture } from '@/scene/screenshot';
 import { createMovement } from '@/scene/movement';
 
 /**
- * The Three.js scene: renders the settings-driven terrain and exposes a render
- * snapshot. Owns the renderer/scene/camera, the render loop, and sizing, and is
- * the glue that composes the `Lighting` and `Terrain` entities. Memoized because
+ * The Three.js scene: renders the settings-driven terrain over an HDR environment
+ * background and exposes a render snapshot. Owns the renderer/scene/camera, the
+ * render loop, and sizing, and is the glue that composes the `Lighting`, `Terrain`,
+ * and `Environment` entities. Memoized because
  * the renderer is decoupled from React re-renders, so any change forcing one is
  * immediately visible.
  */
@@ -44,6 +46,10 @@ export const Scene = memo(() => {
     const lighting = createLighting(initialSettings.lighting);
     const terrain = createTerrain(initialSettings.terrain, lighting.uniforms);
     scene.add(terrain.mesh);
+
+    // The HDR environment map loads asynchronously; the solid placeholder background
+    // above shows until it resolves.
+    const environment = createEnvironment(scene);
 
     const timer = new THREE.Timer();
     let animationFrameId: number;
@@ -109,6 +115,7 @@ export const Scene = memo(() => {
       document.removeEventListener('pointerlockchange', onPointerLockChange);
 
       terrain.dispose();
+      environment.dispose();
       movement.dispose();
       renderer.dispose();
 
