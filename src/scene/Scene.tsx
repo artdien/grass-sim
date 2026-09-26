@@ -36,8 +36,8 @@ export const Scene = memo(() => {
     const movement = createMovement(camera, renderer.domElement);
 
     // Start at roughly eye height over the field, facing its center.
-    camera.position.set(0, 2, 6);
-    camera.lookAt(0, 0.5, 0);
+    camera.position.set(0, 2, 0);
+    camera.lookAt(1, 2, 0);
 
     // Build the entities from the current settings, then sync them imperatively
     // each frame below. Lighting comes from the shared module and is passed to
@@ -47,9 +47,9 @@ export const Scene = memo(() => {
     const terrain = createTerrain(initialSettings.terrain, lighting.uniforms);
     scene.add(terrain.mesh);
 
-    // The HDR environment map loads asynchronously; the solid placeholder background
-    // above shows until it resolves.
-    const environment = createEnvironment(scene);
+    // The HDR environment map loads asynchronously,
+    // hence a callback to set it in meshes when it resolves.
+    const environment = createEnvironment(scene, (texture) => terrain.setEnvironmentMap(texture));
 
     const timer = new THREE.Timer();
     let animationFrameId: number;

@@ -5,7 +5,7 @@ import type { LightingSettings } from '@/types';
 export interface LightingUniforms {
   uSkyColor: THREE.IUniform<THREE.Color>;
   uGroundColor: THREE.IUniform<THREE.Color>;
-  uDiffuseColor: THREE.IUniform<THREE.Color>;
+  uLightColor: THREE.IUniform<THREE.Color>;
   uLightDirection: THREE.IUniform<THREE.Vector3>;
   uShininess: THREE.IUniform<number>;
   uSpecularIntensity: THREE.IUniform<number>;
@@ -39,7 +39,7 @@ export const createLighting = (settings: LightingSettings): Lighting => {
   const uniforms: LightingUniforms = {
     uSkyColor: { value: new THREE.Color(settings.hemisphere.skyColor) },
     uGroundColor: { value: new THREE.Color(settings.hemisphere.groundColor) },
-    uDiffuseColor: { value: new THREE.Color(settings.diffuse.color) },
+    uLightColor: { value: new THREE.Color(settings.diffuse.color) },
     uLightDirection: {
       value: new THREE.Vector3(
         settings.diffuse.direction.x,
@@ -71,7 +71,7 @@ export const createLighting = (settings: LightingSettings): Lighting => {
 
     if (lighting.diffuse.color !== syncedLightColor) {
       syncedLightColor = lighting.diffuse.color;
-      uniforms.uDiffuseColor.value.set(syncedLightColor);
+      uniforms.uLightColor.value.set(syncedLightColor);
     }
 
     const direction = lighting.diffuse.direction;

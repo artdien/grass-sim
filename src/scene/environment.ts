@@ -15,14 +15,18 @@ export interface Environment {
 /**
  * Loads the scene's HDR environment map with an `HDRLoader` and uses it as
  * `scene.background`, configured as a 2:1 spherical panorama
- * (`EquirectangularReflectionMapping`).
+ * (`EquirectangularReflectionMapping`). If `onTextureLoad` is given, it is
+ * called with the resolved texture so other owners can sample it.
  *
  * The load is asynchronous, so the scene keeps rendering its placeholder
  * background until the texture resolves. `dispose` releases the texture whether
  * the load is still pending or already attached, keeping the StrictMode
  * mount → cleanup → remount cycle free of leaked textures.
  */
-export const createEnvironment = (scene: THREE.Scene): Environment => {
+export const createEnvironment = (
+  scene: THREE.Scene,
+  onTextureLoad?: (texture: THREE.Texture) => void,
+): Environment => {
   const loader = new HDRLoader();
   let texture: THREE.Texture | null = null;
   let disposed = false;
@@ -38,6 +42,7 @@ export const createEnvironment = (scene: THREE.Scene): Environment => {
       texture = envMap;
       envMap.mapping = THREE.EquirectangularReflectionMapping;
       scene.background = envMap;
+      onTextureLoad?.(envMap);
     })
     .catch((error: unknown) => {
       console.error('Failed to load the environment map:', error);

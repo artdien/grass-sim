@@ -39,8 +39,8 @@ interface SimulationState {
 export const useSimulationStore = create<SimulationState>()((set, get) => ({
   activeSettings: {
     terrain: {
-      size: 10,
-      segments: 512,
+      size: 500,
+      segments: 1024,
       color: '#8a6d4b',
       noiseType: 'perlin',
       height: 0.75,

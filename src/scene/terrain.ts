@@ -27,6 +27,9 @@ export interface Terrain {
    */
   sync: (terrain: TerrainSettings) => void;
 
+  /** Sets the panorama texture the material samples through `uEnvMap`. */
+  setEnvironmentMap: (texture: THREE.Texture) => void;
+
   /** Frees the geometry and material. */
   dispose: () => void;
 }
@@ -41,16 +44,21 @@ export const createTerrain = (
   settings: TerrainSettings,
   lightingUniforms: LightingUniforms,
 ): Terrain => {
+  const placeholderEnvMap = new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1);
+
   const terrainUniforms: {
     uNoiseType: THREE.IUniform<number>;
     uHeight: THREE.IUniform<number>;
     uFrequency: THREE.IUniform<number>;
     uTerrainColor: THREE.IUniform<THREE.Color>;
+    uEnvMap: THREE.IUniform<THREE.Texture>;
   } = {
     uNoiseType: { value: NOISE_TYPE_INDEX[settings.noiseType] },
     uHeight: { value: settings.height },
     uFrequency: { value: settings.frequency },
     uTerrainColor: { value: new THREE.Color(settings.color) },
+    // 1×1 black until the HDR resolves, so an env-map sample contributes nothing.
+    uEnvMap: { value: placeholderEnvMap },
   };
 
   const material = new THREE.ShaderMaterial({
@@ -111,11 +119,17 @@ export const createTerrain = (
     }
   };
 
+  const setEnvironmentMap = (texture: THREE.Texture) => {
+    terrainUniforms.uEnvMap.value = texture;
+  };
+
   const dispose = () => {
     mesh.geometry.dispose();
+    // placeholderEnvMap is owned here, the loaded HDR is disposed by the environment.
+    placeholderEnvMap.dispose();
     material.dispose();
     mesh.dispose();
   };
 
-  return { mesh, sync, dispose };
+  return { mesh, sync, setEnvironmentMap, dispose };
 };
