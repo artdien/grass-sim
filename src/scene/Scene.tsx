@@ -4,6 +4,7 @@ import { useSimulationStore } from '@/store/simulation';
 import { createLighting } from '@/scene/lighting';
 import { createTerrain } from '@/scene/terrain';
 import { registerSceneScreenshot, createSceneCapture } from '@/scene/screenshot';
+import { createMovement } from '@/scene/movement';
 
 /**
  * The Three.js scene: renders the settings-driven terrain and exposes a render
@@ -15,6 +16,7 @@ import { registerSceneScreenshot, createSceneCapture } from '@/scene/screenshot'
 export const Scene = memo(() => {
   const containerRef = useRef<HTMLDivElement>(null);
   const fpsRef = useRef<HTMLSpanElement>(null);
+  const hintRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -26,10 +28,14 @@ export const Scene = memo(() => {
     scene.background = new THREE.Color('#000000');
 
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-    camera.position.set(0, 5, 15);
-
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     container.appendChild(renderer.domElement);
+
+    const movement = createMovement(camera, renderer.domElement);
+
+    // Start at roughly eye height over the field, facing its center.
+    camera.position.set(0, 2, 6);
+    camera.lookAt(0, 0.5, 0);
 
     // Build the entities from the current settings, then sync them imperatively
     // each frame below. Lighting comes from the shared module and is passed to
@@ -53,6 +59,7 @@ export const Scene = memo(() => {
       terrain.sync(settings.terrain);
       lighting.sync(settings.lighting);
 
+      movement.update(delta);
       renderer.render(scene, camera);
 
       // Update the counter imperatively.
@@ -84,13 +91,25 @@ export const Scene = memo(() => {
     // so initial scene is resized appropriately.
     resizeObserver.observe(container);
 
+    // The hint is hidden while the mouse is captured, toggled imperatively so
+    // pointer-lock state never has to go through React.
+    const onPointerLockChange = () => {
+      if (hintRef.current) {
+        hintRef.current.hidden = document.pointerLockElement === renderer.domElement;
+      }
+    };
+
+    document.addEventListener('pointerlockchange', onPointerLockChange);
+
     return () => {
       cancelAnimationFrame(animationFrameId);
 
       registerSceneScreenshot(null);
       resizeObserver.disconnect();
+      document.removeEventListener('pointerlockchange', onPointerLockChange);
 
       terrain.dispose();
+      movement.dispose();
       renderer.dispose();
 
       container.removeChild(renderer.domElement);
@@ -104,6 +123,12 @@ export const Scene = memo(() => {
         className="pointer-events-none absolute top-3 right-3 z-10 rounded-md bg-stone-950/60 px-2 py-0.5 font-mono text-xs text-stone-300 tabular-nums select-none"
       >
         -- FPS
+      </span>
+      <span
+        ref={hintRef}
+        className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-md bg-stone-950/60 px-2 py-0.5 font-mono text-xs text-stone-300 tabular-nums select-none"
+      >
+        Click to look around · WASD move · E/Q up/down · ESC releases the mouse
       </span>
     </div>
   );
