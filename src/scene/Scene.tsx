@@ -1,20 +1,16 @@
-import { useEffect, useRef, memo } from 'react';
-import { registerSceneScreenshot, type ScreenshotResult } from '@/scene/screenshot';
 import * as THREE from 'three';
-import type { LightingSettings, TerrainNoiseType, TerrainSettings } from '@/types';
+import { useEffect, useRef, memo } from 'react';
 import { useSimulationStore } from '@/store/simulation';
-
-// Assets
-import terrainVertexShader from '@/assets/shaders/terrain.vert';
-import terrainFragmentShader from '@/assets/shaders/terrain.frag';
-
-// Index into the noise function chosen by the shader (see terrain.vert).
-const NOISE_TYPE_INDEX: Record<TerrainNoiseType, number> = { perlin: 0, simplex: 1 };
+import { createLighting } from '@/scene/lighting';
+import { createTerrain } from '@/scene/terrain';
+import { registerSceneScreenshot, createSceneCapture } from '@/scene/screenshot';
 
 /**
  * The Three.js scene: renders the settings-driven terrain and exposes a render
- * snapshot. Memoized because the renderer is decoupled from React re-renders,
- * which makes any future change forcing one immediately visible.
+ * snapshot. Owns the renderer/scene/camera, the render loop, and sizing, and is
+ * the glue that composes the `Lighting` and `Terrain` entities. Memoized because
+ * the renderer is decoupled from React re-renders, so any change forcing one is
+ * immediately visible.
  */
 export const Scene = memo(() => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,162 +22,36 @@ export const Scene = memo(() => {
       return;
     }
 
-    const width = container.clientWidth;
-    const height = container.clientHeight;
-
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#000000');
 
-    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
     camera.position.set(0, 5, 15);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(width, height);
     container.appendChild(renderer.domElement);
 
-    /* Terrain */
-
+    // Build the entities from the current settings, then sync them imperatively
+    // each frame below. Lighting comes from the shared module and is passed to
+    // the terrain so both share the same uniform objects.
     const initialSettings = useSimulationStore.getState().activeSettings;
-    const terrainSettings = initialSettings.terrain;
-    const lightingSettings = initialSettings.lighting;
-
-    const terrainGeometry = new THREE.PlaneGeometry(
-      1,
-      1,
-      terrainSettings.segments,
-      terrainSettings.segments,
-    );
-
-    const terrainUniforms = {
-      uNoiseType: { value: NOISE_TYPE_INDEX[terrainSettings.noiseType] },
-      uHeight: { value: terrainSettings.height },
-      uFrequency: { value: terrainSettings.frequency },
-      uTerrainColor: { value: new THREE.Color(terrainSettings.color) },
-      uSkyColor: { value: new THREE.Color(lightingSettings.hemisphere.skyColor) },
-      uGroundColor: { value: new THREE.Color(lightingSettings.hemisphere.groundColor) },
-      uDiffuseColor: { value: new THREE.Color(lightingSettings.diffuse.color) },
-      uLightDirection: {
-        value: new THREE.Vector3(
-          lightingSettings.diffuse.direction.x,
-          lightingSettings.diffuse.direction.y,
-          lightingSettings.diffuse.direction.z,
-        ),
-      },
-      uShininess: { value: lightingSettings.specular.shininess },
-      uSpecularIntensity: { value: lightingSettings.specular.intensity },
-    };
-    const terrainMaterial = new THREE.ShaderMaterial({
-      glslVersion: THREE.GLSL3,
-      vertexShader: terrainVertexShader,
-      fragmentShader: terrainFragmentShader,
-      uniforms: terrainUniforms,
-    });
-
-    const terrainMesh = new THREE.Mesh(terrainGeometry, terrainMaterial);
-    terrainMesh.rotateX(-Math.PI / 2); // rotate to lie in XZ plane
-    terrainMesh.scale.setScalar(terrainSettings.size);
-    scene.add(terrainMesh);
-
-    let syncedSize = terrainSettings.size;
-    let syncedSegments = terrainSettings.segments;
-    let syncedTerrainColor = terrainSettings.color;
-    let syncedNoiseType = terrainSettings.noiseType;
-    let syncedHeight = terrainSettings.height;
-    let syncedFrequency = terrainSettings.frequency;
-    const applyTerrainSettings = (terrain: TerrainSettings) => {
-      if (terrain.size !== syncedSize) {
-        syncedSize = terrain.size;
-        terrainMesh.scale.setScalar(terrain.size);
-      }
-
-      // Rebuilding the plane geometry is expensive, so it only happens when the
-      // segment count actually changes and the replaced geometry is disposed.
-      if (terrain.segments !== syncedSegments) {
-        syncedSegments = terrain.segments;
-        const oldGeometry = terrainMesh.geometry;
-        terrainMesh.geometry = new THREE.PlaneGeometry(1, 1, terrain.segments, terrain.segments);
-        oldGeometry.dispose();
-      }
-
-      if (terrain.color !== syncedTerrainColor) {
-        syncedTerrainColor = terrain.color;
-        terrainUniforms.uTerrainColor.value.set(terrain.color);
-      }
-
-      if (terrain.noiseType !== syncedNoiseType) {
-        syncedNoiseType = terrain.noiseType;
-        terrainUniforms.uNoiseType.value = NOISE_TYPE_INDEX[terrain.noiseType];
-      }
-
-      if (terrain.height !== syncedHeight) {
-        syncedHeight = terrain.height;
-        terrainUniforms.uHeight.value = terrain.height;
-      }
-
-      if (terrain.frequency !== syncedFrequency) {
-        syncedFrequency = terrain.frequency;
-        terrainUniforms.uFrequency.value = terrain.frequency;
-      }
-    };
-
-    let syncedSkyColor = lightingSettings.hemisphere.skyColor;
-    let syncedGroundColor = lightingSettings.hemisphere.groundColor;
-    let syncedLightColor = lightingSettings.diffuse.color;
-    let syncedDirection = { ...lightingSettings.diffuse.direction };
-    let syncedShininess = lightingSettings.specular.shininess;
-    let syncedIntensity = lightingSettings.specular.intensity;
-    const applyLightingSettings = (lighting: LightingSettings) => {
-      if (lighting.hemisphere.skyColor !== syncedSkyColor) {
-        syncedSkyColor = lighting.hemisphere.skyColor;
-        terrainUniforms.uSkyColor.value.set(syncedSkyColor);
-      }
-
-      if (lighting.hemisphere.groundColor !== syncedGroundColor) {
-        syncedGroundColor = lighting.hemisphere.groundColor;
-        terrainUniforms.uGroundColor.value.set(syncedGroundColor);
-      }
-
-      if (lighting.diffuse.color !== syncedLightColor) {
-        syncedLightColor = lighting.diffuse.color;
-        terrainUniforms.uDiffuseColor.value.set(syncedLightColor);
-      }
-
-      const direction = lighting.diffuse.direction;
-      if (
-        direction.x !== syncedDirection.x ||
-        direction.y !== syncedDirection.y ||
-        direction.z !== syncedDirection.z
-      ) {
-        syncedDirection = { ...direction };
-        terrainUniforms.uLightDirection.value.set(direction.x, direction.y, direction.z);
-      }
-
-      if (lighting.specular.shininess !== syncedShininess) {
-        syncedShininess = lighting.specular.shininess;
-        terrainUniforms.uShininess.value = syncedShininess;
-      }
-
-      if (lighting.specular.intensity !== syncedIntensity) {
-        syncedIntensity = lighting.specular.intensity;
-        terrainUniforms.uSpecularIntensity.value = syncedIntensity;
-      }
-    };
-
-    /* Render loop */
+    const lighting = createLighting(initialSettings.lighting);
+    const terrain = createTerrain(initialSettings.terrain, lighting.uniforms);
+    scene.add(terrain.mesh);
 
     const timer = new THREE.Timer();
     let animationFrameId: number;
     let hasPreviousFrame = false;
 
-    const animate = (frameTime: number) => {
+    const render = (frameTime: number) => {
+      animationFrameId = requestAnimationFrame(render);
+
       timer.update(frameTime);
-      animationFrameId = requestAnimationFrame(animate);
+      const delta = timer.getDelta();
 
       const settings = useSimulationStore.getState().activeSettings;
-      applyTerrainSettings(settings.terrain);
-      applyLightingSettings(settings.lighting);
-
-      const delta = timer.getDelta();
+      terrain.sync(settings.terrain);
+      lighting.sync(settings.lighting);
 
       renderer.render(scene, camera);
 
@@ -192,63 +62,35 @@ export const Scene = memo(() => {
       }
       hasPreviousFrame = true;
     };
-    animate(performance.now());
+    render(performance.now());
 
-    // Snapshot the current render to a fixed width so the stored image stays
-    // small even when the window is maximized.
-    // `image.decode()` rejects when the load fails, so the async function
-    // propagates the error instead of needing an onerror callback.
-    const captureScreenshot = async (width: number): Promise<ScreenshotResult> => {
-      renderer.render(scene, camera);
-
-      const source = renderer.domElement.toDataURL('image/png');
-      const image = new Image();
-      image.src = source;
-      await image.decode();
-
-      // Scale down canvas to provided width
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = Math.max(1, Math.round((image.naturalHeight / image.naturalWidth) * width));
-
-      const context = canvas.getContext('2d');
-      if (!context) {
-        console.warn(
-          'Could not obtain a 2D canvas context for screenshot scaling, falling back to full resolution',
-        );
-        return { ok: true, data: source.split(',')[1] ?? '' };
-      }
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      return { ok: true, data: canvas.toDataURL('image/png').split(',')[1] ?? '' };
-    };
-    registerSceneScreenshot(captureScreenshot);
+    registerSceneScreenshot(createSceneCapture(renderer, scene, camera));
 
     // Track the container, not the window, so the canvas also resizes
     // when the sidebar collapses and the layout reflows.
     const resizeObserver = new ResizeObserver(() => {
-      const newWidth = container.clientWidth;
-      const newHeight = container.clientHeight;
-      if (newWidth === 0 || newHeight === 0) {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      if (width === 0 || height === 0) {
         return;
       }
 
-      camera.aspect = newWidth / newHeight;
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
 
-      renderer.setSize(newWidth, newHeight);
+      renderer.setSize(width, height);
     });
+    // Callback is executed once on calling observe(),
+    // so initial scene is resized appropriately.
     resizeObserver.observe(container);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
 
       registerSceneScreenshot(null);
-
       resizeObserver.disconnect();
 
-      terrainMesh.geometry.dispose();
-      terrainMesh.material.dispose();
-      terrainMesh.dispose();
+      terrain.dispose();
       renderer.dispose();
 
       container.removeChild(renderer.domElement);
