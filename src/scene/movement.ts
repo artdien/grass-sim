@@ -9,9 +9,8 @@ const WORLD_UP = new THREE.Vector3(0, 1, 0);
 
 /**
  * First-person camera movement: the mouse looks around while the pointer is
- * locked, WASD / arrow keys fly along the camera's line of sight, and E/Q
- * raise and lower it. Clicking `domElement` re-engages the pointer lock,
- * Esc releases it.
+ * locked, WASD flies along the camera's line of sight, and E/Q raise and
+ * lower it. Clicking `domElement` re-engages the pointer lock, Esc releases it.
  */
 export interface Movement {
   /** Moves the camera by the keys currently held, scaled by `delta` seconds. */
@@ -34,13 +33,10 @@ export const createMovement = (
 
   const pressed = new Set<string>();
 
-  const isHeld = (...codes: string[]) => codes.some((code) => pressed.has(code));
+  const isHeld = (code: string) => pressed.has(code);
 
   const onKeyDown = (event: KeyboardEvent) => {
     pressed.add(event.code);
-    if (event.code.startsWith('Arrow')) {
-      event.preventDefault();
-    }
   };
   const onKeyUp = (event: KeyboardEvent) => {
     pressed.delete(event.code);
@@ -76,10 +72,10 @@ export const createMovement = (
     }
 
     offset.set(0, 0, 0);
-    if (isHeld('KeyW', 'ArrowUp')) offset.add(forward);
-    if (isHeld('KeyS', 'ArrowDown')) offset.sub(forward);
-    if (isHeld('KeyD', 'ArrowRight')) offset.add(right);
-    if (isHeld('KeyA', 'ArrowLeft')) offset.sub(right);
+    if (isHeld('KeyW')) offset.add(forward);
+    if (isHeld('KeyS')) offset.sub(forward);
+    if (isHeld('KeyD')) offset.add(right);
+    if (isHeld('KeyA')) offset.sub(right);
     if (isHeld('KeyE')) offset.add(WORLD_UP);
     if (isHeld('KeyQ')) offset.sub(WORLD_UP);
 
