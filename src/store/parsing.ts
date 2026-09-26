@@ -1,4 +1,4 @@
-import type { Result, StoredSimulationSettings } from '@/types';
+import type { LightingSettings, Result, StoredSimulationSettings, TerrainSettings } from '@/types';
 
 /** A hex color such as the #rrggbb values a native color input produces. */
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
@@ -23,121 +23,26 @@ export function parseSimulationSettings(text: string): Result<StoredSimulationSe
 
   const candidate = parsed as Record<string, unknown>;
   const name = candidate.name;
-  const image = candidate.image;
-  const settingsField = candidate.settings;
-
   if (typeof name !== 'string' || name.trim().length === 0) {
     return { ok: false, error: 'The settings are missing a valid name.' };
   }
+
+  const image = candidate.image;
   if (typeof image !== 'string' || image.length === 0) {
     return { ok: false, error: 'The settings are missing a render screenshot.' };
   }
+
+  const settingsField = candidate.settings;
   if (typeof settingsField !== 'object' || settingsField === null) {
     return { ok: false, error: 'The simulation settings are missing their values.' };
   }
 
   const settings = settingsField as Record<string, unknown>;
-  const terrain = settings.terrain;
+  const terrain = parseTerrainSettings(settings.terrain);
+  if (!terrain.ok) return { ok: false, error: terrain.error };
 
-  if (typeof terrain !== 'object' || terrain === null) {
-    return { ok: false, error: 'The terrain settings are missing or invalid.' };
-  }
-
-  const terrainFields = terrain as Record<string, unknown>;
-  const size = terrainFields.size;
-  const segments = terrainFields.segments;
-
-  if (typeof size !== 'number' || !Number.isInteger(size) || size < 1) {
-    return { ok: false, error: 'The terrain size is missing or invalid.' };
-  }
-  if (typeof segments !== 'number' || !Number.isInteger(segments) || segments < 1) {
-    return { ok: false, error: 'The terrain segments are missing or invalid.' };
-  }
-
-  const color = terrainFields.color;
-  if (typeof color !== 'string' || !HEX_COLOR.test(color)) {
-    return { ok: false, error: 'The terrain color is missing or invalid.' };
-  }
-
-  const noiseType = terrainFields.noiseType;
-  if (noiseType !== undefined && noiseType !== 'perlin' && noiseType !== 'simplex') {
-    return { ok: false, error: 'The terrain noise type is missing or invalid.' };
-  }
-
-  const height = terrainFields.height;
-  if (typeof height !== 'number' || !Number.isFinite(height) || height < 0) {
-    return { ok: false, error: 'The terrain height is missing or invalid.' };
-  }
-  const frequency = terrainFields.frequency;
-  if (typeof frequency !== 'number' || !Number.isFinite(frequency) || frequency < 0) {
-    return { ok: false, error: 'The terrain frequency is missing or invalid.' };
-  }
-
-  const lighting = settings.lighting;
-  if (typeof lighting !== 'object' || lighting === null) {
-    return { ok: false, error: 'The lighting settings are missing or invalid.' };
-  }
-
-  const lightingFields = lighting as Record<string, unknown>;
-  const hemisphere = lightingFields.hemisphere;
-  const diffuse = lightingFields.diffuse;
-  const specular = lightingFields.specular;
-
-  if (typeof hemisphere !== 'object' || hemisphere === null) {
-    return { ok: false, error: 'The hemispherical lighting settings are missing or invalid.' };
-  }
-  const hemisphereFields = hemisphere as Record<string, unknown>;
-  const skyColor = hemisphereFields.skyColor;
-  const groundColor = hemisphereFields.groundColor;
-
-  if (typeof skyColor !== 'string' || !HEX_COLOR.test(skyColor)) {
-    return { ok: false, error: 'The sky color is missing or invalid.' };
-  }
-  if (typeof groundColor !== 'string' || !HEX_COLOR.test(groundColor)) {
-    return { ok: false, error: 'The ground color is missing or invalid.' };
-  }
-
-  if (typeof diffuse !== 'object' || diffuse === null) {
-    return { ok: false, error: 'The diffuse lighting settings are missing or invalid.' };
-  }
-  const diffuseFields = diffuse as Record<string, unknown>;
-  const lightColor = diffuseFields.color;
-  const direction = diffuseFields.direction;
-
-  if (typeof lightColor !== 'string' || !HEX_COLOR.test(lightColor)) {
-    return { ok: false, error: 'The light color is missing or invalid.' };
-  }
-  if (typeof direction !== 'object' || direction === null) {
-    return { ok: false, error: 'The light direction is missing or invalid.' };
-  }
-  const directionFields = direction as Record<string, unknown>;
-  const directionX = directionFields.x;
-  const directionY = directionFields.y;
-  const directionZ = directionFields.z;
-
-  if (typeof directionX !== 'number' || !Number.isFinite(directionX)) {
-    return { ok: false, error: 'The light direction is missing or invalid.' };
-  }
-  if (typeof directionY !== 'number' || !Number.isFinite(directionY)) {
-    return { ok: false, error: 'The light direction is missing or invalid.' };
-  }
-  if (typeof directionZ !== 'number' || !Number.isFinite(directionZ)) {
-    return { ok: false, error: 'The light direction is missing or invalid.' };
-  }
-
-  if (typeof specular !== 'object' || specular === null) {
-    return { ok: false, error: 'The specular lighting settings are missing or invalid.' };
-  }
-  const specularFields = specular as Record<string, unknown>;
-  const shininess = specularFields.shininess;
-  const intensity = specularFields.intensity;
-
-  if (typeof shininess !== 'number' || !Number.isInteger(shininess) || shininess < 1) {
-    return { ok: false, error: 'The specular shininess is missing or invalid.' };
-  }
-  if (typeof intensity !== 'number' || !Number.isFinite(intensity) || intensity < 0) {
-    return { ok: false, error: 'The specular intensity is missing or invalid.' };
-  }
+  const lighting = parseLightingSettings(settings.lighting);
+  if (!lighting.ok) return { ok: false, error: lighting.error };
 
   return {
     ok: true,
@@ -145,23 +50,157 @@ export function parseSimulationSettings(text: string): Result<StoredSimulationSe
       name: name.trim(),
       image,
       settings: {
-        terrain: {
-          size,
-          segments,
-          color,
-          noiseType: noiseType ?? 'perlin',
-          height: height,
-          frequency: frequency,
-        },
-        lighting: {
-          hemisphere: { skyColor, groundColor },
-          diffuse: {
-            color: lightColor,
-            direction: { x: directionX, y: directionY, z: directionZ },
-          },
-          specular: { shininess, intensity },
-        },
+        terrain: terrain.data,
+        lighting: lighting.data,
       },
     },
   };
+}
+
+/** Parses and validates the terrain section of an imported settings file. */
+function parseTerrainSettings(input: unknown): Result<TerrainSettings> {
+  if (typeof input !== 'object' || input === null) {
+    return { ok: false, error: 'The terrain settings are missing or invalid.' };
+  }
+
+  const fields = input as Record<string, unknown>;
+  const size = fields.size;
+  if (typeof size !== 'number' || !Number.isInteger(size) || size < 1) {
+    return { ok: false, error: 'The terrain size is missing or invalid.' };
+  }
+
+  const segments = fields.segments;
+  if (typeof segments !== 'number' || !Number.isInteger(segments) || segments < 1) {
+    return { ok: false, error: 'The terrain segments are missing or invalid.' };
+  }
+
+  const color = fields.color;
+  if (typeof color !== 'string' || !HEX_COLOR.test(color)) {
+    return { ok: false, error: 'The terrain color is missing or invalid.' };
+  }
+
+  const noiseType = fields.noiseType;
+  if (noiseType !== undefined && noiseType !== 'perlin' && noiseType !== 'simplex') {
+    return { ok: false, error: 'The terrain noise type is missing or invalid.' };
+  }
+
+  const height = fields.height;
+  if (typeof height !== 'number' || !Number.isFinite(height) || height < 0) {
+    return { ok: false, error: 'The terrain height is missing or invalid.' };
+  }
+
+  const frequency = fields.frequency;
+  if (typeof frequency !== 'number' || !Number.isFinite(frequency) || frequency < 0) {
+    return { ok: false, error: 'The terrain frequency is missing or invalid.' };
+  }
+
+  return {
+    ok: true,
+    data: {
+      size,
+      segments,
+      color,
+      noiseType: noiseType ?? 'perlin',
+      height,
+      frequency,
+    },
+  };
+}
+
+/** Parses and validates the lighting section of an imported settings file. */
+function parseLightingSettings(input: unknown): Result<LightingSettings> {
+  if (typeof input !== 'object' || input === null) {
+    return { ok: false, error: 'The lighting settings are missing or invalid.' };
+  }
+
+  const fields = input as Record<string, unknown>;
+  const hemisphere = parseHemisphereLightingSettings(fields.hemisphere);
+  if (!hemisphere.ok) return { ok: false, error: hemisphere.error };
+
+  const diffuse = parseDiffuseLightingSettings(fields.diffuse);
+  if (!diffuse.ok) return { ok: false, error: diffuse.error };
+
+  const specular = parseSpecularLightingSettings(fields.specular);
+  if (!specular.ok) return { ok: false, error: specular.error };
+
+  return {
+    ok: true,
+    data: { hemisphere: hemisphere.data, diffuse: diffuse.data, specular: specular.data },
+  };
+}
+
+/** Parses and validates the hemispherical lighting section. */
+function parseHemisphereLightingSettings(input: unknown): Result<LightingSettings['hemisphere']> {
+  if (typeof input !== 'object' || input === null) {
+    return { ok: false, error: 'The hemispherical lighting settings are missing or invalid.' };
+  }
+
+  const fields = input as Record<string, unknown>;
+  const skyColor = fields.skyColor;
+  if (typeof skyColor !== 'string' || !HEX_COLOR.test(skyColor)) {
+    return { ok: false, error: 'The sky color is missing or invalid.' };
+  }
+
+  const groundColor = fields.groundColor;
+  if (typeof groundColor !== 'string' || !HEX_COLOR.test(groundColor)) {
+    return { ok: false, error: 'The ground color is missing or invalid.' };
+  }
+
+  return { ok: true, data: { skyColor, groundColor } };
+}
+
+/** Parses and validates the diffuse (directional) lighting section. */
+function parseDiffuseLightingSettings(input: unknown): Result<LightingSettings['diffuse']> {
+  if (typeof input !== 'object' || input === null) {
+    return { ok: false, error: 'The diffuse lighting settings are missing or invalid.' };
+  }
+
+  const fields = input as Record<string, unknown>;
+  const color = fields.color;
+  if (typeof color !== 'string' || !HEX_COLOR.test(color)) {
+    return { ok: false, error: 'The light color is missing or invalid.' };
+  }
+
+  const direction = fields.direction;
+  if (typeof direction !== 'object' || direction === null) {
+    return { ok: false, error: 'The light direction is missing or invalid.' };
+  }
+
+  const directionFields = direction as Record<string, unknown>;
+  const x = directionFields.x;
+  if (typeof x !== 'number' || !Number.isFinite(x)) {
+    return { ok: false, error: 'The light direction is missing or invalid.' };
+  }
+
+  const y = directionFields.y;
+  if (typeof y !== 'number' || !Number.isFinite(y)) {
+    return { ok: false, error: 'The light direction is missing or invalid.' };
+  }
+
+  const z = directionFields.z;
+  if (typeof z !== 'number' || !Number.isFinite(z)) {
+    return { ok: false, error: 'The light direction is missing or invalid.' };
+  }
+
+  return { ok: true, data: { color, direction: { x, y, z } } };
+}
+
+/** Parses and validates the specular lighting section. */
+function parseSpecularLightingSettings(input: unknown): Result<LightingSettings['specular']> {
+  if (typeof input !== 'object' || input === null) {
+    return { ok: false, error: 'The specular lighting settings are missing or invalid.' };
+  }
+
+  const fields = input as Record<string, unknown>;
+  const shininess = fields.shininess;
+  if (typeof shininess !== 'number' || !Number.isInteger(shininess) || shininess < 1) {
+    return { ok: false, error: 'The specular shininess is missing or invalid.' };
+  }
+
+  const intensity = fields.intensity;
+  if (typeof intensity !== 'number' || !Number.isFinite(intensity) || intensity < 0) {
+    return { ok: false, error: 'The specular intensity is missing or invalid.' };
+  }
+
+  return { ok: true, data: { shininess, intensity } };
 }
