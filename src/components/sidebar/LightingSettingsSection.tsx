@@ -3,6 +3,7 @@ import { CollapsibleSection } from '@/components/CollapsibleSection';
 import { ColorField } from '@/components/ColorField';
 import { NumberField } from '@/components/NumberField';
 import { SliderField } from '@/components/SliderField';
+import { VectorField } from '@/components/VectorField';
 import { useSimulationStore } from '@/store/simulation';
 
 /** Parses a light direction component; null when it is not a finite number. */
@@ -140,28 +141,12 @@ export const LightingSettingsSection = () => {
           onChange={handleDiffuseColorChange}
         />
 
-        <NumberField
-          id="lighting-direction-x"
-          label="Direction X"
+        <VectorField
+          id="lighting-direction"
+          label="Direction"
           step={0.1}
-          value={activeSettings.lighting.diffuse.direction.x}
-          onChange={(event) => handleDirectionChange('x', event)}
-        />
-
-        <NumberField
-          id="lighting-direction-y"
-          label="Direction Y"
-          step={0.1}
-          value={activeSettings.lighting.diffuse.direction.y}
-          onChange={(event) => handleDirectionChange('y', event)}
-        />
-
-        <NumberField
-          id="lighting-direction-z"
-          label="Direction Z"
-          step={0.1}
-          value={activeSettings.lighting.diffuse.direction.z}
-          onChange={(event) => handleDirectionChange('z', event)}
+          value={activeSettings.lighting.diffuse.direction}
+          onChange={handleDirectionChange}
         />
 
         <h3 className="pt-1 text-xs font-semibold tracking-wide text-stone-500">Blinn-Phong</h3>
