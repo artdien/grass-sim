@@ -38,9 +38,18 @@ export const ImportSettingsPage = () => {
   return (
     <div className="h-full overflow-y-auto">
       <div className="mx-auto w-full max-w-7xl px-6 py-6">
-        <h1 className="text-xl font-semibold text-stone-900">Stored simulation settings</h1>
+        <h1 className="text-xl font-semibold text-stone-900">
+          <span className="pointer-fine:hidden">Simulation settings</span>
+          <span className="hidden pointer-fine:inline">Stored simulation settings</span>
+        </h1>
         <p className="mt-1 text-sm text-stone-600">
-          Restore, download, or delete simulation settings you have stored here.
+          <span className="pointer-fine:hidden">
+            Restore the simulation settings you have stored here and apply them to the current
+            simulation.
+          </span>
+          <span className="hidden pointer-fine:inline">
+            Restore, download, or delete simulation settings you have stored here.
+          </span>
         </p>
 
         {storedSettings.length === 0 ? (
@@ -64,8 +73,11 @@ export const ImportSettingsPage = () => {
               No simulation settings stored yet
             </h2>
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-stone-600">
-              Use Import in the top bar to load simulation settings from an external JSON file.
-              Alternatively, store new settings from the Simulation page.
+              <span className="pointer-fine:hidden">No simulation settings stored yet.</span>
+              <span className="hidden pointer-fine:inline">
+                Use Import in the top bar to load simulation settings from an external JSON file.
+                Alternatively, store new settings from the Simulation page.
+              </span>
             </p>
           </div>
         ) : (

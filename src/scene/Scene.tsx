@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import { useEffect, useRef, memo } from 'react';
+import { useEffect, useRef, useState, memo } from 'react';
 import { useSimulationStore } from '@/store/simulation';
 import { createLighting } from '@/scene/lighting';
 import { createTerrain } from '@/scene/terrain';
 import { createEnvironment } from '@/scene/environment';
 import { registerSceneScreenshot, createSceneCapture } from '@/scene/screenshot';
-import { createMovement } from '@/scene/movement';
+import { createMovement, isMobile } from '@/scene/movement';
 
 /** EMA weight applied per frame when smoothing the FPS readout; smaller values react more slowly. */
 const FPS_ALPHA = 0.1;
@@ -22,6 +22,8 @@ export const Scene = memo(() => {
   const containerRef = useRef<HTMLDivElement>(null);
   const fpsRef = useRef<HTMLSpanElement>(null);
   const hintRef = useRef<HTMLSpanElement>(null);
+  // Stable for the mount's lifetime; must match the control chosen in the effect.
+  const [mobile] = useState(isMobile);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -36,11 +38,13 @@ export const Scene = memo(() => {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     container.appendChild(renderer.domElement);
 
-    const movement = createMovement(camera, renderer.domElement);
-
     // Start at roughly eye height over the field, facing its center.
     camera.position.set(0, 2, 0);
     camera.lookAt(1, 2, 0);
+
+    // Created after the initial camera placement: on mobile the orbit controls
+    // reposition the camera and override the placement above.
+    const movement = createMovement(camera, renderer.domElement);
 
     // Build the entities from the current settings, then sync them imperatively
     // each frame below. Lighting comes from the shared module and is passed to
@@ -143,7 +147,9 @@ export const Scene = memo(() => {
         ref={hintRef}
         className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-md bg-stone-950/60 px-2 py-0.5 font-mono text-xs text-stone-300 tabular-nums select-none"
       >
-        Click to look around · WASD move · E/Q up/down · ESC releases the mouse
+        {mobile
+          ? 'Drag to look around · Pinch or scroll to zoom'
+          : 'Click to look around · WASD move · E/Q up/down · ESC releases the mouse'}
       </span>
     </div>
   );

@@ -63,22 +63,26 @@ export const Navbar = () => {
   return (
     <nav
       aria-label="Main"
-      className="flex items-center gap-8 border-b border-stone-200 bg-white px-6 py-3"
+      className="flex items-center gap-4 border-b border-stone-200 bg-white px-4 py-3 sm:gap-8 sm:px-6"
     >
       <div className="flex items-center gap-2">
         <img src="/icon.svg" alt="" className="h-9 w-9 shrink-0" aria-hidden="true" />
-        <span className="text-base leading-tight font-semibold text-stone-900" aria-hidden="true">
+        <span
+          className="hidden text-base leading-tight font-semibold text-stone-900 pointer-fine:inline"
+          aria-hidden="true"
+        >
           Grass
           <br />
           Simulation
         </span>
       </div>
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-4 sm:gap-6">
         <NavLink to="/simulation" className={linkClassName(isActive('/simulation'))}>
           Simulation
         </NavLink>
         <NavLink to="/import-settings" className={linkClassName(isActive('/import-settings'))}>
-          Import Settings
+          <span className="pointer-fine:hidden">Import</span>
+          <span className="hidden pointer-fine:inline">Import Settings</span>
         </NavLink>
       </div>
       {showImport && (
@@ -96,7 +100,7 @@ export const Navbar = () => {
             type="button"
             title="Imports simulation settings from an external JSON file"
             onClick={handleImportClick}
-            className="ml-auto rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+            className="ml-auto hidden rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none pointer-fine:inline-flex"
           >
             Import
           </button>
@@ -108,7 +112,7 @@ export const Navbar = () => {
           type="button"
           title="Enters fullscreen mode so only the scene is visible"
           onClick={enterFullscreen}
-          className="ml-auto rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+          className="ml-auto hidden rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none pointer-fine:inline-flex"
         >
           Fullscreen
         </button>

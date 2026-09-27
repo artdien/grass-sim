@@ -25,7 +25,7 @@ export const ImportSettingsCard = ({ entry, onRestore, onDownload, onAskDelete }
           title="Delete these simulation settings"
           aria-label={`Delete ${entry.name}`}
           onClick={onAskDelete}
-          className="rounded-md bg-red-50 p-1 text-red-600 transition-colors hover:bg-red-100 hover:text-red-700 focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+          className="hidden rounded-md bg-red-50 p-1 text-red-600 transition-colors hover:bg-red-100 hover:text-red-700 focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none pointer-fine:inline-flex"
         >
           <svg
             className="h-4 w-4"
@@ -66,7 +66,7 @@ export const ImportSettingsCard = ({ entry, onRestore, onDownload, onAskDelete }
           title="Downloads these simulation settings as a JSON file"
           aria-label={`Download ${entry.name}`}
           onClick={onDownload}
-          className="flex-1 rounded-md border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium text-stone-600 shadow-sm transition-colors hover:text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+          className="hidden flex-1 rounded-md border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium text-stone-600 shadow-sm transition-colors hover:text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none pointer-fine:flex"
         >
           Download
         </button>

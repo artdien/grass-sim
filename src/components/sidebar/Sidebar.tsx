@@ -53,7 +53,7 @@ export const Sidebar = () => {
 
   return (
     <aside
-      className={`flex h-full shrink-0 flex-col overflow-y-auto border-r border-stone-200 bg-green-50 transition-[width] duration-200 ${
+      className={`hidden h-full shrink-0 flex-col overflow-y-auto border-r border-stone-200 bg-green-50 transition-[width] duration-200 pointer-fine:flex ${
         isOpen ? 'w-1/5 gap-4 p-4' : 'w-14 items-center p-2'
       }`}
     >
