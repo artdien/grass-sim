@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, memo } from 'react';
 import { useSimulationStore } from '@/store/simulation';
 import { createLighting } from '@/scene/lighting';
 import { createTerrain } from '@/scene/terrain';
+import { createGrass } from '@/scene/grass';
 import { createEnvironment } from '@/scene/environment';
 import { registerSceneScreenshot, createSceneCapture } from '@/scene/screenshot';
 import { createMovement, isMobile } from '@/scene/movement';
@@ -11,10 +12,10 @@ import { createMovement, isMobile } from '@/scene/movement';
 const FPS_ALPHA = 0.1;
 
 /**
- * The Three.js scene: renders the settings-driven terrain over an HDR environment
- * background and exposes a render snapshot. Owns the renderer/scene/camera, the
- * render loop, and sizing, and is the glue that composes the `Lighting`, `Terrain`,
- * and `Environment` entities. Memoized because
+ * The Three.js scene: renders the settings-driven terrain with a grass blade over
+ * an HDR environment background and exposes a render snapshot. Owns the
+ * renderer/scene/camera, the render loop, and sizing, and is the glue that composes
+ * the `Lighting`, `Terrain`, `Grass`, and `Environment` entities. Memoized because
  * the renderer is decoupled from React re-renders, so any change forcing one is
  * immediately visible.
  */
@@ -39,8 +40,8 @@ export const Scene = memo(() => {
     container.appendChild(renderer.domElement);
 
     // Start at roughly eye height over the field, facing its center.
-    camera.position.set(0, 2, 0);
-    camera.lookAt(1, 2, 0);
+    camera.position.set(2, 2, 2);
+    camera.lookAt(0, 0, 0);
 
     // Created after the initial camera placement: on mobile the orbit controls
     // reposition the camera and override the placement above.
@@ -48,15 +49,20 @@ export const Scene = memo(() => {
 
     // Build the entities from the current settings, then sync them imperatively
     // each frame below. Lighting comes from the shared module and is passed to
-    // the terrain so both share the same uniform objects.
+    // the terrain and the grass so both share the same uniform objects.
     const initialSettings = useSimulationStore.getState().activeSettings;
     const lighting = createLighting(initialSettings.lighting);
     const terrain = createTerrain(initialSettings.terrain, lighting.uniforms);
     scene.add(terrain.mesh);
 
+    const grass = createGrass(scene, initialSettings.terrain, lighting.uniforms);
+
     // The HDR environment map loads asynchronously,
     // hence a callback to set it in meshes when it resolves.
-    const environment = createEnvironment(scene, (texture) => terrain.setEnvironmentMap(texture));
+    const environment = createEnvironment(scene, (texture) => {
+      terrain.setEnvironmentMap(texture);
+      grass.setEnvironmentMap(texture);
+    });
 
     const timer = new THREE.Timer();
     let animationFrameId: number;
@@ -71,6 +77,7 @@ export const Scene = memo(() => {
 
       const settings = useSimulationStore.getState().activeSettings;
       terrain.sync(settings.terrain);
+      grass.sync(settings.terrain, timer.getElapsed());
       lighting.sync(settings.lighting);
 
       movement.update(delta);
@@ -127,6 +134,7 @@ export const Scene = memo(() => {
       document.removeEventListener('pointerlockchange', onPointerLockChange);
 
       terrain.dispose();
+      grass.dispose();
       environment.dispose();
       movement.dispose();
       renderer.dispose();

@@ -9,8 +9,8 @@ vec2 grad(float h) {
   return vec2(cos(a), sin(a));
 }
 
-// 2D Perlin (improved) gradient noise on a square lattice, output range is [-1,
-// 1]. Broad, smooth undulations, well suited to large terrain features.
+// 2D Perlin (improved) gradient noise on a square lattice, output range is [-1, 1].
+// Broad, smooth undulations, well suited to large terrain features.
 float perlin_noise(vec2 p) {
   vec2 i = floor(p);
   vec2 f = fract(p);
@@ -42,8 +42,7 @@ float simplex_noise(vec2 v) {
   x12.xy -= i1;
 
   vec3 p = vec3(hash21(i), hash21(i + i1), hash21(i + vec2(1.0, 1.0)));
-  vec3 m = max(
-      0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
+  vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
   m = m * m;
   m = m * m;
 

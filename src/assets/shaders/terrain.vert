@@ -1,4 +1,4 @@
-#include "./noise.glsl";
+#include "./common/noise.glsl";
 
 uniform int uNoiseType;
 uniform float uHeight;
