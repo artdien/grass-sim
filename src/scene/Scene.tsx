@@ -7,6 +7,9 @@ import { createEnvironment } from '@/scene/environment';
 import { registerSceneScreenshot, createSceneCapture } from '@/scene/screenshot';
 import { createMovement } from '@/scene/movement';
 
+/** EMA weight applied per frame when smoothing the FPS readout; smaller values react more slowly. */
+const FPS_ALPHA = 0.1;
+
 /**
  * The Three.js scene: renders the settings-driven terrain over an HDR environment
  * background and exposes a render snapshot. Owns the renderer/scene/camera, the
@@ -54,6 +57,7 @@ export const Scene = memo(() => {
     const timer = new THREE.Timer();
     let animationFrameId: number;
     let hasPreviousFrame = false;
+    let smoothedDelta: number | null = null;
 
     const render = (frameTime: number) => {
       animationFrameId = requestAnimationFrame(render);
@@ -71,7 +75,11 @@ export const Scene = memo(() => {
       // Update the counter imperatively.
       // Routing it through React state would force a re-render at display refresh rate.
       if (hasPreviousFrame && delta > 0 && fpsRef.current !== null) {
-        fpsRef.current.textContent = `${Math.round(1 / delta)} FPS`;
+        // Smooth the frame time via an exponential moving average so a single spiked frame
+        // can't flip the readout by an integer FPS.
+        smoothedDelta =
+          smoothedDelta === null ? delta : smoothedDelta + (delta - smoothedDelta) * FPS_ALPHA;
+        fpsRef.current.textContent = `${Math.round(1 / smoothedDelta)} FPS`;
       }
       hasPreviousFrame = true;
     };
