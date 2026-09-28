@@ -1,5 +1,5 @@
 ---
-name: Three.js Shaders
+name: threejs-shaders
 description: Use when writing or modifying shaders for the Three.js scene in this app — authoring GLSL .vert/.frag/.glsl sources in src/assets/shaders, wiring them into materials, or touching their uniforms/varyings/attributes. Covers the repo's GLSL style, the u/v/a naming conventions, the vite-plugin-glsl import and #include chunk workflow, and the Three.js built-in shader surface.
 ---
 

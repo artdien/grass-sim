@@ -1,5 +1,5 @@
 ---
-name: Three.js Scene
+name: threejs-scene
 description: Use when creating or modifying the Three.js scene in this app — renderer/camera/scene setup, adding 3D objects or entities, wiring Three.js into React components, or refactoring scene architecture. Covers the StrictMode-safe useEffect pattern, resource disposal, and React↔Three interop.
 ---
 

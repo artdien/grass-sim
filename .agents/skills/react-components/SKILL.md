@@ -1,5 +1,5 @@
 ---
-name: React & TypeScript Workflow
+name: react-components
 description: Use when creating or refactoring React components or hooks, writing TypeScript in this repo, or running the lint / format / build / dev workflow. Covers repo-enforced TypeScript settings and the verification loop (no test suite exists).
 ---
 

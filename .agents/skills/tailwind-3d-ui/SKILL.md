@@ -1,5 +1,5 @@
 ---
-name: Tailwind 3D UI
+name: tailwind-3d-ui
 description: Use when adding or restyling UI over the Three.js canvas — HUDs, control panels, inspector UIs, menus, tooltips — or when changing layout/responsive behavior of the renderer and app chrome in this Tailwind v4 app.
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: Three.js Performance
+name: threejs-perf
 description: Use when optimizing render performance, diagnosing FPS drops or stutter, hunting memory leaks, profiling the WebGL scene, or choosing instancing and draw-call strategies for the Three.js scene in this app.
 ---
 
