@@ -38,7 +38,7 @@ There is **no test suite** — no test script or test dependencies exist. Verify
 
 ## UI design system
 
-All UI uses a **light, green-based Tailwind theme — simple and clean, since the 3D render output is the focus** (no custom CSS tokens yet; styling lives in component class lists). Reference implementations: `src/components/Navbar.tsx` (app chrome) and `src/pages/ImportSettingsPage.tsx` (card/notice). Keep new UI consistent with these choices:
+All UI uses a **light, green-based Tailwind theme — simple and clean, since the 3D render output is the focus** (no custom CSS tokens yet; styling lives in component class lists). Reference implementations: `src/components/Navbar.tsx` (app chrome) and `src/pages/LoadSettingsPage.tsx` (card/notice). Keep new UI consistent with these choices:
 
 - **Backgrounds:** app base `bg-green-50`; navbar/chrome `bg-white` with `border-stone-200` separators; cards `rounded-xl border border-stone-200 bg-white shadow-sm`; the 3D scene background stays black (`#000000`) so the render remains the focal point.
 - **Text:** primary `text-stone-900`; secondary/inactive `text-stone-500` (links get `hover:text-stone-900`); body copy `text-stone-600`.
@@ -75,7 +75,7 @@ Documentation splits into two kinds with opposite rules. **Contract docs on publ
 
 ## State management
 
-Shared app state — state used by more than one page or outside a component subtree (e.g. **`SimulationSettings`**, consumed by both `SimulationPage` and `ImportSettingsPage`) — is managed with **Zustand**, not `useState` + prop drilling.
+Shared app state — state used by more than one page or outside a component subtree (e.g. **`SimulationSettings`**, consumed by both `SimulationPage` and `LoadSettingsPage`) — is managed with **Zustand**, not `useState` + prop drilling.
 
 - **Stores live in `src/store/`** — one file per domain (e.g. `store/simulation.ts`), each exporting a `use`-prefixed hook built with `create` from `zustand`. The shared model from `src/types.ts` is stored as **one section object** (e.g. `activeSettings: SimulationSettings`), not as flat per-field state, and is replaced wholesale through a single setter named `updateActiveSettings` (not `setActiveSettings`, so it doesn't read like a `useState` setter).
 - **Components read through selectors:** `useSimulationStore((state) => state.activeSettings)`. Updates provide a **copy** of the model with the changed value(s) replaced — `updateActiveSettings({ ...settings, cubeColor: event.target.value })` — never mutating the stored object, and never passing settings down as props from a page.
@@ -83,6 +83,6 @@ Shared app state — state used by more than one page or outside a component sub
 
 ## Architecture notes
 
-- Entry flow: `index.html` → `src/main.tsx` (mount only) → `src/router.tsx` (React Router 7 is set up **there**: `App` is the layout route — `Navbar` + `<Outlet />`; children: `SimulationPage` at `/simulation`, `ImportSettingsPage` at `/import-settings`, `NotFoundPage` at the `*` catch-all; the index `/` redirects to `/simulation`) → `src/pages/SimulationPage.tsx` → `src/scene/Scene.tsx`.
+- Entry flow: `index.html` → `src/main.tsx` (mount only) → `src/router.tsx` (React Router 7 is set up **there**: `App` is the layout route — `Navbar` + `<Outlet />`; children: `SimulationPage` at `/simulation`, `LoadSettingsPage` at `/load-settings`, `NotFoundPage` at the `*` catch-all; the index `/` redirects to `/simulation`) → `src/pages/SimulationPage.tsx` → `src/scene/Scene.tsx`.
 - `src/scene/Scene.tsx` does all Three.js setup (scene, camera, renderer, rAF loop) inside a `useEffect` with full teardown (dispose, rAF cancel, DOM removal). **StrictMode is on**, so in dev this effect runs mount → cleanup → mount; the cleanup is what keeps it from leaking/crashing. Preserve this pattern when extending the scene.
 - The scene is sized from the container div (`clientWidth/Height`), not the window — the renderer div must keep its full-size classes.

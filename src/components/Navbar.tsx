@@ -20,7 +20,7 @@ export const Navbar = () => {
   // while unrelated paths (e.g. "/page/doesnotexist") do not highlight any link.
   const normalizedPathname = pathname.replace(/\/+$/, '') || '/';
   const isActive = (to: string) => normalizedPathname === to;
-  const showImport = isActive('/import-settings');
+  const showImport = isActive('/load-settings');
   const showFullscreen = isActive('/simulation');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -80,9 +80,8 @@ export const Navbar = () => {
         <NavLink to="/simulation" className={linkClassName(isActive('/simulation'))}>
           Simulation
         </NavLink>
-        <NavLink to="/import-settings" className={linkClassName(isActive('/import-settings'))}>
-          <span className="pointer-fine:hidden">Import</span>
-          <span className="hidden pointer-fine:inline">Import Settings</span>
+        <NavLink to="/load-settings" className={linkClassName(isActive('/load-settings'))}>
+          Load
         </NavLink>
       </div>
       {showImport && (

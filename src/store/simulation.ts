@@ -29,7 +29,7 @@ interface SimulationState {
   importSettings: (entry: StoredSimulationSettings) => void;
 
   /** Applies `entry`'s settings as the active settings. */
-  restoreSettings: (entry: StoredSimulationSettings) => void;
+  loadSettings: (entry: StoredSimulationSettings) => void;
 
   /** Removes the stored entry with `name`. */
   deleteSettings: (name: string) => void;
@@ -134,7 +134,7 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
         : [...state.storedSettings, entry];
       return { storedSettings };
     }),
-  restoreSettings: (entry) =>
+  loadSettings: (entry) =>
     set({
       activeSettings: {
         wind: { ...entry.settings.wind },

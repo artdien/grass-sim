@@ -1,23 +1,24 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { ImportSettingsCard } from '@/components/ImportSettingsCard';
+import { LoadSettingsCard } from '@/components/LoadSettingsCard';
+
 import { useSimulationStore } from '@/store/simulation';
 import type { StoredSimulationSettings } from '@/types';
 
-/** Lists stored settings entries with restore, download, and delete. */
-export const ImportSettingsPage = () => {
+/** Lists stored settings entries with load, download, and delete. */
+export const LoadSettingsPage = () => {
   const navigate = useNavigate();
   const [pendingDelete, setPendingDelete] = useState<StoredSimulationSettings | null>(null);
 
   const storedSettings = useSimulationStore((state) => state.storedSettings);
-  const restoreSettings = useSimulationStore((state) => state.restoreSettings);
+  const loadSettings = useSimulationStore((state) => state.loadSettings);
   const deleteSettings = useSimulationStore((state) => state.deleteSettings);
 
-  const handleRestore = (entry: StoredSimulationSettings) => {
+  const handleLoad = (entry: StoredSimulationSettings) => {
     // Applying to the store is enough for the scene: it reads the settings
     // out of the store every frame. Navigate so the result is visible there.
-    restoreSettings(entry);
+    loadSettings(entry);
     void navigate('/simulation');
   };
 
@@ -44,12 +45,12 @@ export const ImportSettingsPage = () => {
         </h1>
         <p className="mt-1 text-sm text-stone-600">
           <span className="pointer-fine:hidden">
-            Restore the simulation settings you have stored here and apply them to the current
+            Load the simulation settings you have stored here and apply them to the current
             simulation.
           </span>
           <span className="hidden pointer-fine:inline">
-            Restore, download, or delete simulation settings you have stored here. Stored settings
-            live in memory only and are lost when the page is reloaded.
+            Load, download, or delete simulation settings you have stored here. Stored settings live
+            in memory only and are lost when the page is reloaded.
           </span>
         </p>
 
@@ -84,10 +85,10 @@ export const ImportSettingsPage = () => {
         ) : (
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {storedSettings.map((entry) => (
-              <ImportSettingsCard
+              <LoadSettingsCard
                 key={entry.name}
                 entry={entry}
-                onRestore={() => handleRestore(entry)}
+                onLoad={() => handleLoad(entry)}
                 onDownload={() => downloadSettings(entry)}
                 onAskDelete={() => setPendingDelete(entry)}
               />

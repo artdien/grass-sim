@@ -136,6 +136,6 @@ export interface StoredSimulationSettings {
   /** Base64-encoded PNG snapshot of the scene, without the `data:` prefix. */
   image: string;
 
-  /** The simulation settings this entry restores. */
+  /** The simulation settings this entry loads. */
   settings: SimulationSettings;
 }

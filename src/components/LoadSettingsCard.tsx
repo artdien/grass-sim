@@ -5,7 +5,7 @@ interface Props {
   entry: StoredSimulationSettings;
 
   /** Applies the entry's settings as the active settings. */
-  onRestore: () => void;
+  onLoad: () => void;
 
   /** Downloads the entry's JSON. */
   onDownload: () => void;
@@ -14,8 +14,8 @@ interface Props {
   onAskDelete: () => void;
 }
 
-/** Card for one stored settings entry: its snapshot plus restore, download, and delete. */
-export const ImportSettingsCard = ({ entry, onRestore, onDownload, onAskDelete }: Props) => {
+/** Card for one stored settings entry: its snapshot plus load, download, and delete. */
+export const LoadSettingsCard = ({ entry, onLoad, onDownload, onAskDelete }: Props) => {
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
       <header className="flex items-center justify-between gap-2 px-4 py-3">
@@ -64,11 +64,11 @@ export const ImportSettingsCard = ({ entry, onRestore, onDownload, onAskDelete }
         </button>
         <button
           type="button"
-          title="Restores these simulation settings and applies them to the current simulation"
-          onClick={onRestore}
+          title="Loads these simulation settings and applies them to the current simulation"
+          onClick={onLoad}
           className="flex-1 rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
         >
-          Restore
+          Load
         </button>
       </footer>
     </article>
