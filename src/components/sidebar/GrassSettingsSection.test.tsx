@@ -100,7 +100,8 @@ describe('GrassSettingsSection', () => {
   it('commits a color change to the given palette slot only', () => {
     render(<GrassSettingsSection />);
 
-    fireEvent.change(screen.getByLabelText('Base color 1'), { target: { value: '#ff0000' } });
+    const base1 = document.getElementById('grass-color-1-base') as HTMLInputElement;
+    fireEvent.change(base1, { target: { value: '#ff0000' } });
 
     const grass = useSimulationStore.getState().activeSettings.grass;
     expect(grass.baseColor1).toBe('#ff0000');

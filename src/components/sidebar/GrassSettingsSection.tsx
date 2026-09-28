@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react';
 import { CollapsibleSection } from '@/components/layout/CollapsibleSection';
-import { ColorField } from '@/components/fields/ColorField';
+import { ColorPairField } from '@/components/fields/ColorPairField';
 import { NumberField } from '@/components/fields/NumberField';
 import { SliderField } from '@/components/fields/SliderField';
 import { useSimulationStore } from '@/store/simulation';
@@ -204,32 +204,22 @@ export const GrassSettingsSection = () => {
           onChange={(event) => handleVariationChange('colorDistribution', event)}
         />
 
-        <ColorField
-          id="grass-base-color-1"
-          label="Base color 1"
-          value={activeSettings.grass.baseColor1}
-          onChange={(event) => handleColorChange('baseColor1', event)}
+        <ColorPairField
+          id="grass-color-1"
+          label="Palette 1"
+          baseValue={activeSettings.grass.baseColor1}
+          tipValue={activeSettings.grass.tipColor1}
+          onBaseChange={(event) => handleColorChange('baseColor1', event)}
+          onTipChange={(event) => handleColorChange('tipColor1', event)}
         />
 
-        <ColorField
-          id="grass-tip-color-1"
-          label="Tip color 1"
-          value={activeSettings.grass.tipColor1}
-          onChange={(event) => handleColorChange('tipColor1', event)}
-        />
-
-        <ColorField
-          id="grass-base-color-2"
-          label="Base color 2"
-          value={activeSettings.grass.baseColor2}
-          onChange={(event) => handleColorChange('baseColor2', event)}
-        />
-
-        <ColorField
-          id="grass-tip-color-2"
-          label="Tip color 2"
-          value={activeSettings.grass.tipColor2}
-          onChange={(event) => handleColorChange('tipColor2', event)}
+        <ColorPairField
+          id="grass-color-2"
+          label="Palette 2"
+          baseValue={activeSettings.grass.baseColor2}
+          tipValue={activeSettings.grass.tipColor2}
+          onBaseChange={(event) => handleColorChange('baseColor2', event)}
+          onTipChange={(event) => handleColorChange('tipColor2', event)}
         />
 
         <h3 className="pt-1 text-xs font-semibold tracking-wide text-stone-500">Shading</h3>
