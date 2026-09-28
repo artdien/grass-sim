@@ -6,8 +6,6 @@ uniform vec3 uSkyColor;
 uniform vec3 uGroundColor;
 uniform vec3 uLightColor;
 uniform vec3 uLightDirection;
-uniform float uShininess;
-uniform float uSpecularIntensity;
 uniform float uEnvironmentStrength;
 
 in vec3 vWorldPosition;
@@ -22,14 +20,12 @@ void main() {
   // Guard against a zero-length direction so the light degrades to off instead of NaN.
   float lightLength = length(uLightDirection);
   vec3 L = lightLength > 0.0 ? -uLightDirection / lightLength : vec3(0.0);
-  vec3 H = normalize(L + V);
 
   vec3 ambient = ambientLighting(uGroundColor, uSkyColor, N);
   vec3 diffuse = diffuseLighting(uLightColor, L, N);
-  vec3 specular = specularLighting(uLightColor, L, H, N, uSpecularIntensity, uShininess);
   vec3 env = uEnvironmentStrength * envLighting(uEnvMap, V, N);
 
-  vec3 color = uTerrainColor * (ambient + diffuse) + specular + env;
+  vec3 color = uTerrainColor * (ambient + diffuse) + env;
 
   vFragColor = vec4(color, 1.0);
 }
