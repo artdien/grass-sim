@@ -38,6 +38,27 @@ interface SimulationState {
 /** Zustand store: the active simulation settings plus the saved settings entries. */
 export const useSimulationStore = create<SimulationState>()((set, get) => ({
   activeSettings: {
+    wind: {
+      velocity: 0.2,
+      strength: 1.0,
+      angle: 0.0,
+    },
+    // The color defaults are the sRGB hex equivalents of the linear palette
+    // values the shader used before these were configurable.
+    grass: {
+      tileSize: 10,
+      bladeWidth: 0.2,
+      bladeHeight: 1.5,
+      bladeBending: 22.5,
+      heightRandomness: 0.5,
+      colorRandomness: 0.2,
+      colorDistribution: 1.0,
+      baseColor1: '#3f9527',
+      tipColor1: '#aada7c',
+      baseColor2: '#6ca03f',
+      tipColor2: '#cbe795',
+      selfShadowing: 2.0,
+    },
     terrain: {
       size: 200,
       segments: 512,
@@ -86,6 +107,8 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
       name: trimmedName,
       image,
       settings: {
+        wind: { ...active.wind },
+        grass: { ...active.grass },
         terrain: { ...active.terrain },
         lighting: {
           hemisphere: { ...active.lighting.hemisphere },
@@ -114,6 +137,8 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
   restoreSettings: (entry) =>
     set({
       activeSettings: {
+        wind: { ...entry.settings.wind },
+        grass: { ...entry.settings.grass },
         terrain: { ...entry.settings.terrain },
         lighting: {
           hemisphere: { ...entry.settings.lighting.hemisphere },

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { LightingUniforms } from '@/scene/lighting';
-import type { TerrainNoiseType, TerrainSettings } from '@/types';
+import type { GrassSettings, TerrainNoiseType, TerrainSettings, WindSettings } from '@/types';
 import { loadGrassBlade } from '@/scene/grassblade';
 
 // Assets
@@ -9,13 +9,6 @@ import grassFragmentShader from '@/assets/shaders/grass.frag';
 
 // Blades per tile.
 const BLADES_PER_TILE = 4096;
-
-// Tile side length in world units; must match GRASS_TILE_SIZE in grass.vert.
-const GRASS_TILE_SIZE = 10;
-
-// Upper bound on the blade height (see the constants in grass.vert); keeps wind
-// bending inside the tile bounds.
-const BLADE_MAX_HEIGHT = 2.0;
 
 // Index into the noise function chosen by the shader (see grass.vert).
 const NOISE_TYPE_INDEX: Record<TerrainNoiseType, number> = { perlin: 0, simplex: 1 };
@@ -34,8 +27,14 @@ const NOISE_TYPE_INDEX: Record<TerrainNoiseType, number> = { perlin: 0, simplex:
  * and is lit by the shared lighting uniforms and the HDR environment map.
  */
 export interface Grass {
-  /** Applies the placement settings (size, noise, height, frequency) to the tiles, only touching the values that changed; the tile grid is rebuilt when the size changes. The time is applied on every call, as it advances every frame. */
-  sync: (terrain: TerrainSettings, time: number) => void;
+  /**
+   * Applies the wind, grass, and placement (size, noise, height, frequency)
+   * settings to the material and tiles, only touching the values that changed;
+   * the tile grid is rebuilt when the size or the tile size changes. The wind
+   * angle and the blade bending are converted from degrees to radians here, and
+   * the time is applied on every call, as it advances every frame.
+   */
+  sync: (wind: WindSettings, grass: GrassSettings, terrain: TerrainSettings, time: number) => void;
 
   /** Sets the environment texture the material samples through `uEnvMap`. */
   setEnvironmentMap: (texture: THREE.Texture) => void;
@@ -53,10 +52,10 @@ export interface Grass {
  * mesh per tile, each centered on a tile of its own position and culled by its
  * bounding sphere — with the grass shader, added to `scene`.
  *
- * The material's uniforms merge the grass-owned uniforms (placement, color,
- * the blade's normal map taken from the GLB, and the environment map) with
- * the shared `lightingUniforms`, so the same `lighting.sync` that drives the
- * terrain also drives this material.
+ * The material's uniforms merge the grass-owned uniforms (wind, blade shape and
+ * palette colors, the blade's normal map taken from the GLB, and the
+ * environment map) with the shared `lightingUniforms`, so the same
+ * `lighting.sync` that drives the terrain also drives this material.
  *
  * The load is asynchronous, so the scene keeps rendering without the blade
  * until the model arrives; `dispose` frees the blade's resources whether the
@@ -65,6 +64,8 @@ export interface Grass {
  */
 export const createGrass = (
   scene: THREE.Scene,
+  wind: WindSettings,
+  grass: GrassSettings,
   terrain: TerrainSettings,
   lightingUniforms: LightingUniforms,
 ): Grass => {
@@ -75,6 +76,21 @@ export const createGrass = (
 
   const grassUniforms: {
     uTime: THREE.IUniform<number>;
+    uWindVelocity: THREE.IUniform<number>;
+    uWindStrength: THREE.IUniform<number>;
+    uWindAngle: THREE.IUniform<number>;
+    uGrassTileSize: THREE.IUniform<number>;
+    uGrassBladeWidth: THREE.IUniform<number>;
+    uGrassBladeHeight: THREE.IUniform<number>;
+    uGrassBladeBending: THREE.IUniform<number>;
+    uGrassBladeHeightRandomness: THREE.IUniform<number>;
+    uGrassBladeColorRandomness: THREE.IUniform<number>;
+    uGrassBladeColorDistribution: THREE.IUniform<number>;
+    uGrassBladeBaseColor1: THREE.IUniform<THREE.Color>;
+    uGrassBladeTipColor1: THREE.IUniform<THREE.Color>;
+    uGrassBladeBaseColor2: THREE.IUniform<THREE.Color>;
+    uGrassBladeTipColor2: THREE.IUniform<THREE.Color>;
+    uGrassBladeSelfShadowing: THREE.IUniform<number>;
     uNoiseType: THREE.IUniform<number>;
     uHeight: THREE.IUniform<number>;
     uFrequency: THREE.IUniform<number>;
@@ -82,6 +98,21 @@ export const createGrass = (
     uEnvMap: THREE.IUniform<THREE.Texture>;
   } = {
     uTime: { value: 0.0 },
+    uWindVelocity: { value: wind.velocity },
+    uWindStrength: { value: wind.strength },
+    uWindAngle: { value: THREE.MathUtils.degToRad(wind.angle) },
+    uGrassTileSize: { value: grass.tileSize },
+    uGrassBladeWidth: { value: grass.bladeWidth },
+    uGrassBladeHeight: { value: grass.bladeHeight },
+    uGrassBladeBending: { value: THREE.MathUtils.degToRad(grass.bladeBending) },
+    uGrassBladeHeightRandomness: { value: grass.heightRandomness },
+    uGrassBladeColorRandomness: { value: grass.colorRandomness },
+    uGrassBladeColorDistribution: { value: grass.colorDistribution },
+    uGrassBladeBaseColor1: { value: new THREE.Color(grass.baseColor1) },
+    uGrassBladeTipColor1: { value: new THREE.Color(grass.tipColor1) },
+    uGrassBladeBaseColor2: { value: new THREE.Color(grass.baseColor2) },
+    uGrassBladeTipColor2: { value: new THREE.Color(grass.tipColor2) },
+    uGrassBladeSelfShadowing: { value: grass.selfShadowing },
     uNoiseType: { value: NOISE_TYPE_INDEX[terrain.noiseType] },
     uHeight: { value: terrain.height },
     uFrequency: { value: terrain.frequency },
@@ -110,30 +141,33 @@ export const createGrass = (
   let syncedFrequency = terrain.frequency;
 
   // The shared local-space bounds of a tile, covering its full extent plus the
-  // blade height; identical for all tiles so it is constructed once.
-  const tileBoundingSphere = new THREE.Sphere(
-    new THREE.Vector3(0, BLADE_MAX_HEIGHT / 2, 0),
-    Math.SQRT2 * (GRASS_TILE_SIZE / 2 + BLADE_MAX_HEIGHT),
-  );
+  // tallest blade. All tiles reference this single instance, so resizing it in
+  // place below reaches every tile without reassignment.
+  const tileBoundingSphere = new THREE.Sphere(new THREE.Vector3(), 1);
+
+  // Resize the shared bounds for the grid's current tile size and blade height
+  // (plus the blade's height variation, which is the tallest blade a tile can grow).
+  const updateTileBounds = (grassSettings: GrassSettings) => {
+    const maxHeight = grassSettings.bladeHeight * (1 + 0.5 * grassSettings.heightRandomness);
+    tileBoundingSphere.center.set(0, 0.5 * maxHeight, 0);
+    tileBoundingSphere.radius = Math.SQRT2 * (0.5 * grassSettings.tileSize + maxHeight);
+  };
+  updateTileBounds(grass);
 
   /*
    * One InstancedMesh per tile, anchored at the tile center. The blades are placed
    * relative to that center on the GPU side (see grass.vert), so the anchor — and the
    * local-space bounds the culler tests against it — is the only per-tile state.
    */
-  const createTileGrid = (size: number, geometry: THREE.BufferGeometry) => {
-    const tilesPerAxis = Math.max(1, Math.ceil(size / GRASS_TILE_SIZE));
-    const halfSize = 0.5 * tilesPerAxis * GRASS_TILE_SIZE;
+  const createTileGrid = (size: number, tileSize: number, geometry: THREE.BufferGeometry) => {
+    const tilesPerAxis = Math.max(1, Math.ceil(size / tileSize));
+    const halfSize = 0.5 * tilesPerAxis * tileSize;
 
     const grid: THREE.InstancedMesh[] = [];
     for (let x = 0; x < tilesPerAxis; x++) {
       for (let z = 0; z < tilesPerAxis; z++) {
         const tile = new THREE.InstancedMesh(geometry, material, BLADES_PER_TILE);
-        tile.position.set(
-          -halfSize + (x + 0.5) * GRASS_TILE_SIZE,
-          0,
-          -halfSize + (z + 0.5) * GRASS_TILE_SIZE,
-        );
+        tile.position.set(-halfSize + (x + 0.5) * tileSize, 0, -halfSize + (z + 0.5) * tileSize);
         tile.boundingSphere = tileBoundingSphere;
         grid.push(tile);
       }
@@ -156,11 +190,123 @@ export const createGrass = (
     if (blade.normalMap !== null) {
       grassUniforms.uNormalMap.value = blade.normalMap;
     }
-    tiles = createTileGrid(syncedSize, blade.geometry);
+    tiles = createTileGrid(syncedSize, syncedTileSize, blade.geometry);
   });
 
-  const sync = (terrainSettings: TerrainSettings, time: number) => {
+  let syncedWindVelocity = wind.velocity;
+  let syncedWindStrength = wind.strength;
+  let syncedWindAngle = wind.angle;
+
+  let syncedTileSize = grass.tileSize;
+  let syncedBladeWidth = grass.bladeWidth;
+  let syncedBladeHeight = grass.bladeHeight;
+  let syncedBladeBending = grass.bladeBending;
+  let syncedHeightRandomness = grass.heightRandomness;
+  let syncedColorRandomness = grass.colorRandomness;
+  let syncedColorDistribution = grass.colorDistribution;
+  let syncedBaseColor1 = grass.baseColor1;
+  let syncedTipColor1 = grass.tipColor1;
+  let syncedBaseColor2 = grass.baseColor2;
+  let syncedTipColor2 = grass.tipColor2;
+  let syncedSelfShadowing = grass.selfShadowing;
+
+  const sync = (
+    windSettings: WindSettings,
+    grassSettings: GrassSettings,
+    terrainSettings: TerrainSettings,
+    time: number,
+  ) => {
     grassUniforms.uTime.value = time;
+
+    if (windSettings.velocity !== syncedWindVelocity) {
+      syncedWindVelocity = windSettings.velocity;
+      grassUniforms.uWindVelocity.value = windSettings.velocity;
+    }
+
+    if (windSettings.strength !== syncedWindStrength) {
+      syncedWindStrength = windSettings.strength;
+      grassUniforms.uWindStrength.value = windSettings.strength;
+    }
+
+    if (windSettings.angle !== syncedWindAngle) {
+      syncedWindAngle = windSettings.angle;
+      grassUniforms.uWindAngle.value = THREE.MathUtils.degToRad(windSettings.angle);
+    }
+
+    const boundsChanged =
+      grassSettings.tileSize !== syncedTileSize ||
+      grassSettings.bladeHeight !== syncedBladeHeight ||
+      grassSettings.heightRandomness !== syncedHeightRandomness;
+
+    // Tile-size changes while the blade is still loading are picked up here and
+    // applied once, when the grid is created from syncedTileSize in the load callback.
+    if (grassSettings.tileSize !== syncedTileSize) {
+      syncedTileSize = grassSettings.tileSize;
+      grassUniforms.uGrassTileSize.value = grassSettings.tileSize;
+      if (bladeGeometry !== null) {
+        disposeTiles();
+        tiles = createTileGrid(syncedSize, syncedTileSize, bladeGeometry);
+      }
+    }
+
+    if (grassSettings.bladeWidth !== syncedBladeWidth) {
+      syncedBladeWidth = grassSettings.bladeWidth;
+      grassUniforms.uGrassBladeWidth.value = grassSettings.bladeWidth;
+    }
+
+    if (grassSettings.bladeHeight !== syncedBladeHeight) {
+      syncedBladeHeight = grassSettings.bladeHeight;
+      grassUniforms.uGrassBladeHeight.value = grassSettings.bladeHeight;
+    }
+
+    if (grassSettings.bladeBending !== syncedBladeBending) {
+      syncedBladeBending = grassSettings.bladeBending;
+      grassUniforms.uGrassBladeBending.value = THREE.MathUtils.degToRad(grassSettings.bladeBending);
+    }
+
+    if (grassSettings.heightRandomness !== syncedHeightRandomness) {
+      syncedHeightRandomness = grassSettings.heightRandomness;
+      grassUniforms.uGrassBladeHeightRandomness.value = grassSettings.heightRandomness;
+    }
+
+    if (grassSettings.colorRandomness !== syncedColorRandomness) {
+      syncedColorRandomness = grassSettings.colorRandomness;
+      grassUniforms.uGrassBladeColorRandomness.value = grassSettings.colorRandomness;
+    }
+
+    if (grassSettings.colorDistribution !== syncedColorDistribution) {
+      syncedColorDistribution = grassSettings.colorDistribution;
+      grassUniforms.uGrassBladeColorDistribution.value = grassSettings.colorDistribution;
+    }
+
+    if (grassSettings.baseColor1 !== syncedBaseColor1) {
+      syncedBaseColor1 = grassSettings.baseColor1;
+      grassUniforms.uGrassBladeBaseColor1.value.set(grassSettings.baseColor1);
+    }
+
+    if (grassSettings.tipColor1 !== syncedTipColor1) {
+      syncedTipColor1 = grassSettings.tipColor1;
+      grassUniforms.uGrassBladeTipColor1.value.set(grassSettings.tipColor1);
+    }
+
+    if (grassSettings.baseColor2 !== syncedBaseColor2) {
+      syncedBaseColor2 = grassSettings.baseColor2;
+      grassUniforms.uGrassBladeBaseColor2.value.set(grassSettings.baseColor2);
+    }
+
+    if (grassSettings.tipColor2 !== syncedTipColor2) {
+      syncedTipColor2 = grassSettings.tipColor2;
+      grassUniforms.uGrassBladeTipColor2.value.set(grassSettings.tipColor2);
+    }
+
+    if (grassSettings.selfShadowing !== syncedSelfShadowing) {
+      syncedSelfShadowing = grassSettings.selfShadowing;
+      grassUniforms.uGrassBladeSelfShadowing.value = grassSettings.selfShadowing;
+    }
+
+    if (boundsChanged) {
+      updateTileBounds(grassSettings);
+    }
 
     // Size changes while the blade is still loading are picked up here and applied
     // once, when the grid is created from syncedSize in the load callback.
@@ -168,7 +314,7 @@ export const createGrass = (
       syncedSize = terrainSettings.size;
       if (bladeGeometry !== null) {
         disposeTiles();
-        tiles = createTileGrid(syncedSize, bladeGeometry);
+        tiles = createTileGrid(syncedSize, syncedTileSize, bladeGeometry);
       }
     }
 

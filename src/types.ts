@@ -8,6 +8,57 @@ export type Result<T = void, E = string> = { ok: true; data: T } | { ok: false; 
 /** The noise field the terrain height is displaced by, chosen in the sidebar. */
 export type TerrainNoiseType = 'perlin' | 'simplex';
 
+/** The wind the grass blade shader bends the blades by: how fast, how hard, and from which direction. */
+export interface WindSettings {
+  /** Wind velocity (a number in [0, 1]); scales both the bend noise and the blade lean. */
+  velocity: number;
+
+  /** Wind strength (a number in [0, 1]). */
+  strength: number;
+
+  /** Direction the wind blows toward, in degrees [0, 360]. */
+  angle: number;
+}
+
+/** The grass blade and its layout as the shaders render them: the tile grid, the blade shape and variation, and its color palettes and shading. */
+export interface GrassSettings {
+  /** Side length of a grass tile in world units (an integer ≥ 1); the tile grid is rebuilt when it changes. */
+  tileSize: number;
+
+  /** How wide the blade is (a number in (0, 1]). */
+  bladeWidth: number;
+
+  /** How tall the blade is (a number in (0, 5]). */
+  bladeHeight: number;
+
+  /** The blade's resting bend angle, in degrees (a number in [0, 45]). */
+  bladeBending: number;
+
+  /** How much the blade height varies between blades (a number in [0, 1]). */
+  heightRandomness: number;
+
+  /** How much the blade color varies between blades (a number in [0, 1]). */
+  colorRandomness: number;
+
+  /** Spatial scale of the color-field variation (a number in [0, 1]). */
+  colorDistribution: number;
+
+  /** Base (ground) color of the first blade color palette, as a hex string (#rrggbb). */
+  baseColor1: string;
+
+  /** Tip color of the first blade color palette, as a hex string (#rrggbb). */
+  tipColor1: string;
+
+  /** Base (ground) color of the second blade color palette, as a hex string (#rrggbb). */
+  baseColor2: string;
+
+  /** Tip color of the second blade color palette, as a hex string (#rrggbb). */
+  tipColor2: string;
+
+  /** Exponent of the blade's self-shadowing toward its base (a number in [0, 10]). */
+  selfShadowing: number;
+}
+
 /** Terrain generation settings: how large it is, how finely it is subdivided, its base color, and its height field. */
 export interface TerrainSettings {
   /** Terrain size in world units (an integer ≥ 1). */
@@ -71,6 +122,8 @@ export interface LightingSettings {
 
 /** Live settings the scene reads on every frame and the user adjusts via the sidebar. */
 export interface SimulationSettings {
+  wind: WindSettings;
+  grass: GrassSettings;
   terrain: TerrainSettings;
   lighting: LightingSettings;
 }

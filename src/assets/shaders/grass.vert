@@ -15,20 +15,20 @@ out vec2 vUV;
 out vec3 vGrassBladeColor;
 out float vGrassBladeHeight;
 
-const float WIND_VELOCITY = 0.2;                  // range [0, 1]
-const float WIND_STRENGTH = 1.0;                  // range [0, 1]
-const float WIND_ANGLE = 0.0;                     // range [0, 2*PI]
-const float GRASS_TILE_SIZE = 10.0;               // range [1, inf]
-const float GRASS_BLADE_WIDTH = 0.2;              // range (0, 1]
-const float GRASS_BLADE_HEIGHT = 1.5;             // range (0, 5]
-const float GRASS_BLADE_COLOR_RANDOMNESS = 0.2;   // range [0, 1]
-const float GRASS_BLADE_COLOR_DISTRIBUTION = 1.0; // range [0, 1]
-const float GRASS_BLADE_BENDING = PI / 8.0;       // range [0, PI/4]
-const float GRASS_BLADE_HEIGHT_RANDOMNESS = 0.5;  // range [0, 1]
-const vec3 GRASS_BLADE_COLOR_BASE_1 = vec3(0.05, 0.3, 0.02);
-const vec3 GRASS_BLADE_COLOR_TIP_1 = vec3(0.4, 0.7, 0.2);
-const vec3 GRASS_BLADE_COLOR_BASE_2 = vec3(0.15, 0.35, 0.05);
-const vec3 GRASS_BLADE_COLOR_TIP_2 = vec3(0.6, 0.8, 0.3);
+uniform float uWindVelocity;                      // range [0, 1]
+uniform float uWindStrength;                      // range [0, 1]
+uniform float uWindAngle;                         // range [0, 2*PI]
+uniform float uGrassTileSize;                    // range [1, inf]
+uniform float uGrassBladeWidth;                   // range (0, 1]
+uniform float uGrassBladeHeight;                  // range (0, 5]
+uniform float uGrassBladeBending;                 // range [0, PI/4]
+uniform float uGrassBladeHeightRandomness;        // range [0, 1]
+uniform float uGrassBladeColorRandomness;         // range [0, 1]
+uniform float uGrassBladeColorDistribution;       // range [0, 1]
+uniform vec3 uGrassBladeBaseColor1;
+uniform vec3 uGrassBladeTipColor1;
+uniform vec3 uGrassBladeBaseColor2;
+uniform vec3 uGrassBladeTipColor2;
 
 float terrainHeight(vec2 xz) {
   vec2 q = xz * uFrequency;
@@ -44,25 +44,25 @@ void main() {
 
   // Blades share gl_InstanceID across tiles, so seed the PCG with the tile anchor
   // (the mesh position) or neighbouring tiles would repeat exactly.
-  vec2 tileCell = floor(modelMatrix[3].xz / GRASS_TILE_SIZE + 0.5);
+  vec2 tileCell = floor(modelMatrix[3].xz / uGrassTileSize + 0.5);
   uint tileSeed = uint(hash21(tileCell) * 4294967295.0);
   vec3 instanceHash = hashPCG(tileSeed + uint(gl_InstanceID));
 
   /* --- Wind Modelling --- */
 
-  float windStrength = WIND_STRENGTH * perlin_noise(uTime + WIND_STRENGTH * instanceHash.xz);
-  float windBendingDegree = WIND_VELOCITY * windStrength * perlin_noise(uTime * WIND_VELOCITY * instanceHash.xz);
+  float windStrength = uWindStrength * perlin_noise(uTime + uWindStrength * instanceHash.xz);
+  float windBendingDegree = uWindVelocity * windStrength * perlin_noise(uTime * uWindVelocity * instanceHash.xz);
 
-  vec3 windAxis = vec3(cos(WIND_ANGLE), 0.0, sin(WIND_ANGLE));
-  float windBendingAngle = WIND_VELOCITY * PI * windStrength * localHeight; // tips are bent stronger
+  vec3 windAxis = vec3(cos(uWindAngle), 0.0, sin(uWindAngle));
+  float windBendingAngle = uWindVelocity * PI * windStrength * localHeight; // tips are bent stronger
 
   /* --- Local Geometry --- */
 
   // Scale grass blade (height will be scaled below)
-  localPosition.x *= GRASS_BLADE_WIDTH;
+  localPosition.x *= uGrassBladeWidth;
 
   // Bend grass blade with cubice Bezier curve.
-  float bendingDegree = 0.5 * ((instanceHash.y * 2.0 - 1.0) + windBendingDegree) * GRASS_BLADE_BENDING;
+  float bendingDegree = 0.5 * ((instanceHash.y * 2.0 - 1.0) + windBendingDegree) * uGrassBladeBending;
   vec3 p0 = vec3(0.0);
   vec3 p1 = vec3(0.0, 0.33, 0.0);
   vec3 p2 = vec3(0.0, 0.66, 0.0);
@@ -70,8 +70,8 @@ void main() {
   vec3 bezier = cubicBezierCurve(p0, p1, p2, p3, localHeight);
 
   // Vary grass blade height slightly for a more 'realistic' look
-  float heightVariation = 1.0 + (0.5 * GRASS_BLADE_HEIGHT_RANDOMNESS * (instanceHash.y * 2.0 - 1.0));
-  float height = GRASS_BLADE_HEIGHT * heightVariation;
+  float heightVariation = 1.0 + (0.5 * uGrassBladeHeightRandomness * (instanceHash.y * 2.0 - 1.0));
+  float height = uGrassBladeHeight * heightVariation;
 
   localPosition.y = bezier.y * height;
   localPosition.z = bezier.z * height;
@@ -90,7 +90,7 @@ void main() {
   vec3 worldPosition = (worldModelMatrix * localPosition).xyz;
 
   // Shift the root randomly within the tile, anchored in world space by the tile mesh position.
-  vec2 rootPosition = modelMatrix[3].xz + 0.5 * GRASS_TILE_SIZE * (instanceHash.xz * 2.0 - 1.0);
+  vec2 rootPosition = modelMatrix[3].xz + 0.5 * uGrassTileSize * (instanceHash.xz * 2.0 - 1.0);
   worldPosition.xz += rootPosition;
 
   // Lift the entire blade based on the terrain height at the root.
@@ -99,11 +99,11 @@ void main() {
   // --- Shading Data ---
 
   // Mix two grass color palettes based on world-space/instance noise
-  vec3 colorA = mix(GRASS_BLADE_COLOR_BASE_1, GRASS_BLADE_COLOR_TIP_1, localPosition.y);
-  vec3 colorB = mix(GRASS_BLADE_COLOR_BASE_2, GRASS_BLADE_COLOR_TIP_2, localPosition.y);
+  vec3 colorA = mix(uGrassBladeBaseColor1, uGrassBladeTipColor1, localPosition.y);
+  vec3 colorB = mix(uGrassBladeBaseColor2, uGrassBladeTipColor2, localPosition.y);
 
-  float spatialNoise = perlin_noise(worldPosition.xz * GRASS_BLADE_COLOR_DISTRIBUTION);
-  float instanceRandomness = instanceHash.y * GRASS_BLADE_COLOR_RANDOMNESS;
+  float spatialNoise = perlin_noise(worldPosition.xz * uGrassBladeColorDistribution);
+  float instanceRandomness = instanceHash.y * uGrassBladeColorRandomness;
   float finalVariation = clamp(spatialNoise + instanceRandomness, 0.0, 1.0);
 
   vGrassBladeColor = mix(colorA, colorB, smoothstep(0.0, 1.0, finalVariation));

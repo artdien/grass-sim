@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { SaveSettingsDialog } from '@/components/SaveSettingsDialog';
+import { WindSettingsSection } from '@/components/sidebar/WindSettingsSection';
+import { GrassSettingsSection } from '@/components/sidebar/GrassSettingsSection';
 import { TerrainSettingsSection } from '@/components/sidebar/TerrainSettingsSection';
 import { LightingSettingsSection } from '@/components/sidebar/LightingSettingsSection';
 import type { Result } from '@/types';
@@ -83,6 +85,10 @@ export const Sidebar = () => {
 
       {isOpen && (
         <>
+          <WindSettingsSection />
+
+          <GrassSettingsSection />
+
           <TerrainSettingsSection />
 
           <LightingSettingsSection />

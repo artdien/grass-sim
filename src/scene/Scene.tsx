@@ -55,7 +55,13 @@ export const Scene = memo(() => {
     const terrain = createTerrain(initialSettings.terrain, lighting.uniforms);
     scene.add(terrain.mesh);
 
-    const grass = createGrass(scene, initialSettings.terrain, lighting.uniforms);
+    const grass = createGrass(
+      scene,
+      initialSettings.wind,
+      initialSettings.grass,
+      initialSettings.terrain,
+      lighting.uniforms,
+    );
 
     // The HDR environment map loads asynchronously,
     // hence a callback to set it in meshes when it resolves.
@@ -77,7 +83,7 @@ export const Scene = memo(() => {
 
       const settings = useSimulationStore.getState().activeSettings;
       terrain.sync(settings.terrain);
-      grass.sync(settings.terrain, timer.getElapsed());
+      grass.sync(settings.wind, settings.grass, settings.terrain, timer.getElapsed());
       lighting.sync(settings.lighting);
 
       movement.update(delta);
