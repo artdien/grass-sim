@@ -27,6 +27,9 @@ const NOISE_TYPE_INDEX: Record<TerrainNoiseType, number> = { perlin: 0, simplex:
  * and is lit by the shared lighting uniforms and the HDR environment map.
  */
 export interface Grass {
+  /** The group the tiles are attached to; the owner adds it to the scene. */
+  root: THREE.Group;
+
   /**
    * Applies the wind, grass, and placement (size, noise, height, frequency)
    * settings to the material and tiles, only touching the values that changed;
@@ -50,7 +53,8 @@ export interface Grass {
  * Renders the grass blade (loaded asynchronously by the `grassblade` module)
  * as a grid of `InstancedMesh` tiles over the blade geometry — one instanced
  * mesh per tile, each centered on a tile of its own position and culled by its
- * bounding sphere — with the grass shader, added to `scene`.
+ * bounding sphere — with the grass shader. The tiles are attached to `root`, a
+ * `THREE.Group` the owner adds to the scene.
  *
  * The material's uniforms merge the grass-owned uniforms (wind, blade shape and
  * palette colors, the blade's normal map taken from the GLB, and the
@@ -63,7 +67,6 @@ export interface Grass {
  * mount → cleanup → remount cycle leak-free.
  */
 export const createGrass = (
-  scene: THREE.Scene,
   wind: WindSettings,
   grass: GrassSettings,
   terrain: TerrainSettings,
@@ -145,6 +148,8 @@ export const createGrass = (
   // place below reaches every tile without reassignment.
   const tileBoundingSphere = new THREE.Sphere(new THREE.Vector3(), 1);
 
+  const root = new THREE.Group();
+
   // Resize the shared bounds for the grid's current tile size and blade height
   // (plus the blade's height variation, which is the tallest blade a tile can grow).
   const updateTileBounds = (grassSettings: GrassSettings) => {
@@ -172,12 +177,12 @@ export const createGrass = (
         grid.push(tile);
       }
     }
-    scene.add(...grid);
+    root.add(...grid);
     return grid;
   };
 
   const disposeTiles = () => {
-    scene.remove(...tiles);
+    root.remove(...tiles);
     tiles.forEach((tile) => {
       tile.instanceMatrix.dispose();
       tile.dispose();
@@ -349,6 +354,7 @@ export const createGrass = (
   };
 
   return {
+    root,
     sync,
     setEnvironmentMap,
     dispose,

@@ -56,16 +56,17 @@ export const Scene = memo(() => {
     scene.add(terrain.mesh);
 
     const grass = createGrass(
-      scene,
       initialSettings.wind,
       initialSettings.grass,
       initialSettings.terrain,
       lighting.uniforms,
     );
+    scene.add(grass.root);
 
-    // The HDR environment map loads asynchronously,
-    // hence a callback to set it in meshes when it resolves.
-    const environment = createEnvironment(scene, (texture) => {
+    // The HDR environment map loads asynchronously, hence a callback to use it
+    // as the background and in the materials when it resolves.
+    const environment = createEnvironment((texture) => {
+      scene.background = texture;
       terrain.setEnvironmentMap(texture);
       grass.setEnvironmentMap(texture);
     });
