@@ -4,9 +4,15 @@
 // Maps a 2D lattice point to a pseudo-random float in [0, 1).
 // The lattice hash shared by the noise functions in noise.glsl.
 float hash21(vec2 p) {
-  p = fract(p * vec2(123.34, 456.21));
-  p += dot(p, p + 45.32);
-  return fract(p.x * p.y);
+  uvec2 q = uvec2(ivec2(p));
+  q = q * 3266489909u + 1u;
+  q.x += q.y * 3266489909u;
+  q.y += q.x * 3266489909u;
+  q ^= q >> 16u;
+  q.x += q.y * 3266489909u;
+  q.y += q.x * 3266489909u;
+  q ^= q >> 16u;
+  return float(q.x) * (1.0 / 4294967295.0);
 }
 
 // Permuted Congruential Generator (PCG) hash function.
