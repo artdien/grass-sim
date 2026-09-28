@@ -1,6 +1,5 @@
 #include "./common/noise.glsl";
 
-uniform int uNoiseType;
 uniform float uHeight;
 uniform float uFrequency;
 
@@ -10,7 +9,7 @@ out vec3 vWorldNormal;
 // Height of the terrain at a point on the ground plane (world XZ), in world Y.
 float terrainHeight(vec2 xz) {
   vec2 q = xz * uFrequency;
-  float n = (uNoiseType == 0) ? perlin_noise(q) : simplex_noise(q);
+  float n = perlin_noise(q);
   return n * uHeight;
 }
 

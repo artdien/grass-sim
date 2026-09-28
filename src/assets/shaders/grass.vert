@@ -3,7 +3,6 @@
 
 uniform float uTime;
 
-uniform int uNoiseType;
 uniform float uHeight;
 uniform float uFrequency;
 
@@ -32,7 +31,7 @@ uniform vec3 uGrassBladeTipColor2;
 
 float terrainHeight(vec2 xz) {
   vec2 q = xz * uFrequency;
-  float n = (uNoiseType == 0) ? perlin_noise(q) : simplex_noise(q);
+  float n = perlin_noise(q);
   return n * uHeight;
 }
 

@@ -1,20 +1,17 @@
 import * as THREE from 'three';
 import type { LightingUniforms } from '@/scene/lighting';
-import type { TerrainNoiseType, TerrainSettings } from '@/types';
+import type { TerrainSettings } from '@/types';
 
 // Assets
 import terrainVertexShader from '@/assets/shaders/terrain.vert';
 import terrainFragmentShader from '@/assets/shaders/terrain.frag';
-
-// Index into the noise function chosen by the shader (see terrain.vert).
-const NOISE_TYPE_INDEX: Record<TerrainNoiseType, number> = { perlin: 0, simplex: 1 };
 
 /**
  * The terrain mesh: a noise-displaced heightfield plane driven by its own shader.
  *
  * Owns the geometry, material (its own uniforms merged with the shared lighting
  * uniforms), mesh, the terrain-specific settings sync (size / segments / color /
- * noise / height / frequency), and disposal. Lighting is a separate concern and
+ * height / frequency), and disposal. Lighting is a separate concern and
  * is supplied in via `lightingUniforms`.
  */
 export interface Terrain {
@@ -47,13 +44,11 @@ export const createTerrain = (
   const placeholderEnvMap = new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1);
 
   const terrainUniforms: {
-    uNoiseType: THREE.IUniform<number>;
     uHeight: THREE.IUniform<number>;
     uFrequency: THREE.IUniform<number>;
     uTerrainColor: THREE.IUniform<THREE.Color>;
     uEnvMap: THREE.IUniform<THREE.Texture>;
   } = {
-    uNoiseType: { value: NOISE_TYPE_INDEX[settings.noiseType] },
     uHeight: { value: settings.height },
     uFrequency: { value: settings.frequency },
     uTerrainColor: { value: new THREE.Color(settings.color) },
@@ -79,7 +74,6 @@ export const createTerrain = (
   let syncedSize = settings.size;
   let syncedSegments = settings.segments;
   let syncedTerrainColor = settings.color;
-  let syncedNoiseType = settings.noiseType;
   let syncedHeight = settings.height;
   let syncedFrequency = settings.frequency;
 
@@ -101,11 +95,6 @@ export const createTerrain = (
     if (terrain.color !== syncedTerrainColor) {
       syncedTerrainColor = terrain.color;
       terrainUniforms.uTerrainColor.value.set(terrain.color);
-    }
-
-    if (terrain.noiseType !== syncedNoiseType) {
-      syncedNoiseType = terrain.noiseType;
-      terrainUniforms.uNoiseType.value = NOISE_TYPE_INDEX[terrain.noiseType];
     }
 
     if (terrain.height !== syncedHeight) {

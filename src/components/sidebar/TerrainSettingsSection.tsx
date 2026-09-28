@@ -2,14 +2,7 @@ import type { ChangeEvent } from 'react';
 import { CollapsibleSection } from '@/components/layout/CollapsibleSection';
 import { ColorField } from '@/components/fields/ColorField';
 import { NumberField } from '@/components/fields/NumberField';
-import type { TerrainNoiseType } from '@/types';
 import { useSimulationStore } from '@/store/simulation';
-
-/** Noise fields the terrain section can select, matched to the shader's uNoiseType index. */
-const NOISE_OPTIONS: { value: TerrainNoiseType; label: string }[] = [
-  { value: 'perlin', label: 'Perlin' },
-  { value: 'simplex', label: 'Simplex' },
-];
 
 /** Above this the terrain grid quadruples and the scene chokes. */
 const MAX_TERRAIN_SEGMENTS = 1024;
@@ -26,7 +19,7 @@ const parseTerrainFloat = (value: string): number | null => {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
 };
 
-/** The Terrain settings section: size, segments, noise type, height, frequency, and base color. */
+/** The Terrain settings section: size, segments, height, frequency, and base color. */
 export const TerrainSettingsSection = () => {
   const activeSettings = useSimulationStore((state) => state.activeSettings);
   const updateActiveSettings = useSimulationStore((state) => state.updateActiveSettings);
@@ -68,13 +61,6 @@ export const TerrainSettingsSection = () => {
     });
   };
 
-  const handleNoiseTypeChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    updateActiveSettings({
-      ...activeSettings,
-      terrain: { ...activeSettings.terrain, noiseType: event.target.value as TerrainNoiseType },
-    });
-  };
-
   return (
     <CollapsibleSection title="Terrain">
       <div className="space-y-3">
@@ -96,25 +82,6 @@ export const TerrainSettingsSection = () => {
           value={activeSettings.terrain.segments}
           onChange={(event) => handleTerrainChange('segments', event)}
         />
-
-        <label
-          htmlFor="terrain-noise"
-          className="flex items-center justify-between gap-2 text-sm text-stone-600"
-        >
-          Noise
-          <select
-            id="terrain-noise"
-            value={activeSettings.terrain.noiseType}
-            onChange={handleNoiseTypeChange}
-            className="w-24 cursor-pointer rounded-md border border-stone-200 bg-white px-2 py-1 text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:outline-none"
-          >
-            {NOISE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
 
         <NumberField
           id="terrain-height"

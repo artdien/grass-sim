@@ -111,15 +111,4 @@ describe('parseSimulationSettings', () => {
       error: 'The specular shininess is missing or invalid.',
     });
   });
-
-  it('defaults a missing terrain noise type to perlin', () => {
-    const document = buildValidDocument();
-    delete (document.settings.terrain as { noiseType?: unknown }).noiseType;
-
-    const result = parseSimulationSettings(JSON.stringify(document));
-
-    expect(result).toMatchObject({ ok: true });
-    if (!result.ok) return;
-    expect(result.data.settings.terrain.noiseType).toBe('perlin');
-  });
 });

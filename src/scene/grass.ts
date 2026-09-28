@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { LightingUniforms } from '@/scene/lighting';
-import type { GrassSettings, TerrainNoiseType, TerrainSettings, WindSettings } from '@/types';
+import type { GrassSettings, TerrainSettings, WindSettings } from '@/types';
 import { loadGrassBlade } from '@/scene/grassblade';
 
 // Assets
@@ -9,9 +9,6 @@ import grassFragmentShader from '@/assets/shaders/grass.frag';
 
 // Blades per tile.
 const BLADES_PER_TILE = 4096;
-
-// Index into the noise function chosen by the shader (see grass.vert).
-const NOISE_TYPE_INDEX: Record<TerrainNoiseType, number> = { perlin: 0, simplex: 1 };
 
 /**
  * The grass: a grid of instanced blades covering the terrain — one
@@ -31,7 +28,7 @@ export interface Grass {
   root: THREE.Group;
 
   /**
-   * Applies the wind, grass, and placement (size, noise, height, frequency)
+   * Applies the wind, grass, and placement (size, height, frequency)
    * settings to the material and tiles, only touching the values that changed;
    * the tile grid is rebuilt when the size or the tile size changes. The wind
    * angle and the blade bending are converted from degrees to radians here, and
@@ -94,7 +91,6 @@ export const createGrass = (
     uGrassBladeBaseColor2: THREE.IUniform<THREE.Color>;
     uGrassBladeTipColor2: THREE.IUniform<THREE.Color>;
     uGrassBladeSelfShadowing: THREE.IUniform<number>;
-    uNoiseType: THREE.IUniform<number>;
     uHeight: THREE.IUniform<number>;
     uFrequency: THREE.IUniform<number>;
     uNormalMap: THREE.IUniform<THREE.Texture>;
@@ -116,7 +112,6 @@ export const createGrass = (
     uGrassBladeBaseColor2: { value: new THREE.Color(grass.baseColor2) },
     uGrassBladeTipColor2: { value: new THREE.Color(grass.tipColor2) },
     uGrassBladeSelfShadowing: { value: grass.selfShadowing },
-    uNoiseType: { value: NOISE_TYPE_INDEX[terrain.noiseType] },
     uHeight: { value: terrain.height },
     uFrequency: { value: terrain.frequency },
     uNormalMap: { value: placeholderNormalMap },
@@ -139,7 +134,6 @@ export const createGrass = (
   let tiles: THREE.InstancedMesh[] = [];
 
   let syncedSize = terrain.size;
-  let syncedNoiseType = terrain.noiseType;
   let syncedHeight = terrain.height;
   let syncedFrequency = terrain.frequency;
 
@@ -321,11 +315,6 @@ export const createGrass = (
         disposeTiles();
         tiles = createTileGrid(syncedSize, syncedTileSize, bladeGeometry);
       }
-    }
-
-    if (terrainSettings.noiseType !== syncedNoiseType) {
-      syncedNoiseType = terrainSettings.noiseType;
-      grassUniforms.uNoiseType.value = NOISE_TYPE_INDEX[terrainSettings.noiseType];
     }
 
     if (terrainSettings.height !== syncedHeight) {

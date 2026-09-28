@@ -5,9 +5,6 @@
  */
 export type Result<T = void, E = string> = { ok: true; data: T } | { ok: false; error: E };
 
-/** The noise field the terrain height is displaced by, chosen in the sidebar. */
-export type TerrainNoiseType = 'perlin' | 'simplex';
-
 /** The wind the grass blade shader bends the blades by: how fast, how hard, and from which direction. */
 export interface WindSettings {
   /** Wind velocity (a number in [0, 1]); scales both the bend noise and the blade lean. */
@@ -69,9 +66,6 @@ export interface TerrainSettings {
 
   /** Base color of the terrain as a hex string (#rrggbb). */
   color: string;
-
-  /** Which noise function drives the terrain height. */
-  noiseType: TerrainNoiseType;
 
   /** How far the noise can move the surface, in world units (≥ 0). */
   height: number;

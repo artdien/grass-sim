@@ -240,11 +240,6 @@ function parseTerrainSettings(input: unknown): Result<TerrainSettings> {
     return { ok: false, error: 'The terrain color is missing or invalid.' };
   }
 
-  const noiseType = fields.noiseType;
-  if (noiseType !== undefined && noiseType !== 'perlin' && noiseType !== 'simplex') {
-    return { ok: false, error: 'The terrain noise type is missing or invalid.' };
-  }
-
   const height = fields.height;
   if (typeof height !== 'number' || !Number.isFinite(height) || height < 0) {
     return { ok: false, error: 'The terrain height is missing or invalid.' };
@@ -261,7 +256,6 @@ function parseTerrainSettings(input: unknown): Result<TerrainSettings> {
       size,
       segments,
       color,
-      noiseType: noiseType ?? 'perlin',
       height,
       frequency,
     },

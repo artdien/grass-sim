@@ -63,7 +63,6 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
       size: 200,
       segments: 512,
       color: '#8a6d4b',
-      noiseType: 'perlin',
       height: 0.01,
       frequency: 0.5,
     },

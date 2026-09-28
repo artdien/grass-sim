@@ -13,17 +13,6 @@ beforeEach(() => {
 });
 
 describe('TerrainSettingsSection', () => {
-  it('commits the selected noise type to terrain.noiseType, leaving the other terrain fields alone', () => {
-    render(<TerrainSettingsSection />);
-
-    fireEvent.change(screen.getByLabelText('Noise'), { target: { value: 'simplex' } });
-
-    const terrain = useSimulationStore.getState().activeSettings.terrain;
-    expect(terrain.noiseType).toBe('simplex');
-    expect(terrain.size).toBe(200);
-    expect(terrain.segments).toBe(512);
-  });
-
   it('commits a valid terrain size without touching the other terrain fields', () => {
     render(<TerrainSettingsSection />);
 
