@@ -82,16 +82,6 @@ describe('parseSimulationSettings', () => {
     });
   });
 
-  it('refuses a fractional grass tile size', () => {
-    const document = buildValidDocument();
-    document.settings.grass.tileSize = 100.5;
-
-    expect(parseSimulationSettings(JSON.stringify(document))).toEqual({
-      ok: false,
-      error: 'The grass tile size is missing or invalid.',
-    });
-  });
-
   it('refuses a non-hex terrain color', () => {
     const document = buildValidDocument();
     document.settings.terrain.color = 'red';

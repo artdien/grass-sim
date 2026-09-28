@@ -1,15 +1,8 @@
 import type { ChangeEvent } from 'react';
 import { CollapsibleSection } from '@/components/layout/CollapsibleSection';
 import { ColorPairField } from '@/components/fields/ColorPairField';
-import { NumberField } from '@/components/fields/NumberField';
 import { SliderField } from '@/components/fields/SliderField';
 import { useSimulationStore } from '@/store/simulation';
-
-/** Parses the tile size; null when it is not an integer ≥ 1. */
-const parseTileSizeValue = (value: string): number | null => {
-  const parsed = Number(value);
-  return Number.isInteger(parsed) && parsed >= 1 ? parsed : null;
-};
 
 /** Parses the blade width; null when it is not a number in (0, 1]. */
 const parseBladeWidthValue = (value: string): number | null => {
@@ -41,23 +34,12 @@ const parseShadowingValue = (value: string): number | null => {
   return Number.isFinite(parsed) && parsed >= 0 && parsed <= 10 ? parsed : null;
 };
 
-/** The Grass settings section: the tile layout, blade shape and variation, color palettes, and shadowing. Bending is in degrees; the scene converts it to radians for the shader. */
+/** The Grass settings section: blade shape and variation, color palettes, and shadowing. Bending is in degrees; the scene converts it to radians for the shader. */
 export const GrassSettingsSection = () => {
   const activeSettings = useSimulationStore((state) => state.activeSettings);
   const updateActiveSettings = useSimulationStore((state) => state.updateActiveSettings);
 
   // Invalid input is not committed, so the field snaps back to its last valid value.
-  const handleTileSizeChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const parsed = parseTileSizeValue(event.target.value);
-    if (parsed === null) {
-      return;
-    }
-    updateActiveSettings({
-      ...activeSettings,
-      grass: { ...activeSettings.grass, tileSize: parsed },
-    });
-  };
-
   const handleBladeWidthChange = (event: ChangeEvent<HTMLInputElement>) => {
     const parsed = parseBladeWidthValue(event.target.value);
     if (parsed === null) {
@@ -129,17 +111,6 @@ export const GrassSettingsSection = () => {
   return (
     <CollapsibleSection title="Grass">
       <div className="space-y-3">
-        <h3 className="pt-1 text-xs font-semibold tracking-wide text-stone-500">Layout</h3>
-
-        <NumberField
-          id="grass-tile-size"
-          label="Tile size"
-          min={1}
-          step={1}
-          value={activeSettings.grass.tileSize}
-          onChange={handleTileSizeChange}
-        />
-
         <h3 className="pt-1 text-xs font-semibold tracking-wide text-stone-500">Blade</h3>
 
         <SliderField

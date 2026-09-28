@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import type { LightingUniforms } from '@/scene/lighting';
 import type { GrassSettings, TerrainSettings, WindSettings } from '@/types';
 import { loadGrassBlade } from '@/scene/grassblade';
+import { TERRAIN_SIZE } from '@/scene/terrain';
 
 // Assets
 import grassVertexShader from '@/assets/shaders/grass.vert';
@@ -9,6 +10,9 @@ import grassFragmentShader from '@/assets/shaders/grass.frag';
 
 // Blades per tile.
 const BLADES_PER_TILE = 4096;
+
+// Side length of a grass tile in world units, hard-coded.
+const GRASS_TILE_SIZE = 10;
 
 /**
  * The grass: a grid of instanced blades covering the terrain — one
@@ -28,9 +32,9 @@ export interface Grass {
   root: THREE.Group;
 
   /**
-   * Applies the wind, grass, and placement (size, height, frequency)
+   * Applies the wind, grass, and placement (height, frequency)
    * settings to the material and tiles, only touching the values that changed;
-   * the tile grid is rebuilt when the size or the tile size changes. The wind
+   * the tile grid is created once, when the blade arrives. The wind
    * angle and the blade bending are converted from degrees to radians here, and
    * the time is applied on every call, as it advances every frame.
    */
@@ -100,7 +104,7 @@ export const createGrass = (
     uWindVelocity: { value: wind.velocity },
     uWindRandomness: { value: wind.randomness },
     uWindAngle: { value: THREE.MathUtils.degToRad(wind.angle) },
-    uGrassTileSize: { value: grass.tileSize },
+    uGrassTileSize: { value: GRASS_TILE_SIZE },
     uGrassBladeWidth: { value: grass.bladeWidth },
     uGrassBladeHeight: { value: grass.bladeHeight },
     uGrassBladeBending: { value: THREE.MathUtils.degToRad(grass.bladeBending) },
@@ -130,10 +134,8 @@ export const createGrass = (
     uniforms: { ...grassUniforms, ...lightingUniforms },
   });
 
-  let bladeGeometry: THREE.BufferGeometry | null = null;
   let tiles: THREE.InstancedMesh[] = [];
 
-  let syncedSize = terrain.size;
   let syncedHeight = terrain.height;
   let syncedFrequency = terrain.frequency;
 
@@ -149,7 +151,7 @@ export const createGrass = (
   const updateTileBounds = (grassSettings: GrassSettings) => {
     const maxHeight = grassSettings.bladeHeight * (1 + 0.5 * grassSettings.heightRandomness);
     tileBoundingSphere.center.set(0, 0.5 * maxHeight, 0);
-    tileBoundingSphere.radius = Math.SQRT2 * (0.5 * grassSettings.tileSize + maxHeight);
+    tileBoundingSphere.radius = Math.SQRT2 * (0.5 * GRASS_TILE_SIZE + maxHeight);
   };
   updateTileBounds(grass);
 
@@ -185,18 +187,16 @@ export const createGrass = (
   };
 
   const disposeGrassBlade = loadGrassBlade((blade) => {
-    bladeGeometry = blade.geometry;
     if (blade.normalMap !== null) {
       grassUniforms.uNormalMap.value = blade.normalMap;
     }
-    tiles = createTileGrid(syncedSize, syncedTileSize, blade.geometry);
+    tiles = createTileGrid(TERRAIN_SIZE, GRASS_TILE_SIZE, blade.geometry);
   });
 
   let syncedWindVelocity = wind.velocity;
   let syncedWindRandomness = wind.randomness;
   let syncedWindAngle = wind.angle;
 
-  let syncedTileSize = grass.tileSize;
   let syncedBladeWidth = grass.bladeWidth;
   let syncedBladeHeight = grass.bladeHeight;
   let syncedBladeBending = grass.bladeBending;
@@ -233,20 +233,8 @@ export const createGrass = (
     }
 
     const boundsChanged =
-      grassSettings.tileSize !== syncedTileSize ||
       grassSettings.bladeHeight !== syncedBladeHeight ||
       grassSettings.heightRandomness !== syncedHeightRandomness;
-
-    // Tile-size changes while the blade is still loading are picked up here and
-    // applied once, when the grid is created from syncedTileSize in the load callback.
-    if (grassSettings.tileSize !== syncedTileSize) {
-      syncedTileSize = grassSettings.tileSize;
-      grassUniforms.uGrassTileSize.value = grassSettings.tileSize;
-      if (bladeGeometry !== null) {
-        disposeTiles();
-        tiles = createTileGrid(syncedSize, syncedTileSize, bladeGeometry);
-      }
-    }
 
     if (grassSettings.bladeWidth !== syncedBladeWidth) {
       syncedBladeWidth = grassSettings.bladeWidth;
@@ -305,16 +293,6 @@ export const createGrass = (
 
     if (boundsChanged) {
       updateTileBounds(grassSettings);
-    }
-
-    // Size changes while the blade is still loading are picked up here and applied
-    // once, when the grid is created from syncedSize in the load callback.
-    if (terrainSettings.size !== syncedSize) {
-      syncedSize = terrainSettings.size;
-      if (bladeGeometry !== null) {
-        disposeTiles();
-        tiles = createTileGrid(syncedSize, syncedTileSize, bladeGeometry);
-      }
     }
 
     if (terrainSettings.height !== syncedHeight) {

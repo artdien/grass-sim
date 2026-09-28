@@ -5,17 +5,8 @@ import { NumberField } from '@/components/fields/NumberField';
 import { SliderField } from '@/components/fields/SliderField';
 import { useSimulationStore } from '@/store/simulation';
 
-/** Above this the terrain grid quadruples and the scene chokes. */
-const MAX_TERRAIN_SEGMENTS = 1024;
-
 /** Above this the noise aliases and the terrain becomes high-frequency detail. */
 const MAX_TERRAIN_FREQUENCY = 2.0;
-
-/** Parses a terrain field input; null when it is not an integer ≥ 1. */
-const parseTerrainValue = (value: string): number | null => {
-  const parsed = Number(value);
-  return Number.isInteger(parsed) && parsed >= 1 ? parsed : null;
-};
 
 /** Parses the terrain height; null when it is not a number in [0, 1]. */
 const parseTerrainHeight = (value: string): number | null => {
@@ -29,27 +20,12 @@ const parseTerrainFloat = (value: string): number | null => {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
 };
 
-/** The Terrain settings section: size, segments, height, frequency, and base color. */
+/** The Terrain settings section: height, frequency, and base color. */
 export const TerrainSettingsSection = () => {
   const activeSettings = useSimulationStore((state) => state.activeSettings);
   const updateActiveSettings = useSimulationStore((state) => state.updateActiveSettings);
 
   // Invalid input is not committed, so the field snaps back to its last valid value.
-  const handleTerrainChange = (
-    field: 'size' | 'segments',
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
-    const parsed = parseTerrainValue(event.target.value);
-    if (parsed === null) {
-      return;
-    }
-    const value = field === 'segments' ? Math.min(parsed, MAX_TERRAIN_SEGMENTS) : parsed;
-    updateActiveSettings({
-      ...activeSettings,
-      terrain: { ...activeSettings.terrain, [field]: value },
-    });
-  };
-
   const handleTerrainHeightChange = (event: ChangeEvent<HTMLInputElement>) => {
     const parsed = parseTerrainHeight(event.target.value);
     if (parsed === null) {
@@ -82,25 +58,6 @@ export const TerrainSettingsSection = () => {
   return (
     <CollapsibleSection title="Terrain">
       <div className="space-y-3">
-        <NumberField
-          id="terrain-size"
-          label="Size"
-          min={1}
-          step={1}
-          value={activeSettings.terrain.size}
-          onChange={(event) => handleTerrainChange('size', event)}
-        />
-
-        <NumberField
-          id="terrain-segments"
-          label="Segments"
-          min={1}
-          max={MAX_TERRAIN_SEGMENTS}
-          step={1}
-          value={activeSettings.terrain.segments}
-          onChange={(event) => handleTerrainChange('segments', event)}
-        />
-
         <SliderField
           id="terrain-height"
           label="Height"

@@ -17,11 +17,8 @@ export interface WindSettings {
   angle: number;
 }
 
-/** The grass blade and its layout as the shaders render them: the tile grid, the blade shape and variation, and its color palettes and shading. */
+/** The grass blade as the shaders render it: the blade shape and variation, and its color palettes and shading. */
 export interface GrassSettings {
-  /** Side length of a grass tile in world units (an integer ≥ 1); the tile grid is rebuilt when it changes. */
-  tileSize: number;
-
   /** How wide the blade is (a number in (0, 1]). */
   bladeWidth: number;
 
@@ -56,14 +53,8 @@ export interface GrassSettings {
   shadowing: number;
 }
 
-/** Terrain generation settings: how large it is, how finely it is subdivided, its base color, and its height field. */
+/** Terrain generation settings: its base color and its height field. */
 export interface TerrainSettings {
-  /** Terrain size in world units (an integer ≥ 1). */
-  size: number;
-
-  /** Grid subdivisions of the terrain plane per edge (an integer ≥ 1, committed at most at 1024). */
-  segments: number;
-
   /** Base color of the terrain as a hex string (#rrggbb). */
   color: string;
 

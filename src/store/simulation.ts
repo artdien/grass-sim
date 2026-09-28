@@ -46,7 +46,6 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
     // The color defaults are the sRGB hex equivalents of the linear palette
     // values the shader used before these were configurable.
     grass: {
-      tileSize: 10,
       bladeWidth: 0.2,
       bladeHeight: 1.5,
       bladeBending: 22.5,
@@ -60,8 +59,6 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
       shadowing: 2.0,
     },
     terrain: {
-      size: 200,
-      segments: 512,
       color: '#8a6d4b',
       height: 0.01,
       frequency: 0.5,

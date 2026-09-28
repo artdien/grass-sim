@@ -13,39 +13,6 @@ beforeEach(() => {
 });
 
 describe('GrassSettingsSection', () => {
-  it('commits a valid tile size without touching the other grass fields', () => {
-    render(<GrassSettingsSection />);
-
-    fireEvent.change(screen.getByLabelText('Tile size'), { target: { value: '8' } });
-
-    const grass = useSimulationStore.getState().activeSettings.grass;
-    expect(grass.tileSize).toBe(8);
-    expect(grass.bladeWidth).toBe(0.2);
-    expect(grass.bladeHeight).toBe(1.5);
-  });
-
-  it('refuses a tile size that is below 1 or not an integer', () => {
-    render(<GrassSettingsSection />);
-
-    const tileSize = screen.getByLabelText('Tile size');
-    fireEvent.change(tileSize, { target: { value: '0' } });
-    fireEvent.change(tileSize, { target: { value: '2.5' } });
-
-    expect(useSimulationStore.getState().activeSettings.grass.tileSize).toBe(10);
-  });
-
-  it('restores the last valid tile size, once the next committed change re-renders the field', () => {
-    render(<GrassSettingsSection />);
-
-    const tileSize = screen.getByLabelText('Tile size');
-    fireEvent.change(tileSize, { target: { value: '2.5' } });
-
-    fireEvent.change(screen.getByLabelText('Width'), { target: { value: '0.4' } });
-
-    expect(tileSize).toHaveAttribute('value', '10');
-    expect(useSimulationStore.getState().activeSettings.grass.tileSize).toBe(10);
-  });
-
   it('commits a blade width at the inclusive upper bound of (0, 1]', () => {
     render(<GrassSettingsSection />);
 

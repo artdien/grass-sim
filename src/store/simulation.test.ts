@@ -61,11 +61,11 @@ describe('saveSettings', () => {
     const active = useSimulationStore.getState().activeSettings;
     useSimulationStore.getState().updateActiveSettings({
       ...active,
-      grass: { ...active.grass, tileSize: 99 },
+      grass: { ...active.grass, bladeWidth: 0.9 },
     });
 
-    expect(useSimulationStore.getState().activeSettings.grass.tileSize).toBe(99);
-    expect(entry.settings.grass.tileSize).toBe(initialActiveSettings.grass.tileSize);
+    expect(useSimulationStore.getState().activeSettings.grass.bladeWidth).toBe(0.9);
+    expect(entry.settings.grass.bladeWidth).toBe(initialActiveSettings.grass.bladeWidth);
   });
 
   it('keeps the active settings intact when a saved entry is mutated', () => {
@@ -114,7 +114,7 @@ describe('loadSettings', () => {
     const settings: SimulationSettings = {
       ...initialActiveSettings,
       wind: { velocity: 0.9, randomness: 0.4, angle: 45 },
-      grass: { ...initialActiveSettings.grass, tileSize: 24 },
+      grass: { ...initialActiveSettings.grass, bladeWidth: 0.25 },
     };
     const entry = buildEntry('Loaded', settings);
 

@@ -39,7 +39,7 @@ describe('Sidebar', () => {
     render(<Sidebar />);
 
     expect(screen.getByRole('button', { name: 'Collapse sidebar' })).toBeInTheDocument();
-    expect(screen.getByText('Tile size')).toBeInTheDocument();
+    expect(screen.getByText('Shadowing')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Collapse sidebar' }));
 
@@ -47,7 +47,7 @@ describe('Sidebar', () => {
       'aria-expanded',
       'false',
     );
-    expect(screen.queryByText('Tile size')).not.toBeInTheDocument();
+    expect(screen.queryByText('Shadowing')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Expand sidebar' }));
@@ -68,7 +68,7 @@ describe('Sidebar', () => {
     expect(stored.name).toBe('Meadow');
     expect(stored.image).toBe('png');
     expect(stored.settings.wind.velocity).toBe(0.2);
-    expect(stored.settings.grass.tileSize).toBe(10);
+    expect(stored.settings.grass.bladeWidth).toBe(0.2);
   });
 
   it('refuses to save an empty name and keeps the dialog open', async () => {

@@ -109,11 +109,6 @@ function parseGrassSettings(input: unknown): Result<GrassSettings> {
   }
 
   const fields = input as Record<string, unknown>;
-  const tileSize = fields.tileSize;
-  if (typeof tileSize !== 'number' || !Number.isInteger(tileSize) || tileSize < 1) {
-    return { ok: false, error: 'The grass tile size is missing or invalid.' };
-  }
-
   const bladeWidth = fields.bladeWidth;
   if (
     typeof bladeWidth !== 'number' ||
@@ -207,7 +202,6 @@ function parseGrassSettings(input: unknown): Result<GrassSettings> {
   return {
     ok: true,
     data: {
-      tileSize,
       bladeWidth,
       bladeHeight,
       bladeBending,
@@ -230,16 +224,6 @@ function parseTerrainSettings(input: unknown): Result<TerrainSettings> {
   }
 
   const fields = input as Record<string, unknown>;
-  const size = fields.size;
-  if (typeof size !== 'number' || !Number.isInteger(size) || size < 1) {
-    return { ok: false, error: 'The terrain size is missing or invalid.' };
-  }
-
-  const segments = fields.segments;
-  if (typeof segments !== 'number' || !Number.isInteger(segments) || segments < 1) {
-    return { ok: false, error: 'The terrain segments are missing or invalid.' };
-  }
-
   const color = fields.color;
   if (typeof color !== 'string' || !HEX_COLOR.test(color)) {
     return { ok: false, error: 'The terrain color is missing or invalid.' };
@@ -263,8 +247,6 @@ function parseTerrainSettings(input: unknown): Result<TerrainSettings> {
   return {
     ok: true,
     data: {
-      size,
-      segments,
       color,
       height,
       frequency,

@@ -17,7 +17,7 @@ out float vGrassBladeHeight;
 uniform float uWindVelocity;                // range [0, 1]
 uniform float uWindRandomness;              // range [0, 1]
 uniform float uWindAngle;                   // range [0, 2*PI]
-uniform float uGrassTileSize;               // range [1, inf]
+uniform float uGrassTileSize;               // hard-coded value in code
 uniform float uGrassBladeWidth;             // range (0, 1]
 uniform float uGrassBladeHeight;            // range (0, 5]
 uniform float uGrassBladeBending;           // range [0, PI/4]
@@ -46,7 +46,8 @@ void main() {
 
   /* --- Wind Modelling --- */
 
-  float windStrength = uWindVelocity * smoothstep(-1.0, 1.0, perlin_noise(uTime + 0.1 * uWindRandomness * rootPosition));
+  float windStrength =
+      uWindVelocity * smoothstep(-1.0, 1.0, perlin_noise(uTime + 0.1 * uWindRandomness * rootPosition));
   float windBendingDegree = windStrength * smoothstep(-1.0, 1.0, perlin_noise(uTime * uWindVelocity * rootPosition));
 
   vec3 windAxis = vec3(cos(uWindAngle), 0.0, sin(uWindAngle));
@@ -95,7 +96,7 @@ void main() {
   vec3 colorA = mix(uGrassBladeBaseColor1, uGrassBladeTipColor1, localPosition.y);
   vec3 colorB = mix(uGrassBladeBaseColor2, uGrassBladeTipColor2, localPosition.y);
 
-  float spatialNoise = perlin_noise(worldPosition.xz * uGrassBladeColorDistribution);
+  float spatialNoise = perlin_noise(worldPosition.xz + 0.1 * uGrassBladeColorDistribution);
   float instanceRandomness = instanceHash.y * uGrassBladeColorRandomness;
   float finalVariation = clamp(spatialNoise + instanceRandomness, 0.0, 1.0);
 
