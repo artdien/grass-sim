@@ -1,0 +1,110 @@
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it } from 'vitest';
+
+import { GrassSettingsSection } from '@/components/sidebar/GrassSettingsSection';
+import { useSimulationStore } from '@/store/simulation';
+
+// The store replaces its state wholesale and never mutates it, so the initial
+// default object can be reused as the reset snapshot for every test.
+const initialActiveSettings = useSimulationStore.getState().activeSettings;
+
+beforeEach(() => {
+  useSimulationStore.setState({ activeSettings: initialActiveSettings });
+});
+
+describe('GrassSettingsSection', () => {
+  it('commits a valid tile size without touching the other grass fields', () => {
+    render(<GrassSettingsSection />);
+
+    fireEvent.change(screen.getByLabelText('Tile size'), { target: { value: '8' } });
+
+    const grass = useSimulationStore.getState().activeSettings.grass;
+    expect(grass.tileSize).toBe(8);
+    expect(grass.bladeWidth).toBe(0.2);
+    expect(grass.bladeHeight).toBe(1.5);
+  });
+
+  it('refuses a tile size that is below 1 or not an integer', () => {
+    render(<GrassSettingsSection />);
+
+    const tileSize = screen.getByLabelText('Tile size');
+    fireEvent.change(tileSize, { target: { value: '0' } });
+    fireEvent.change(tileSize, { target: { value: '2.5' } });
+
+    expect(useSimulationStore.getState().activeSettings.grass.tileSize).toBe(10);
+  });
+
+  it('restores the last valid tile size, once the next committed change re-renders the field', () => {
+    render(<GrassSettingsSection />);
+
+    const tileSize = screen.getByLabelText('Tile size');
+    fireEvent.change(tileSize, { target: { value: '2.5' } });
+
+    fireEvent.change(screen.getByLabelText('Width'), { target: { value: '0.4' } });
+
+    expect(tileSize).toHaveAttribute('value', '10');
+    expect(useSimulationStore.getState().activeSettings.grass.tileSize).toBe(10);
+  });
+
+  it('commits a blade width at the inclusive upper bound of (0, 1]', () => {
+    render(<GrassSettingsSection />);
+
+    fireEvent.change(screen.getByLabelText('Width'), { target: { value: '1' } });
+
+    expect(useSimulationStore.getState().activeSettings.grass.bladeWidth).toBe(1);
+  });
+
+  it('refuses a blade width of zero, keeping the stored value', () => {
+    render(<GrassSettingsSection />);
+
+    fireEvent.change(screen.getByLabelText('Width'), { target: { value: '0' } });
+
+    expect(useSimulationStore.getState().activeSettings.grass.bladeWidth).toBe(0.2);
+  });
+
+  it('keeps the blade width at its maximum of 1 when input is pushed beyond it', () => {
+    render(<GrassSettingsSection />);
+
+    fireEvent.change(screen.getByLabelText('Width'), { target: { value: '1.5' } });
+
+    expect(useSimulationStore.getState().activeSettings.grass.bladeWidth).toBe(1);
+  });
+
+  it('commits a valid blade bending in degrees, leaving the other blade fields alone', () => {
+    render(<GrassSettingsSection />);
+
+    fireEvent.change(screen.getByLabelText('Bending'), { target: { value: '30' } });
+
+    const grass = useSimulationStore.getState().activeSettings.grass;
+    expect(grass.bladeBending).toBe(30);
+    expect(grass.bladeWidth).toBe(0.2);
+    expect(grass.bladeHeight).toBe(1.5);
+  });
+
+  it('keeps the blade bending at its maximum of 45 degrees when input is pushed beyond it', () => {
+    render(<GrassSettingsSection />);
+
+    fireEvent.change(screen.getByLabelText('Bending'), { target: { value: '60' } });
+
+    expect(useSimulationStore.getState().activeSettings.grass.bladeBending).toBe(45);
+  });
+
+  it('keeps the self-shadowing at its maximum of 10 when input is pushed beyond it', () => {
+    render(<GrassSettingsSection />);
+
+    fireEvent.change(screen.getByLabelText('Self-shadowing'), { target: { value: '12' } });
+
+    expect(useSimulationStore.getState().activeSettings.grass.selfShadowing).toBe(10);
+  });
+
+  it('commits a color change to the given palette slot only', () => {
+    render(<GrassSettingsSection />);
+
+    fireEvent.change(screen.getByLabelText('Base color 1'), { target: { value: '#ff0000' } });
+
+    const grass = useSimulationStore.getState().activeSettings.grass;
+    expect(grass.baseColor1).toBe('#ff0000');
+    expect(grass.tipColor1).toBe('#aada7c');
+    expect(grass.baseColor2).toBe('#6ca03f');
+  });
+});

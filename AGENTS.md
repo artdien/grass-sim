@@ -27,8 +27,9 @@ New code goes in these buckets: route-level pages → `pages/`, app-level or reu
 - `npm run preview` — serve the production build locally
 - `npm run lint` / `npm run lint:fix` — ESLint (flat config, `eslint.config.js`)
 - `npm run format` — Prettier over the whole repo
+- `npm run test` — run the Vitest suite once (jsdom environment, React Testing Library); `npx vitest` runs it in watch mode
 
-There is **no test suite** — no test script or test dependencies exist. Verify via `build`/`preview` + the dev server.
+Tests live next to their code as `src/**/*.test.{ts,tsx}` — jsdom environment with `@testing-library/jest-dom` matchers from `src/test/setup.ts` (both configured in `vite.config.ts` `test`). Import `describe`/`it`/`expect` from `'vitest'` — no globals are enabled. Test files are typechecked by `npm run build` and linted like the rest of `src/`. The Three.js scene itself is not unit-tested in jsdom — test stores, parsing, and React components.
 
 ## Style & toolchain
 

@@ -1,6 +1,6 @@
 ---
 name: react-components
-description: Use when creating or refactoring React components or hooks, writing TypeScript in this repo, or running the lint / format / build / dev workflow. Covers repo-enforced TypeScript settings and the verification loop (no test suite exists).
+description: Use when creating or refactoring React components or hooks, writing TypeScript in this repo, or running the lint / format / build / test / dev workflow. Covers repo-enforced TypeScript settings and the verification loop (Vitest + React Testing Library suite).
 ---
 
 # React components & TypeScript workflow
@@ -32,7 +32,8 @@ description: Use when creating or refactoring React components or hooks, writing
 
 1. `npm run lint` — type-aware ESLint with Prettier rules; formatting violations show up here.
 2. `npm run format` — run after touching JSX class lists (prettier-plugin-tailwindcss sorts Tailwind classes).
-3. `npm run build` — `tsc -b` runs first; a type error blocks the build.
-4. `npm run dev` (port 3000) — check the change in the browser.
+3. `npm run test` — Vitest + React Testing Library (jsdom); test files live next to their code as `src/**/*.test.{ts,tsx}`.
+4. `npm run build` — `tsc -b` runs first (test files included); a type error blocks the build.
+5. `npm run dev` (port 3000) — check the change in the browser.
 
-**There is no test suite.** Build success + a working dev-server behavior check is the entire safety net, so "looks fine on the dev server" must actually be verified, not assumed.
+The Three.js scene itself is not unit-tested in jsdom — test stores, parsing, and React components. Anything with real visual/3D behavior still needs a dev-server check.
