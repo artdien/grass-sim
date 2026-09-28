@@ -103,7 +103,7 @@ export interface LightingSettings {
     /** Specular exponent, controlling highlight tightness (an integer ≥ 1). */
     shininess: number;
 
-    /** Specular contribution multiplier (≥ 0). */
+    /** Specular contribution multiplier (a number in [0, 1]). */
     intensity: number;
   };
 

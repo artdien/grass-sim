@@ -18,10 +18,10 @@ const parseShininessValue = (value: string): number | null => {
   return Number.isInteger(parsed) && parsed >= 1 ? parsed : null;
 };
 
-/** Parses the specular intensity; null when it is not a number ≥ 0. */
+/** Parses the specular intensity; null when it is not a number in [0, 1]. */
 const parseIntensityValue = (value: string): number | null => {
   const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+  return Number.isFinite(parsed) && parsed >= 0 && parsed <= 1 ? parsed : null;
 };
 
 /** Parses the environment strength; null when it is not a number in [0, 1]. */
@@ -160,11 +160,12 @@ export const LightingSettingsSection = () => {
           onChange={(event) => handleSpecularChange('shininess', event)}
         />
 
-        <NumberField
+        <SliderField
           id="lighting-intensity"
           label="Intensity"
           min={0}
-          step={0.1}
+          max={1}
+          step={0.01}
           value={activeSettings.lighting.specular.intensity}
           onChange={(event) => handleSpecularChange('intensity', event)}
         />

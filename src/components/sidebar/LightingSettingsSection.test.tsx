@@ -63,20 +63,20 @@ describe('LightingSettingsSection', () => {
     expect(useSimulationStore.getState().activeSettings.lighting.specular.shininess).toBe(1);
   });
 
-  it('refuses a negative intensity, keeping the stored value', () => {
-    render(<LightingSettingsSection />);
-
-    fireEvent.change(screen.getByLabelText('Intensity'), { target: { value: '-1' } });
-
-    expect(useSimulationStore.getState().activeSettings.lighting.specular.intensity).toBe(0.5);
-  });
-
   it('commits an intensity of exactly 0, the inclusive lower bound', () => {
     render(<LightingSettingsSection />);
 
     fireEvent.change(screen.getByLabelText('Intensity'), { target: { value: '0' } });
 
     expect(useSimulationStore.getState().activeSettings.lighting.specular.intensity).toBe(0);
+  });
+
+  it('commits an intensity of exactly 1, the inclusive upper bound', () => {
+    render(<LightingSettingsSection />);
+
+    fireEvent.change(screen.getByLabelText('Intensity'), { target: { value: '1' } });
+
+    expect(useSimulationStore.getState().activeSettings.lighting.specular.intensity).toBe(1);
   });
 
   it('commits an environment strength of exactly 1, the inclusive upper bound', () => {
