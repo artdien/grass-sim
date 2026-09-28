@@ -29,13 +29,13 @@ export interface GrassSettings {
   bladeBending: number;
 
   /** How much the blade height varies between blades (a number in [0, 1]). */
-  heightRandomness: number;
+  bladeHeightRandomness: number;
 
   /** How strongly the blade widens in view space as it turns edge-on (a number in [0, 1]). */
   bladeThickening: number;
 
-  /** How much the blade color varies between blades (a number in [0, 1]). */
-  colorRandomness: number;
+  /** How strongly the two color palettes blend (a number in [0, 1]). */
+  colorMix: number;
 
   /** Spatial scale of the color-field variation (a number in [0, 1]). */
   colorDistribution: number;

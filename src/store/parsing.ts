@@ -139,12 +139,12 @@ function parseGrassSettings(input: unknown): Result<GrassSettings> {
     return { ok: false, error: 'The blade bending is missing or invalid.' };
   }
 
-  const heightRandomness = fields.heightRandomness;
+  const bladeHeightRandomness = fields.bladeHeightRandomness;
   if (
-    typeof heightRandomness !== 'number' ||
-    !Number.isFinite(heightRandomness) ||
-    heightRandomness < 0 ||
-    heightRandomness > 1
+    typeof bladeHeightRandomness !== 'number' ||
+    !Number.isFinite(bladeHeightRandomness) ||
+    bladeHeightRandomness < 0 ||
+    bladeHeightRandomness > 1
   ) {
     return { ok: false, error: 'The blade height randomness is missing or invalid.' };
   }
@@ -159,14 +159,9 @@ function parseGrassSettings(input: unknown): Result<GrassSettings> {
     return { ok: false, error: 'The blade thickening is missing or invalid.' };
   }
 
-  const colorRandomness = fields.colorRandomness;
-  if (
-    typeof colorRandomness !== 'number' ||
-    !Number.isFinite(colorRandomness) ||
-    colorRandomness < 0 ||
-    colorRandomness > 1
-  ) {
-    return { ok: false, error: 'The blade color randomness is missing or invalid.' };
+  const colorMix = fields.colorMix;
+  if (typeof colorMix !== 'number' || !Number.isFinite(colorMix) || colorMix < 0 || colorMix > 1) {
+    return { ok: false, error: 'The blade color mix is missing or invalid.' };
   }
 
   const colorDistribution = fields.colorDistribution;
@@ -220,9 +215,9 @@ function parseGrassSettings(input: unknown): Result<GrassSettings> {
       bladeWidth,
       bladeHeight,
       bladeBending,
-      heightRandomness,
+      bladeHeightRandomness,
       bladeThickening,
-      colorRandomness,
+      colorMix,
       colorDistribution,
       baseColor1,
       tipColor1,

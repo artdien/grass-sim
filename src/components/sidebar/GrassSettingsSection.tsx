@@ -80,7 +80,7 @@ export const GrassSettingsSection = () => {
   };
 
   const handleVariationChange = (
-    field: 'heightRandomness' | 'colorRandomness' | 'colorDistribution',
+    field: 'bladeHeightRandomness' | 'colorMix' | 'colorDistribution',
     event: ChangeEvent<HTMLInputElement>,
   ) => {
     const parsed = parseUnitRangeValue(event.target.value);
@@ -177,8 +177,8 @@ export const GrassSettingsSection = () => {
           min={0}
           max={1}
           step={0.05}
-          value={activeSettings.grass.heightRandomness}
-          onChange={(event) => handleVariationChange('heightRandomness', event)}
+          value={activeSettings.grass.bladeHeightRandomness}
+          onChange={(event) => handleVariationChange('bladeHeightRandomness', event)}
         />
 
         <SliderField
@@ -204,13 +204,13 @@ export const GrassSettingsSection = () => {
         />
 
         <SliderField
-          id="grass-color-randomness"
-          label="Randomness"
+          id="grass-color-mix"
+          label="Mix"
           min={0}
           max={1}
           step={0.05}
-          value={activeSettings.grass.colorRandomness}
-          onChange={(event) => handleVariationChange('colorRandomness', event)}
+          value={activeSettings.grass.colorMix}
+          onChange={(event) => handleVariationChange('colorMix', event)}
         />
 
         <ColorPairField

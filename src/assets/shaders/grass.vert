@@ -22,7 +22,7 @@ uniform float uGrassBladeWidth;             // range (0, 1]
 uniform float uGrassBladeHeight;            // range (0, 5]
 uniform float uGrassBladeBending;           // range [0, PI/4]
 uniform float uGrassBladeHeightRandomness;  // range [0, 1]
-uniform float uGrassBladeColorRandomness;   // range [0, 1]
+uniform float uGrassBladeColorMix;          // range [0, 1]
 uniform float uGrassBladeColorDistribution; // range [0, 1]
 uniform float uGrassBladeThickening;        // range [0, 1]
 uniform vec3 uGrassBladeBaseColor1;
@@ -96,12 +96,9 @@ void main() {
   // Mix two grass color palettes based on world-space/instance noise
   vec3 colorA = mix(uGrassBladeBaseColor1, uGrassBladeTipColor1, localPosition.y);
   vec3 colorB = mix(uGrassBladeBaseColor2, uGrassBladeTipColor2, localPosition.y);
+  float spatialNoise = smoothstep(-1.0, 1.0, perlin_noise(worldPosition.xz * uGrassBladeColorDistribution));
 
-  float spatialNoise = perlin_noise(worldPosition.xz + 0.1 * uGrassBladeColorDistribution);
-  float instanceRandomness = instanceHash.y * uGrassBladeColorRandomness;
-  float finalVariation = clamp(spatialNoise + instanceRandomness, 0.0, 1.0);
-
-  vGrassBladeColor = mix(colorA, colorB, smoothstep(0.0, 1.0, finalVariation));
+  vGrassBladeColor = mix(colorA, colorB, smoothstep(0.0, 1.0, spatialNoise * uGrassBladeColorMix));
   vGrassBladeHeight = localHeight;
 
   // The new normal is perpendicular to the curve tangent and the blade width (X-axis)

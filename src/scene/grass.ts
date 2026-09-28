@@ -88,7 +88,7 @@ export const createGrass = (
     uGrassBladeHeight: THREE.IUniform<number>;
     uGrassBladeBending: THREE.IUniform<number>;
     uGrassBladeHeightRandomness: THREE.IUniform<number>;
-    uGrassBladeColorRandomness: THREE.IUniform<number>;
+    uGrassBladeColorMix: THREE.IUniform<number>;
     uGrassBladeColorDistribution: THREE.IUniform<number>;
     uGrassBladeBaseColor1: THREE.IUniform<THREE.Color>;
     uGrassBladeTipColor1: THREE.IUniform<THREE.Color>;
@@ -110,8 +110,8 @@ export const createGrass = (
     uGrassBladeWidth: { value: grass.bladeWidth },
     uGrassBladeHeight: { value: grass.bladeHeight },
     uGrassBladeBending: { value: THREE.MathUtils.degToRad(grass.bladeBending) },
-    uGrassBladeHeightRandomness: { value: grass.heightRandomness },
-    uGrassBladeColorRandomness: { value: grass.colorRandomness },
+    uGrassBladeHeightRandomness: { value: grass.bladeHeightRandomness },
+    uGrassBladeColorMix: { value: grass.colorMix },
     uGrassBladeColorDistribution: { value: grass.colorDistribution },
     uGrassBladeBaseColor1: { value: new THREE.Color(grass.baseColor1) },
     uGrassBladeTipColor1: { value: new THREE.Color(grass.tipColor1) },
@@ -153,7 +153,7 @@ export const createGrass = (
   // Resize the shared bounds for the grid's current tile size and blade height
   // (plus the blade's height variation, which is the tallest blade a tile can grow).
   const updateTileBounds = (grassSettings: GrassSettings) => {
-    const maxHeight = grassSettings.bladeHeight * (1 + 0.5 * grassSettings.heightRandomness);
+    const maxHeight = grassSettings.bladeHeight * (1 + 0.5 * grassSettings.bladeHeightRandomness);
     tileBoundingSphere.center.set(0, 0.5 * maxHeight, 0);
     tileBoundingSphere.radius = Math.SQRT2 * (0.5 * GRASS_TILE_SIZE + maxHeight);
   };
@@ -204,8 +204,8 @@ export const createGrass = (
   let syncedBladeWidth = grass.bladeWidth;
   let syncedBladeHeight = grass.bladeHeight;
   let syncedBladeBending = grass.bladeBending;
-  let syncedHeightRandomness = grass.heightRandomness;
-  let syncedColorRandomness = grass.colorRandomness;
+  let syncedBladeHeightRandomness = grass.bladeHeightRandomness;
+  let syncedColorMix = grass.colorMix;
   let syncedColorDistribution = grass.colorDistribution;
   let syncedBaseColor1 = grass.baseColor1;
   let syncedTipColor1 = grass.tipColor1;
@@ -240,7 +240,7 @@ export const createGrass = (
 
     const boundsChanged =
       grassSettings.bladeHeight !== syncedBladeHeight ||
-      grassSettings.heightRandomness !== syncedHeightRandomness;
+      grassSettings.bladeHeightRandomness !== syncedBladeHeightRandomness;
 
     if (grassSettings.bladeWidth !== syncedBladeWidth) {
       syncedBladeWidth = grassSettings.bladeWidth;
@@ -257,14 +257,14 @@ export const createGrass = (
       grassUniforms.uGrassBladeBending.value = THREE.MathUtils.degToRad(grassSettings.bladeBending);
     }
 
-    if (grassSettings.heightRandomness !== syncedHeightRandomness) {
-      syncedHeightRandomness = grassSettings.heightRandomness;
-      grassUniforms.uGrassBladeHeightRandomness.value = grassSettings.heightRandomness;
+    if (grassSettings.bladeHeightRandomness !== syncedBladeHeightRandomness) {
+      syncedBladeHeightRandomness = grassSettings.bladeHeightRandomness;
+      grassUniforms.uGrassBladeHeightRandomness.value = grassSettings.bladeHeightRandomness;
     }
 
-    if (grassSettings.colorRandomness !== syncedColorRandomness) {
-      syncedColorRandomness = grassSettings.colorRandomness;
-      grassUniforms.uGrassBladeColorRandomness.value = grassSettings.colorRandomness;
+    if (grassSettings.colorMix !== syncedColorMix) {
+      syncedColorMix = grassSettings.colorMix;
+      grassUniforms.uGrassBladeColorMix.value = grassSettings.colorMix;
     }
 
     if (grassSettings.colorDistribution !== syncedColorDistribution) {
