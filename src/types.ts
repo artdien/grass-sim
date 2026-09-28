@@ -67,10 +67,10 @@ export interface TerrainSettings {
   /** Base color of the terrain as a hex string (#rrggbb). */
   color: string;
 
-  /** How far the noise can move the surface, in world units (≥ 0). */
+  /** Height amplitude of the noise displacement (a number in [0, 1]). */
   height: number;
 
-  /** Spatial scale of the noise field (a positive number); higher is finer. 0 is flat. */
+  /** Spatial scale of the noise field; higher is finer. 0 is flat (a number in [0, 2]). */
   frequency: number;
 }
 

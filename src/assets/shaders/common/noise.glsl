@@ -32,4 +32,9 @@ float perlin_noise(vec2 p) {
   return mix(x0, x1, u.y) * 1.41421356;
 }
 
+// Height of the terrain at a point on the ground plane (world XZ), in world Y.
+float terrainHeight(vec2 xz, float frequency, float amplitude) {
+  return 3.0 * amplitude * perlin_noise(0.2 * xz * frequency);
+}
+
 #endif

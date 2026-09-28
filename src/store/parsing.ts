@@ -246,12 +246,17 @@ function parseTerrainSettings(input: unknown): Result<TerrainSettings> {
   }
 
   const height = fields.height;
-  if (typeof height !== 'number' || !Number.isFinite(height) || height < 0) {
+  if (typeof height !== 'number' || !Number.isFinite(height) || height < 0 || height > 1) {
     return { ok: false, error: 'The terrain height is missing or invalid.' };
   }
 
   const frequency = fields.frequency;
-  if (typeof frequency !== 'number' || !Number.isFinite(frequency) || frequency < 0) {
+  if (
+    typeof frequency !== 'number' ||
+    !Number.isFinite(frequency) ||
+    frequency < 0 ||
+    frequency > 2
+  ) {
     return { ok: false, error: 'The terrain frequency is missing or invalid.' };
   }
 

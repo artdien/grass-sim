@@ -50,12 +50,12 @@ describe('TerrainSettingsSection', () => {
     expect(useSimulationStore.getState().activeSettings.terrain.segments).toBe(1024);
   });
 
-  it('refuses a negative terrain height and keeps the stored value', () => {
+  it('commits a terrain height within [0, 1]', () => {
     render(<TerrainSettingsSection />);
 
-    fireEvent.change(screen.getByLabelText('Height'), { target: { value: '-0.5' } });
+    fireEvent.change(screen.getByLabelText('Height'), { target: { value: '0.5' } });
 
-    expect(useSimulationStore.getState().activeSettings.terrain.height).toBe(0.01);
+    expect(useSimulationStore.getState().activeSettings.terrain.height).toBe(0.5);
   });
 
   it('commits a valid noise frequency', () => {
@@ -64,6 +64,14 @@ describe('TerrainSettingsSection', () => {
     fireEvent.change(screen.getByLabelText('Frequency'), { target: { value: '0.75' } });
 
     expect(useSimulationStore.getState().activeSettings.terrain.frequency).toBe(0.75);
+  });
+
+  it('keeps the noise frequency at its maximum of 2 when input is pushed beyond it', () => {
+    render(<TerrainSettingsSection />);
+
+    fireEvent.change(screen.getByLabelText('Frequency'), { target: { value: '5' } });
+
+    expect(useSimulationStore.getState().activeSettings.terrain.frequency).toBe(2);
   });
 
   it('commits a terrain color change to terrain.color only', () => {

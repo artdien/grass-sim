@@ -29,12 +29,6 @@ uniform vec3 uGrassBladeTipColor1;
 uniform vec3 uGrassBladeBaseColor2;
 uniform vec3 uGrassBladeTipColor2;
 
-float terrainHeight(vec2 xz) {
-  vec2 q = xz * uFrequency;
-  float n = perlin_noise(q);
-  return n * uHeight;
-}
-
 void main() {
   /* --- Initialization --- */
 
@@ -93,7 +87,7 @@ void main() {
   worldPosition.xz += rootPosition;
 
   // Lift the entire blade based on the terrain height at the root.
-  worldPosition.y += terrainHeight(rootPosition);
+  worldPosition.y += terrainHeight(rootPosition, uFrequency, uHeight);
 
   // --- Shading Data ---
 
