@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { VectorField } from '@/components/VectorField';
+import { VectorField } from '@/components/fields/VectorField';
 
 const renderVectorField = (onChange = vi.fn()) =>
   render(

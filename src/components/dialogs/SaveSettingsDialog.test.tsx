@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { SaveSettingsDialog } from '@/components/SaveSettingsDialog';
+import { SaveSettingsDialog } from '@/components/dialogs/SaveSettingsDialog';
 import type { Result } from '@/types';
 
 type DialogProps = ComponentProps<typeof SaveSettingsDialog>;

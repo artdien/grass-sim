@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { NumberField } from '@/components/NumberField';
+import { NumberField } from '@/components/fields/NumberField';
 
 describe('NumberField', () => {
   it('renders a number input with the given value and bounds, associated with its label', () => {

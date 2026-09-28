@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SaveSettingsDialog } from '@/components/SaveSettingsDialog';
+import { SaveSettingsDialog } from '@/components/dialogs/SaveSettingsDialog';
 import { WindSettingsSection } from '@/components/sidebar/WindSettingsSection';
 import { GrassSettingsSection } from '@/components/sidebar/GrassSettingsSection';
 import { TerrainSettingsSection } from '@/components/sidebar/TerrainSettingsSection';

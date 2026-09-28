@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import type { ChangeEvent } from 'react';
-import { useWheelStepper } from '@/components/useWheelStepper';
+import { useWheelStepper } from '@/components/fields/useWheelStepper';
 
 interface Props {
   /** Unique id of the input, used to bind the label. */
@@ -9,14 +9,14 @@ interface Props {
   /** Text shown to the left of the input. */
   label: string;
 
-  /** Current value committed to the settings. */
+  /** Current numeric value committed to the settings. */
   value: number;
 
   /** Minimum allowed value (rendered as the `min` attribute). */
-  min: number;
+  min?: number;
 
   /** Maximum allowed value (rendered as the `max` attribute). */
-  max: number;
+  max?: number;
 
   /** Step increment (rendered as the `step` attribute). */
   step?: number;
@@ -25,8 +25,8 @@ interface Props {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
-/** Labeled native range input, matching the label rows of the settings sidebar. */
-export const SliderField = ({ id, label, value, min, max, step, onChange }: Props) => {
+/** Labeled native number input, matching the label rows of the settings sidebar. */
+export const NumberField = ({ id, label, value, min, max, step, onChange }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   useWheelStepper(inputRef, onChange);
 
@@ -35,14 +35,14 @@ export const SliderField = ({ id, label, value, min, max, step, onChange }: Prop
       {label}
       <input
         id={id}
-        type="range"
+        type="number"
         min={min}
         max={max}
         step={step}
         value={value}
         onChange={onChange}
         ref={inputRef}
-        className="w-24 cursor-pointer accent-green-600 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:outline-none"
+        className="w-24 rounded-md border border-stone-200 bg-white px-2 py-1 text-right font-mono text-xs text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:outline-none"
       />
     </label>
   );

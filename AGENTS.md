@@ -11,14 +11,14 @@ src/
 ├── App.tsx         # app shell — Navbar + <Outlet />
 ├── index.css       # the only source CSS (Tailwind v4)
 ├── types.ts        # shared types
-├── components/     # app-level / reusable UI (e.g. Navbar, Sidebar)
+├── components/     # app-level / reusable UI — solo components at the top (Navbar, LoadSettingsCard); one subfolder per component family (dialogs/, fields/, layout/) or feature (sidebar/)
 ├── pages/          # one component per route
 ├── store/          # Zustand stores for shared app state (e.g. SimulationSettings)
 ├── assets/         # static sources — shaders/ (GLSL .vert/.frag/.glsl), models/
 └── scene/          # all Three.js code (e.g. Scene, render capture)
 ```
 
-New code goes in these buckets: route-level pages → `pages/`, app-level or reusable UI → `components/`, shared app state → `store/`, anything that touches Three.js → `scene/`.
+New code goes in these buckets: route-level pages → `pages/`, app-level or reusable UI → `components/` (into a matching family/feature subfolder, or the top level only if it has no family), shared app state → `store/`, anything that touches Three.js → `scene/`.
 
 ## Commands
 

@@ -1,9 +1,9 @@
 import type { ChangeEvent } from 'react';
-import { CollapsibleSection } from '@/components/CollapsibleSection';
-import { ColorField } from '@/components/ColorField';
-import { NumberField } from '@/components/NumberField';
-import { SliderField } from '@/components/SliderField';
-import { VectorField } from '@/components/VectorField';
+import { CollapsibleSection } from '@/components/layout/CollapsibleSection';
+import { ColorField } from '@/components/fields/ColorField';
+import { NumberField } from '@/components/fields/NumberField';
+import { SliderField } from '@/components/fields/SliderField';
+import { VectorField } from '@/components/fields/VectorField';
 import { useSimulationStore } from '@/store/simulation';
 
 /** Parses a light direction component; null when it is not a finite number. */

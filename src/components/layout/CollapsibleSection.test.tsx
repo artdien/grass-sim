@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { CollapsibleSection } from '@/components/CollapsibleSection';
+import { CollapsibleSection } from '@/components/layout/CollapsibleSection';
 
 describe('CollapsibleSection', () => {
   it('renders the title with its content visible, expanded by default', () => {

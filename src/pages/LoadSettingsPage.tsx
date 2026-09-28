@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog';
 import { LoadSettingsCard } from '@/components/LoadSettingsCard';
 
 import { useSimulationStore } from '@/store/simulation';

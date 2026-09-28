@@ -1,7 +1,7 @@
 import type { ChangeEvent } from 'react';
-import { CollapsibleSection } from '@/components/CollapsibleSection';
-import { ColorField } from '@/components/ColorField';
-import { NumberField } from '@/components/NumberField';
+import { CollapsibleSection } from '@/components/layout/CollapsibleSection';
+import { ColorField } from '@/components/fields/ColorField';
+import { NumberField } from '@/components/fields/NumberField';
 import type { TerrainNoiseType } from '@/types';
 import { useSimulationStore } from '@/store/simulation';
 

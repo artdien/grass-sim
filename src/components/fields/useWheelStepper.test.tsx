@@ -3,7 +3,7 @@ import type { ChangeEvent } from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { useWheelStepper } from '@/components/useWheelStepper';
+import { useWheelStepper } from '@/components/fields/useWheelStepper';
 
 /** Minimal harness: the hook plus just the input whose live value it steps. */
 const StepperInput = ({

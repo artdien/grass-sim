@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { SliderField } from '@/components/SliderField';
+import { SliderField } from '@/components/fields/SliderField';
 
 describe('SliderField', () => {
   it('renders a range input with the given value and bounds, associated with its label', () => {

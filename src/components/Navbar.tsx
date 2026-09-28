@@ -1,6 +1,6 @@
 import { useRef, useState, type ChangeEvent } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog';
 import { useFullscreenStore } from '@/store/fullscreen';
 import { parseSimulationSettings } from '@/store/parsing';
 import { useSimulationStore } from '@/store/simulation';

@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react';
-import { CollapsibleSection } from '@/components/CollapsibleSection';
-import { SliderField } from '@/components/SliderField';
+import { CollapsibleSection } from '@/components/layout/CollapsibleSection';
+import { SliderField } from '@/components/fields/SliderField';
 import { useSimulationStore } from '@/store/simulation';
 
 /** Parses the wind velocity or strength; null when not a number in [0, 1]. */
