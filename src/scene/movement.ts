@@ -60,13 +60,12 @@ const createOrbitMovement = (
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
   controls.enablePan = false;
-  // Never let the camera sink below eye height, i.e. under the grass.
+  // Never let the camera sink below the orbit target, i.e. under the grass.
   controls.maxPolarAngle = Math.PI / 2;
 
-  // Orbit around a point at eye height over the field, starting a few meters
-  // back so the field fills the view.
-  camera.position.set(0, 1.7, 5);
-  controls.target.set(0, 1.7, 0);
+  // Start the orbit a few meters back from the target so the field fills the view.
+  camera.position.set(0, 5, 0);
+  controls.target.set(1, 5, 1);
   controls.update();
 
   return {

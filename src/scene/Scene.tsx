@@ -39,9 +39,9 @@ export const Scene = memo(() => {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     container.appendChild(renderer.domElement);
 
-    // Start at roughly eye height over the field, facing its center.
-    camera.position.set(2, 2, 2);
-    camera.lookAt(0, 0, 0);
+    // Start the view a few meters back from the field, facing its center.
+    camera.position.set(0, 5, 0);
+    camera.lookAt(1, 5, 1);
 
     // Created after the initial camera placement: on mobile the orbit controls
     // reposition the camera and override the placement above.

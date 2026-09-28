@@ -67,10 +67,9 @@ describe('createMovement (orbit)', () => {
     expect(orbited).toHaveLength(1);
     // Pan is deliberately unavailable on touch devices (there is no WASD there).
     expect(orbited[0].enablePan).toBe(false);
-    // The orbit path repositions the camera above the field, at eye height.
     expect(camera.position.x).toBeCloseTo(0);
-    expect(camera.position.y).toBeCloseTo(1.7);
-    expect(camera.position.z).toBeCloseTo(5);
+    expect(camera.position.y).toBeCloseTo(5);
+    expect(camera.position.z).toBeCloseTo(0);
 
     motion.update(0.1);
     motion.dispose();
