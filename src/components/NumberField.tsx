@@ -15,6 +15,9 @@ interface Props {
   /** Minimum allowed value (rendered as the `min` attribute). */
   min?: number;
 
+  /** Maximum allowed value (rendered as the `max` attribute). */
+  max?: number;
+
   /** Step increment (rendered as the `step` attribute). */
   step?: number;
 
@@ -23,7 +26,7 @@ interface Props {
 }
 
 /** Labeled native number input, matching the label rows of the settings sidebar. */
-export const NumberField = ({ id, label, value, min, step, onChange }: Props) => {
+export const NumberField = ({ id, label, value, min, max, step, onChange }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   useWheelStepper(inputRef, onChange);
 
@@ -34,6 +37,7 @@ export const NumberField = ({ id, label, value, min, step, onChange }: Props) =>
         id={id}
         type="number"
         min={min}
+        max={max}
         step={step}
         value={value}
         onChange={onChange}

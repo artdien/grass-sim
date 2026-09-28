@@ -90,13 +90,35 @@ const createFirstPersonMovement = (
 
   const isHeld = (code: string) => pressed.has(code);
 
+  // Keys typed into an editable control (e.g. the save settings dialog) must not
+  // also fly the camera.
+  const isEditableTarget = (target: EventTarget | null): boolean =>
+    target instanceof HTMLElement &&
+    (target.isContentEditable ||
+      target.tagName === 'INPUT' ||
+      target.tagName === 'TEXTAREA' ||
+      target.tagName === 'SELECT');
+
   const onKeyDown = (event: KeyboardEvent) => {
+    if (isEditableTarget(event.target)) {
+      return;
+    }
     pressed.add(event.code);
   };
   const onKeyUp = (event: KeyboardEvent) => {
+    if (isEditableTarget(event.target)) {
+      return;
+    }
     pressed.delete(event.code);
   };
   const onBlur = () => pressed.clear();
+  // A key held before an editable control gained focus otherwise stays "held"
+  // forever, since its release lands in the control and is ignored above.
+  const onFocusIn = (event: FocusEvent) => {
+    if (isEditableTarget(event.target)) {
+      pressed.clear();
+    }
+  };
   const onClick = () => {
     if (!controls.isLocked) {
       controls.lock();
@@ -106,6 +128,7 @@ const createFirstPersonMovement = (
   window.addEventListener('keydown', onKeyDown);
   window.addEventListener('keyup', onKeyUp);
   window.addEventListener('blur', onBlur);
+  window.addEventListener('focusin', onFocusIn);
   domElement.addEventListener('click', onClick);
 
   const forward = new THREE.Vector3();
@@ -147,6 +170,7 @@ const createFirstPersonMovement = (
     window.removeEventListener('keydown', onKeyDown);
     window.removeEventListener('keyup', onKeyUp);
     window.removeEventListener('blur', onBlur);
+    window.removeEventListener('focusin', onFocusIn);
     domElement.removeEventListener('click', onClick);
   };
 

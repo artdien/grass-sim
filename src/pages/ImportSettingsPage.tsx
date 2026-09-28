@@ -48,7 +48,8 @@ export const ImportSettingsPage = () => {
             simulation.
           </span>
           <span className="hidden pointer-fine:inline">
-            Restore, download, or delete simulation settings you have stored here.
+            Restore, download, or delete simulation settings you have stored here. Stored settings
+            live in memory only and are lost when the page is reloaded.
           </span>
         </p>
 

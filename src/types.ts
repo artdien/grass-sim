@@ -64,7 +64,7 @@ export interface TerrainSettings {
   /** Terrain size in world units (an integer ≥ 1). */
   size: number;
 
-  /** Grid subdivisions of the terrain plane per edge (an integer ≥ 1). */
+  /** Grid subdivisions of the terrain plane per edge (an integer ≥ 1, committed at most at 1024). */
   segments: number;
 
   /** Base color of the terrain as a hex string (#rrggbb). */

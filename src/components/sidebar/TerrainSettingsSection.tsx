@@ -11,6 +11,9 @@ const NOISE_OPTIONS: { value: TerrainNoiseType; label: string }[] = [
   { value: 'simplex', label: 'Simplex' },
 ];
 
+/** Above this the terrain grid quadruples and the scene chokes. */
+const MAX_TERRAIN_SEGMENTS = 1024;
+
 /** Parses a terrain field input; null when it is not an integer ≥ 1. */
 const parseTerrainValue = (value: string): number | null => {
   const parsed = Number(value);
@@ -37,9 +40,10 @@ export const TerrainSettingsSection = () => {
     if (parsed === null) {
       return;
     }
+    const value = field === 'segments' ? Math.min(parsed, MAX_TERRAIN_SEGMENTS) : parsed;
     updateActiveSettings({
       ...activeSettings,
-      terrain: { ...activeSettings.terrain, [field]: parsed },
+      terrain: { ...activeSettings.terrain, [field]: value },
     });
   };
 
@@ -87,6 +91,7 @@ export const TerrainSettingsSection = () => {
           id="terrain-segments"
           label="Segments"
           min={1}
+          max={MAX_TERRAIN_SEGMENTS}
           step={1}
           value={activeSettings.terrain.segments}
           onChange={(event) => handleTerrainChange('segments', event)}

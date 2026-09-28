@@ -55,20 +55,20 @@ export const ImportSettingsCard = ({ entry, onRestore, onDownload, onAskDelete }
       <footer className="mt-auto flex gap-2 border-t border-stone-200 px-4 py-3">
         <button
           type="button"
+          title="Downloads these simulation settings as a JSON file"
+          aria-label={`Download ${entry.name}`}
+          onClick={onDownload}
+          className="hidden flex-1 justify-center rounded-md border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium text-stone-600 shadow-sm transition-colors hover:text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none pointer-fine:flex"
+        >
+          Download
+        </button>
+        <button
+          type="button"
           title="Restores these simulation settings and applies them to the current simulation"
           onClick={onRestore}
           className="flex-1 rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
         >
           Restore
-        </button>
-        <button
-          type="button"
-          title="Downloads these simulation settings as a JSON file"
-          aria-label={`Download ${entry.name}`}
-          onClick={onDownload}
-          className="hidden flex-1 rounded-md border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium text-stone-600 shadow-sm transition-colors hover:text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none pointer-fine:flex"
-        >
-          Download
         </button>
       </footer>
     </article>
