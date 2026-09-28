@@ -50,6 +50,7 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
       bladeHeight: 1.5,
       bladeBending: 22.5,
       heightRandomness: 0.5,
+      bladeThickening: 0.5,
       colorRandomness: 0.2,
       colorDistribution: 1.0,
       baseColor1: '#3f9527',

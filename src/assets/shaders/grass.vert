@@ -24,6 +24,7 @@ uniform float uGrassBladeBending;           // range [0, PI/4]
 uniform float uGrassBladeHeightRandomness;  // range [0, 1]
 uniform float uGrassBladeColorRandomness;   // range [0, 1]
 uniform float uGrassBladeColorDistribution; // range [0, 1]
+uniform float uGrassBladeThickening;        // range [0, 1]
 uniform vec3 uGrassBladeBaseColor1;
 uniform vec3 uGrassBladeTipColor1;
 uniform vec3 uGrassBladeBaseColor2;
@@ -117,11 +118,32 @@ void main() {
   vec3 worldTangent = normalize(mat3(worldModelMatrix) * tangent.xyz);
   vec3 worldBitangent = normalize(cross(worldNormal, worldTangent) * tangent.w);
 
+  /* View Space Thickening */
+
+  vec4 viewPosition = viewMatrix * vec4(worldPosition, 1.0);
+  vec3 viewDirection = normalize(cameraPosition - worldPosition);
+  vec3 viewNormal = normalize(transpose(inverse(mat3(viewMatrix * worldModelMatrix))) * localNormal);
+
+  // 0.0 -> edge-on/perpendicular, 1.0 -> flat-facing.
+  float facingPercent = abs(dot(viewNormal, viewDirection));
+
+  float thickening = smoothstep(0.0, 1.0, (1.0 - facingPercent) * 0.2 * uGrassBladeThickening);
+  thickening *= smoothstep(0.0, 0.3, uv.y); // fade-out at base
+
+  // Grass blade model is symmetric around 0 on X-axis,
+  // so less than 0 means left side, greater than 0 means right side.
+  float side = sign(position.x);
+
+  // Thicken side only in view space
+  viewPosition.x += side * thickening;
+
+  /* Output */
+
   vWorldPosition = worldPosition;
   vWorldNormal = worldNormal;
   vTangent = worldTangent;
   vBitangent = worldBitangent;
   vUV = uv;
 
-  gl_Position = projectionMatrix * viewMatrix * vec4(worldPosition, 1.0);
+  gl_Position = projectionMatrix * viewPosition;
 }

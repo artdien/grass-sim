@@ -114,6 +114,17 @@ export const GrassSettingsSection = () => {
     });
   };
 
+  const handleThickeningChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const parsed = parseUnitRangeValue(event.target.value);
+    if (parsed === null) {
+      return;
+    }
+    updateActiveSettings({
+      ...activeSettings,
+      grass: { ...activeSettings.grass, bladeThickening: parsed },
+    });
+  };
+
   const handleSoftnessChange = (event: ChangeEvent<HTMLInputElement>) => {
     const parsed = parseSoftnessValue(event.target.value);
     if (parsed === null) {
@@ -168,6 +179,16 @@ export const GrassSettingsSection = () => {
           step={0.05}
           value={activeSettings.grass.heightRandomness}
           onChange={(event) => handleVariationChange('heightRandomness', event)}
+        />
+
+        <SliderField
+          id="grass-thickening"
+          label="Thickening"
+          min={0}
+          max={1}
+          step={0.05}
+          value={activeSettings.grass.bladeThickening}
+          onChange={handleThickeningChange}
         />
 
         <h3 className="pt-1 text-xs font-semibold tracking-wide text-stone-500">Color</h3>

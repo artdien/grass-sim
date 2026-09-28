@@ -94,6 +94,7 @@ export const createGrass = (
     uGrassBladeTipColor1: THREE.IUniform<THREE.Color>;
     uGrassBladeBaseColor2: THREE.IUniform<THREE.Color>;
     uGrassBladeTipColor2: THREE.IUniform<THREE.Color>;
+    uGrassBladeThickening: THREE.IUniform<number>;
     uGrassBladeShadowing: THREE.IUniform<number>;
     uDiffuseSoftness: THREE.IUniform<number>;
     uHeight: THREE.IUniform<number>;
@@ -116,6 +117,7 @@ export const createGrass = (
     uGrassBladeTipColor1: { value: new THREE.Color(grass.tipColor1) },
     uGrassBladeBaseColor2: { value: new THREE.Color(grass.baseColor2) },
     uGrassBladeTipColor2: { value: new THREE.Color(grass.tipColor2) },
+    uGrassBladeThickening: { value: grass.bladeThickening },
     uGrassBladeShadowing: { value: grass.shadowing },
     uDiffuseSoftness: { value: grass.softness },
     uHeight: { value: terrain.height },
@@ -209,6 +211,7 @@ export const createGrass = (
   let syncedTipColor1 = grass.tipColor1;
   let syncedBaseColor2 = grass.baseColor2;
   let syncedTipColor2 = grass.tipColor2;
+  let syncedBladeThickening = grass.bladeThickening;
   let syncedShadowing = grass.shadowing;
   let syncedSoftness = grass.softness;
 
@@ -287,6 +290,11 @@ export const createGrass = (
     if (grassSettings.tipColor2 !== syncedTipColor2) {
       syncedTipColor2 = grassSettings.tipColor2;
       grassUniforms.uGrassBladeTipColor2.value.set(grassSettings.tipColor2);
+    }
+
+    if (grassSettings.bladeThickening !== syncedBladeThickening) {
+      syncedBladeThickening = grassSettings.bladeThickening;
+      grassUniforms.uGrassBladeThickening.value = grassSettings.bladeThickening;
     }
 
     if (grassSettings.shadowing !== syncedShadowing) {

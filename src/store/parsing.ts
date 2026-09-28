@@ -149,6 +149,16 @@ function parseGrassSettings(input: unknown): Result<GrassSettings> {
     return { ok: false, error: 'The blade height randomness is missing or invalid.' };
   }
 
+  const bladeThickening = fields.bladeThickening;
+  if (
+    typeof bladeThickening !== 'number' ||
+    !Number.isFinite(bladeThickening) ||
+    bladeThickening < 0 ||
+    bladeThickening > 1
+  ) {
+    return { ok: false, error: 'The blade thickening is missing or invalid.' };
+  }
+
   const colorRandomness = fields.colorRandomness;
   if (
     typeof colorRandomness !== 'number' ||
@@ -211,6 +221,7 @@ function parseGrassSettings(input: unknown): Result<GrassSettings> {
       bladeHeight,
       bladeBending,
       heightRandomness,
+      bladeThickening,
       colorRandomness,
       colorDistribution,
       baseColor1,
