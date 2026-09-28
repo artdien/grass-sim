@@ -15,16 +15,16 @@ out vec2 vUV;
 out vec3 vGrassBladeColor;
 out float vGrassBladeHeight;
 
-uniform float uWindVelocity;                      // range [0, 1]
-uniform float uWindStrength;                      // range [0, 1]
-uniform float uWindAngle;                         // range [0, 2*PI]
-uniform float uGrassTileSize;                    // range [1, inf]
-uniform float uGrassBladeWidth;                   // range (0, 1]
-uniform float uGrassBladeHeight;                  // range (0, 5]
-uniform float uGrassBladeBending;                 // range [0, PI/4]
-uniform float uGrassBladeHeightRandomness;        // range [0, 1]
-uniform float uGrassBladeColorRandomness;         // range [0, 1]
-uniform float uGrassBladeColorDistribution;       // range [0, 1]
+uniform float uWindVelocity;                // range [0, 1]
+uniform float uWindStrength;                // range [0, 1]
+uniform float uWindAngle;                   // range [0, 2*PI]
+uniform float uGrassTileSize;               // range [1, inf]
+uniform float uGrassBladeWidth;             // range (0, 1]
+uniform float uGrassBladeHeight;            // range (0, 5]
+uniform float uGrassBladeBending;           // range [0, PI/4]
+uniform float uGrassBladeHeightRandomness;  // range [0, 1]
+uniform float uGrassBladeColorRandomness;   // range [0, 1]
+uniform float uGrassBladeColorDistribution; // range [0, 1]
 uniform vec3 uGrassBladeBaseColor1;
 uniform vec3 uGrassBladeTipColor1;
 uniform vec3 uGrassBladeBaseColor2;
@@ -48,10 +48,13 @@ void main() {
   uint tileSeed = uint(hash21(tileCell) * 4294967295.0);
   vec3 instanceHash = hashPCG(tileSeed + uint(gl_InstanceID));
 
+  // Shift the root randomly within the tile, anchored in world space by the tile mesh position.
+  vec2 rootPosition = modelMatrix[3].xz + 0.5 * uGrassTileSize * (instanceHash.xz * 2.0 - 1.0);
+
   /* --- Wind Modelling --- */
 
-  float windStrength = uWindStrength * perlin_noise(uTime + uWindStrength * instanceHash.xz);
-  float windBendingDegree = uWindVelocity * windStrength * perlin_noise(uTime * uWindVelocity * instanceHash.xz);
+  float windStrength = uWindVelocity * smoothstep(-1.0, 1.0, perlin_noise(uTime + 0.1 * uWindStrength * rootPosition));
+  float windBendingDegree = windStrength * smoothstep(-1.0, 1.0, perlin_noise(uTime * uWindVelocity * rootPosition));
 
   vec3 windAxis = vec3(cos(uWindAngle), 0.0, sin(uWindAngle));
   float windBendingAngle = uWindVelocity * PI * windStrength * localHeight; // tips are bent stronger
@@ -88,9 +91,6 @@ void main() {
 
   // Bend and rotate the blade about its root (the local origin).
   vec3 worldPosition = (worldModelMatrix * localPosition).xyz;
-
-  // Shift the root randomly within the tile, anchored in world space by the tile mesh position.
-  vec2 rootPosition = modelMatrix[3].xz + 0.5 * uGrassTileSize * (instanceHash.xz * 2.0 - 1.0);
   worldPosition.xz += rootPosition;
 
   // Lift the entire blade based on the terrain height at the root.
