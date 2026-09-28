@@ -57,6 +57,7 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
       baseColor2: '#6ca03f',
       tipColor2: '#cbe795',
       shadowing: 2.0,
+      softness: 1.0,
     },
     terrain: {
       color: '#8a6d4b',

@@ -34,7 +34,13 @@ const parseShadowingValue = (value: string): number | null => {
   return Number.isFinite(parsed) && parsed >= 0 && parsed <= 10 ? parsed : null;
 };
 
-/** The Grass settings section: blade shape and variation, color palettes, and shadowing. Bending is in degrees; the scene converts it to radians for the shader. */
+/** Parses the softness; null when it is not a number in [0, 3]. */
+const parseSoftnessValue = (value: string): number | null => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 && parsed <= 3 ? parsed : null;
+};
+
+/** The Grass settings section: blade shape and variation, color palettes, and shading (shadowing, half-lambertian softness). Bending is in degrees; the scene converts it to radians for the shader. */
 export const GrassSettingsSection = () => {
   const activeSettings = useSimulationStore((state) => state.activeSettings);
   const updateActiveSettings = useSimulationStore((state) => state.updateActiveSettings);
@@ -105,6 +111,17 @@ export const GrassSettingsSection = () => {
     updateActiveSettings({
       ...activeSettings,
       grass: { ...activeSettings.grass, shadowing: parsed },
+    });
+  };
+
+  const handleSoftnessChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const parsed = parseSoftnessValue(event.target.value);
+    if (parsed === null) {
+      return;
+    }
+    updateActiveSettings({
+      ...activeSettings,
+      grass: { ...activeSettings.grass, softness: parsed },
     });
   };
 
@@ -203,6 +220,16 @@ export const GrassSettingsSection = () => {
           step={0.1}
           value={activeSettings.grass.shadowing}
           onChange={handleShadowingChange}
+        />
+
+        <SliderField
+          id="grass-softness"
+          label="Softness"
+          min={0}
+          max={3}
+          step={0.1}
+          value={activeSettings.grass.softness}
+          onChange={handleSoftnessChange}
         />
       </div>
     </CollapsibleSection>

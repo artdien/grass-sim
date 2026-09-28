@@ -82,6 +82,16 @@ describe('parseSimulationSettings', () => {
     });
   });
 
+  it('refuses a blade softness outside [0, 3]', () => {
+    const document = buildValidDocument();
+    document.settings.grass.softness = -1;
+
+    expect(parseSimulationSettings(JSON.stringify(document))).toEqual({
+      ok: false,
+      error: 'The blade softness is missing or invalid.',
+    });
+  });
+
   it('refuses a non-hex terrain color', () => {
     const document = buildValidDocument();
     document.settings.terrain.color = 'red';

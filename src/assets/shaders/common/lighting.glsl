@@ -24,6 +24,11 @@ vec3 diffuseLighting(vec3 lightColor, vec3 lightDirection, vec3 normal) {
   return lightColor * max(dot(lightDirection, normal), 0.0);
 }
 
+// Half-lambertian lighting — remaps dot(lightDirection, normal) to [0, 1] so faces not directly facing the light stay softly lit; `softness` exponent controls how sharply the shading wraps the terminator (1 is pure half-lambertian)
+vec3 halfDiffuseLighting(vec3 lightColor, vec3 lightDirection, vec3 normal, float softness) {
+  return lightColor * pow(dot(lightDirection, normal) * 0.5 + 0.5, softness);
+}
+
 // Blinn-Phong model
 vec3 specularLighting(vec3 lightColor, vec3 lightDirection, vec3 halfwayVector, vec3 normal, float intensity,
                       float shininess) {

@@ -64,6 +64,14 @@ describe('GrassSettingsSection', () => {
     expect(useSimulationStore.getState().activeSettings.grass.shadowing).toBe(10);
   });
 
+  it('keeps the softness at its maximum of 3 when input is pushed beyond it', () => {
+    render(<GrassSettingsSection />);
+
+    fireEvent.change(screen.getByLabelText('Softness'), { target: { value: '4' } });
+
+    expect(useSimulationStore.getState().activeSettings.grass.softness).toBe(3);
+  });
+
   it('commits a color change to the given palette slot only', () => {
     render(<GrassSettingsSection />);
 

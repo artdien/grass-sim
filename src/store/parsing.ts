@@ -199,6 +199,11 @@ function parseGrassSettings(input: unknown): Result<GrassSettings> {
     return { ok: false, error: 'The blade shadowing is missing or invalid.' };
   }
 
+  const softness = fields.softness;
+  if (typeof softness !== 'number' || !Number.isFinite(softness) || softness < 0 || softness > 3) {
+    return { ok: false, error: 'The blade softness is missing or invalid.' };
+  }
+
   return {
     ok: true,
     data: {
@@ -213,6 +218,7 @@ function parseGrassSettings(input: unknown): Result<GrassSettings> {
       baseColor2,
       tipColor2,
       shadowing,
+      softness,
     },
   };
 }

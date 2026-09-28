@@ -6,8 +6,9 @@ uniform vec3 uSkyColor;
 uniform vec3 uGroundColor;
 uniform vec3 uLightColor;
 uniform vec3 uLightDirection;
-uniform float uShininess; // range [1, inf]
-uniform float uSpecularIntensity; // range [0, 1]
+uniform float uShininess;           // range [1, inf]
+uniform float uSpecularIntensity;   // range [0, 1]
+uniform float uDiffuseSoftness;     // range [0, 3]; 1 is pure half-lambertian
 uniform float uEnvironmentStrength; // range [0, 1]
 uniform float uGrassBladeShadowing; // range [0, 10]
 
@@ -39,7 +40,7 @@ void main() {
   vec3 H = normalize(L + V);
 
   vec3 ambient = ambientLighting(uGroundColor, uSkyColor, N);
-  vec3 diffuse = diffuseLighting(uLightColor, L, N);
+  vec3 diffuse = halfDiffuseLighting(uLightColor, L, N, uDiffuseSoftness);
   vec3 specular = specularLighting(uLightColor, L, H, N, uSpecularIntensity, uShininess);
   vec3 env = uEnvironmentStrength * envLighting(uEnvMap, V, N);
 

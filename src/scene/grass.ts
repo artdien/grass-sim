@@ -95,6 +95,7 @@ export const createGrass = (
     uGrassBladeBaseColor2: THREE.IUniform<THREE.Color>;
     uGrassBladeTipColor2: THREE.IUniform<THREE.Color>;
     uGrassBladeShadowing: THREE.IUniform<number>;
+    uDiffuseSoftness: THREE.IUniform<number>;
     uHeight: THREE.IUniform<number>;
     uFrequency: THREE.IUniform<number>;
     uNormalMap: THREE.IUniform<THREE.Texture>;
@@ -116,6 +117,7 @@ export const createGrass = (
     uGrassBladeBaseColor2: { value: new THREE.Color(grass.baseColor2) },
     uGrassBladeTipColor2: { value: new THREE.Color(grass.tipColor2) },
     uGrassBladeShadowing: { value: grass.shadowing },
+    uDiffuseSoftness: { value: grass.softness },
     uHeight: { value: terrain.height },
     uFrequency: { value: terrain.frequency },
     uNormalMap: { value: placeholderNormalMap },
@@ -208,6 +210,7 @@ export const createGrass = (
   let syncedBaseColor2 = grass.baseColor2;
   let syncedTipColor2 = grass.tipColor2;
   let syncedShadowing = grass.shadowing;
+  let syncedSoftness = grass.softness;
 
   const sync = (
     windSettings: WindSettings,
@@ -289,6 +292,11 @@ export const createGrass = (
     if (grassSettings.shadowing !== syncedShadowing) {
       syncedShadowing = grassSettings.shadowing;
       grassUniforms.uGrassBladeShadowing.value = grassSettings.shadowing;
+    }
+
+    if (grassSettings.softness !== syncedSoftness) {
+      syncedSoftness = grassSettings.softness;
+      grassUniforms.uDiffuseSoftness.value = grassSettings.softness;
     }
 
     if (boundsChanged) {

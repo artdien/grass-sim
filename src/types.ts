@@ -51,6 +51,9 @@ export interface GrassSettings {
 
   /** Exponent of the blade's shadowing toward its base (a number in [0, 10]). */
   shadowing: number;
+
+  /** Exponent of the blade's half-lambertian diffuse wrap (a number in [0, 3]); 1 is pure half-lambertian. */
+  softness: number;
 }
 
 /** Terrain generation settings: its base color and its height field. */
