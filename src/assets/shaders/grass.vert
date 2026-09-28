@@ -15,7 +15,7 @@ out vec3 vGrassBladeColor;
 out float vGrassBladeHeight;
 
 uniform float uWindVelocity;                // range [0, 1]
-uniform float uWindStrength;                // range [0, 1]
+uniform float uWindRandomness;              // range [0, 1]
 uniform float uWindAngle;                   // range [0, 2*PI]
 uniform float uGrassTileSize;               // range [1, inf]
 uniform float uGrassBladeWidth;             // range (0, 1]
@@ -52,7 +52,7 @@ void main() {
 
   /* --- Wind Modelling --- */
 
-  float windStrength = uWindVelocity * smoothstep(-1.0, 1.0, perlin_noise(uTime + 0.1 * uWindStrength * rootPosition));
+  float windStrength = uWindVelocity * smoothstep(-1.0, 1.0, perlin_noise(uTime + 0.1 * uWindRandomness * rootPosition));
   float windBendingDegree = windStrength * smoothstep(-1.0, 1.0, perlin_noise(uTime * uWindVelocity * rootPosition));
 
   vec3 windAxis = vec3(cos(uWindAngle), 0.0, sin(uWindAngle));

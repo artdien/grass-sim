@@ -10,8 +10,8 @@ export interface WindSettings {
   /** Wind velocity (a number in [0, 1]); scales both the bend noise and the blade lean. */
   velocity: number;
 
-  /** Wind strength (a number in [0, 1]). */
-  strength: number;
+  /** Wind randomness (a number in [0, 1]). */
+  randomness: number;
 
   /** Direction the wind blows toward, in degrees [0, 360]. */
   angle: number;
@@ -52,8 +52,8 @@ export interface GrassSettings {
   /** Tip color of the second blade color palette, as a hex string (#rrggbb). */
   tipColor2: string;
 
-  /** Exponent of the blade's self-shadowing toward its base (a number in [0, 10]). */
-  selfShadowing: number;
+  /** Exponent of the blade's shadowing toward its base (a number in [0, 10]). */
+  shadowing: number;
 }
 
 /** Terrain generation settings: how large it is, how finely it is subdivided, its base color, and its height field. */

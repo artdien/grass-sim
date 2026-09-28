@@ -89,12 +89,12 @@ describe('GrassSettingsSection', () => {
     expect(useSimulationStore.getState().activeSettings.grass.bladeBending).toBe(45);
   });
 
-  it('keeps the self-shadowing at its maximum of 10 when input is pushed beyond it', () => {
+  it('keeps the shadowing at its maximum of 10 when input is pushed beyond it', () => {
     render(<GrassSettingsSection />);
 
-    fireEvent.change(screen.getByLabelText('Self-shadowing'), { target: { value: '12' } });
+    fireEvent.change(screen.getByLabelText('Shadowing'), { target: { value: '12' } });
 
-    expect(useSimulationStore.getState().activeSettings.grass.selfShadowing).toBe(10);
+    expect(useSimulationStore.getState().activeSettings.grass.shadowing).toBe(10);
   });
 
   it('commits a color change to the given palette slot only', () => {

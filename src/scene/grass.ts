@@ -77,7 +77,7 @@ export const createGrass = (
   const grassUniforms: {
     uTime: THREE.IUniform<number>;
     uWindVelocity: THREE.IUniform<number>;
-    uWindStrength: THREE.IUniform<number>;
+    uWindRandomness: THREE.IUniform<number>;
     uWindAngle: THREE.IUniform<number>;
     uGrassTileSize: THREE.IUniform<number>;
     uGrassBladeWidth: THREE.IUniform<number>;
@@ -90,7 +90,7 @@ export const createGrass = (
     uGrassBladeTipColor1: THREE.IUniform<THREE.Color>;
     uGrassBladeBaseColor2: THREE.IUniform<THREE.Color>;
     uGrassBladeTipColor2: THREE.IUniform<THREE.Color>;
-    uGrassBladeSelfShadowing: THREE.IUniform<number>;
+    uGrassBladeShadowing: THREE.IUniform<number>;
     uHeight: THREE.IUniform<number>;
     uFrequency: THREE.IUniform<number>;
     uNormalMap: THREE.IUniform<THREE.Texture>;
@@ -98,7 +98,7 @@ export const createGrass = (
   } = {
     uTime: { value: 0.0 },
     uWindVelocity: { value: wind.velocity },
-    uWindStrength: { value: wind.strength },
+    uWindRandomness: { value: wind.randomness },
     uWindAngle: { value: THREE.MathUtils.degToRad(wind.angle) },
     uGrassTileSize: { value: grass.tileSize },
     uGrassBladeWidth: { value: grass.bladeWidth },
@@ -111,7 +111,7 @@ export const createGrass = (
     uGrassBladeTipColor1: { value: new THREE.Color(grass.tipColor1) },
     uGrassBladeBaseColor2: { value: new THREE.Color(grass.baseColor2) },
     uGrassBladeTipColor2: { value: new THREE.Color(grass.tipColor2) },
-    uGrassBladeSelfShadowing: { value: grass.selfShadowing },
+    uGrassBladeShadowing: { value: grass.shadowing },
     uHeight: { value: terrain.height },
     uFrequency: { value: terrain.frequency },
     uNormalMap: { value: placeholderNormalMap },
@@ -193,7 +193,7 @@ export const createGrass = (
   });
 
   let syncedWindVelocity = wind.velocity;
-  let syncedWindStrength = wind.strength;
+  let syncedWindRandomness = wind.randomness;
   let syncedWindAngle = wind.angle;
 
   let syncedTileSize = grass.tileSize;
@@ -207,7 +207,7 @@ export const createGrass = (
   let syncedTipColor1 = grass.tipColor1;
   let syncedBaseColor2 = grass.baseColor2;
   let syncedTipColor2 = grass.tipColor2;
-  let syncedSelfShadowing = grass.selfShadowing;
+  let syncedShadowing = grass.shadowing;
 
   const sync = (
     windSettings: WindSettings,
@@ -222,9 +222,9 @@ export const createGrass = (
       grassUniforms.uWindVelocity.value = windSettings.velocity;
     }
 
-    if (windSettings.strength !== syncedWindStrength) {
-      syncedWindStrength = windSettings.strength;
-      grassUniforms.uWindStrength.value = windSettings.strength;
+    if (windSettings.randomness !== syncedWindRandomness) {
+      syncedWindRandomness = windSettings.randomness;
+      grassUniforms.uWindRandomness.value = windSettings.randomness;
     }
 
     if (windSettings.angle !== syncedWindAngle) {
@@ -298,9 +298,9 @@ export const createGrass = (
       grassUniforms.uGrassBladeTipColor2.value.set(grassSettings.tipColor2);
     }
 
-    if (grassSettings.selfShadowing !== syncedSelfShadowing) {
-      syncedSelfShadowing = grassSettings.selfShadowing;
-      grassUniforms.uGrassBladeSelfShadowing.value = grassSettings.selfShadowing;
+    if (grassSettings.shadowing !== syncedShadowing) {
+      syncedShadowing = grassSettings.shadowing;
+      grassUniforms.uGrassBladeShadowing.value = grassSettings.shadowing;
     }
 
     if (boundsChanged) {

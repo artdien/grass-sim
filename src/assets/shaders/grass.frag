@@ -6,10 +6,10 @@ uniform vec3 uSkyColor;
 uniform vec3 uGroundColor;
 uniform vec3 uLightColor;
 uniform vec3 uLightDirection;
-uniform float uShininess;
-uniform float uSpecularIntensity;
-uniform float uEnvironmentStrength;
-uniform float uGrassBladeSelfShadowing; // range [0, 10]
+uniform float uShininess; // range [1, inf]
+uniform float uSpecularIntensity; // range [0, 1]
+uniform float uEnvironmentStrength; // range [0, 1]
+uniform float uGrassBladeShadowing; // range [0, 10]
 
 in vec3 vWorldPosition;
 in vec3 vWorldNormal;
@@ -43,8 +43,8 @@ void main() {
   vec3 specular = specularLighting(uLightColor, L, H, N, uSpecularIntensity, uShininess);
   vec3 env = uEnvironmentStrength * envLighting(uEnvMap, V, N);
 
-  float selfShadowing = 0.8 * pow(vGrassBladeHeight, uGrassBladeSelfShadowing) + 0.2;
-  vec3 color = selfShadowing * vGrassBladeColor * (ambient + diffuse) + specular + env;
+  float shadowing = 0.8 * pow(vGrassBladeHeight, uGrassBladeShadowing) + 0.2;
+  vec3 color = shadowing * vGrassBladeColor * (ambient + diffuse) + specular + env;
 
   vFragColor = vec4(color, 1.0);
 }

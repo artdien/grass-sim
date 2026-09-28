@@ -113,7 +113,7 @@ describe('loadSettings', () => {
   it('applies an entry settings as the active settings', () => {
     const settings: SimulationSettings = {
       ...initialActiveSettings,
-      wind: { velocity: 0.9, strength: 0.4, angle: 45 },
+      wind: { velocity: 0.9, randomness: 0.4, angle: 45 },
       grass: { ...initialActiveSettings.grass, tileSize: 24 },
     };
     const entry = buildEntry('Loaded', settings);
@@ -126,7 +126,7 @@ describe('loadSettings', () => {
   it('decouples the active settings from the loaded entry', () => {
     const settings: SimulationSettings = {
       ...initialActiveSettings,
-      wind: { velocity: 0.9, strength: 0.4, angle: 45 },
+      wind: { velocity: 0.9, randomness: 0.4, angle: 45 },
     };
     const entry = buildEntry('Loaded', settings);
 

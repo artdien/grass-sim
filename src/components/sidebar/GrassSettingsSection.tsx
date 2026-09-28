@@ -35,13 +35,13 @@ const parseUnitRangeValue = (value: string): number | null => {
   return Number.isFinite(parsed) && parsed >= 0 && parsed <= 1 ? parsed : null;
 };
 
-/** Parses the self-shadowing; null when it is not a number in [0, 10]. */
-const parseSelfShadowingValue = (value: string): number | null => {
+/** Parses the shadowing; null when it is not a number in [0, 10]. */
+const parseShadowingValue = (value: string): number | null => {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed >= 0 && parsed <= 10 ? parsed : null;
 };
 
-/** The Grass settings section: the tile layout, blade shape and variation, color palettes, and self-shadowing. Bending is in degrees; the scene converts it to radians for the shader. */
+/** The Grass settings section: the tile layout, blade shape and variation, color palettes, and shadowing. Bending is in degrees; the scene converts it to radians for the shader. */
 export const GrassSettingsSection = () => {
   const activeSettings = useSimulationStore((state) => state.activeSettings);
   const updateActiveSettings = useSimulationStore((state) => state.updateActiveSettings);
@@ -115,14 +115,14 @@ export const GrassSettingsSection = () => {
     });
   };
 
-  const handleSelfShadowingChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const parsed = parseSelfShadowingValue(event.target.value);
+  const handleShadowingChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const parsed = parseShadowingValue(event.target.value);
     if (parsed === null) {
       return;
     }
     updateActiveSettings({
       ...activeSettings,
-      grass: { ...activeSettings.grass, selfShadowing: parsed },
+      grass: { ...activeSettings.grass, shadowing: parsed },
     });
   };
 
@@ -174,7 +174,7 @@ export const GrassSettingsSection = () => {
 
         <SliderField
           id="grass-height-randomness"
-          label="Height randomness"
+          label="Randomness"
           min={0}
           max={1}
           step={0.05}
@@ -185,16 +185,6 @@ export const GrassSettingsSection = () => {
         <h3 className="pt-1 text-xs font-semibold tracking-wide text-stone-500">Color</h3>
 
         <SliderField
-          id="grass-color-randomness"
-          label="Randomness"
-          min={0}
-          max={1}
-          step={0.05}
-          value={activeSettings.grass.colorRandomness}
-          onChange={(event) => handleVariationChange('colorRandomness', event)}
-        />
-
-        <SliderField
           id="grass-color-distribution"
           label="Distribution"
           min={0}
@@ -202,6 +192,16 @@ export const GrassSettingsSection = () => {
           step={0.05}
           value={activeSettings.grass.colorDistribution}
           onChange={(event) => handleVariationChange('colorDistribution', event)}
+        />
+
+        <SliderField
+          id="grass-color-randomness"
+          label="Randomness"
+          min={0}
+          max={1}
+          step={0.05}
+          value={activeSettings.grass.colorRandomness}
+          onChange={(event) => handleVariationChange('colorRandomness', event)}
         />
 
         <ColorPairField
@@ -225,13 +225,13 @@ export const GrassSettingsSection = () => {
         <h3 className="pt-1 text-xs font-semibold tracking-wide text-stone-500">Shading</h3>
 
         <SliderField
-          id="grass-self-shadowing"
-          label="Self-shadowing"
+          id="grass-shadowing"
+          label="Shadowing"
           min={0}
           max={10}
           step={0.1}
-          value={activeSettings.grass.selfShadowing}
-          onChange={handleSelfShadowingChange}
+          value={activeSettings.grass.shadowing}
+          onChange={handleShadowingChange}
         />
       </div>
     </CollapsibleSection>

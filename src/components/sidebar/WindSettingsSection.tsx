@@ -3,7 +3,7 @@ import { CollapsibleSection } from '@/components/layout/CollapsibleSection';
 import { SliderField } from '@/components/fields/SliderField';
 import { useSimulationStore } from '@/store/simulation';
 
-/** Parses the wind velocity or strength; null when not a number in [0, 1]. */
+/** Parses the wind velocity or randomness; null when not a number in [0, 1]. */
 const parseUnitRangeValue = (value: string): number | null => {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed >= 0 && parsed <= 1 ? parsed : null;
@@ -22,7 +22,7 @@ export const WindSettingsSection = () => {
 
   // Invalid input is not committed, so the field snaps back to its last valid value.
   const handleUnitRangeChange = (
-    field: 'velocity' | 'strength',
+    field: 'velocity' | 'randomness',
     event: ChangeEvent<HTMLInputElement>,
   ) => {
     const parsed = parseUnitRangeValue(event.target.value);
@@ -60,13 +60,13 @@ export const WindSettingsSection = () => {
         />
 
         <SliderField
-          id="wind-strength"
-          label="Strength"
+          id="wind-randomness"
+          label="Randomness"
           min={0}
           max={1}
           step={0.05}
-          value={activeSettings.wind.strength}
-          onChange={(event) => handleUnitRangeChange('strength', event)}
+          value={activeSettings.wind.randomness}
+          onChange={(event) => handleUnitRangeChange('randomness', event)}
         />
 
         <SliderField

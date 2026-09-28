@@ -22,7 +22,7 @@ const entry: StoredSimulationSettings = {
   image: 'aW1hZ2U',
   settings: {
     ...initialActiveSettings,
-    wind: { velocity: 0.9, strength: 0.4, angle: 45 },
+    wind: { velocity: 0.9, randomness: 0.4, angle: 45 },
   },
 };
 

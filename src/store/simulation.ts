@@ -40,7 +40,7 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
   activeSettings: {
     wind: {
       velocity: 0.2,
-      strength: 1.0,
+      randomness: 1.0,
       angle: 0.0,
     },
     // The color defaults are the sRGB hex equivalents of the linear palette
@@ -57,7 +57,7 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
       tipColor1: '#aada7c',
       baseColor2: '#6ca03f',
       tipColor2: '#cbe795',
-      selfShadowing: 2.0,
+      shadowing: 2.0,
     },
     terrain: {
       size: 200,

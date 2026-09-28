@@ -84,9 +84,14 @@ function parseWindSettings(input: unknown): Result<WindSettings> {
     return { ok: false, error: 'The wind velocity is missing or invalid.' };
   }
 
-  const strength = fields.strength;
-  if (typeof strength !== 'number' || !Number.isFinite(strength) || strength < 0 || strength > 1) {
-    return { ok: false, error: 'The wind strength is missing or invalid.' };
+  const randomness = fields.randomness;
+  if (
+    typeof randomness !== 'number' ||
+    !Number.isFinite(randomness) ||
+    randomness < 0 ||
+    randomness > 1
+  ) {
+    return { ok: false, error: 'The wind randomness is missing or invalid.' };
   }
 
   const angle = fields.angle;
@@ -94,7 +99,7 @@ function parseWindSettings(input: unknown): Result<WindSettings> {
     return { ok: false, error: 'The wind angle is missing or invalid.' };
   }
 
-  return { ok: true, data: { velocity, strength, angle } };
+  return { ok: true, data: { velocity, randomness, angle } };
 }
 
 /** Parses and validates the grass section of an imported settings file. */
@@ -189,14 +194,14 @@ function parseGrassSettings(input: unknown): Result<GrassSettings> {
     return { ok: false, error: 'The second blade tip color is missing or invalid.' };
   }
 
-  const selfShadowing = fields.selfShadowing;
+  const shadowing = fields.shadowing;
   if (
-    typeof selfShadowing !== 'number' ||
-    !Number.isFinite(selfShadowing) ||
-    selfShadowing < 0 ||
-    selfShadowing > 10
+    typeof shadowing !== 'number' ||
+    !Number.isFinite(shadowing) ||
+    shadowing < 0 ||
+    shadowing > 10
   ) {
-    return { ok: false, error: 'The blade self-shadowing is missing or invalid.' };
+    return { ok: false, error: 'The blade shadowing is missing or invalid.' };
   }
 
   return {
@@ -213,7 +218,7 @@ function parseGrassSettings(input: unknown): Result<GrassSettings> {
       tipColor1,
       baseColor2,
       tipColor2,
-      selfShadowing,
+      shadowing,
     },
   };
 }
