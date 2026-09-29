@@ -49,6 +49,25 @@ describe('NumberField', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
   });
 
+  it('does not forward an edit the browser reports as an empty string', () => {
+    const onChange = vi.fn();
+    render(
+      <NumberField
+        id="blades"
+        label="Blades"
+        value={24}
+        min={8}
+        max={64}
+        step={1}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText('Blades'), { target: { value: '' } });
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it('steps up one increment per wheel tick', () => {
     const onChange = vi.fn((event: ChangeEvent<HTMLInputElement>) => {
       expect(event.target.value).toBe('25');

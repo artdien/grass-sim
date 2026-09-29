@@ -45,6 +45,14 @@ describe('LightingSettingsSection', () => {
     expect(direction.z).toBe(0.5);
   });
 
+  it('keeps the last direction component when the input is cleared, since it would read as a zero', () => {
+    render(<LightingSettingsSection />);
+
+    fireEvent.change(screen.getByLabelText('Direction X'), { target: { value: '' } });
+
+    expect(useSimulationStore.getState().activeSettings.lighting.diffuse.direction.x).toBe(-0.5);
+  });
+
   it('refuses a shininess that is below 1 or not an integer', () => {
     render(<LightingSettingsSection />);
 

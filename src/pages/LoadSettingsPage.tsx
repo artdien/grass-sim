@@ -74,12 +74,9 @@ export const LoadSettingsPage = () => {
             <h2 className="mt-4 text-base font-semibold text-stone-900">
               No simulation settings stored yet
             </h2>
-            <p className="mt-2 max-w-sm text-sm leading-relaxed text-stone-600">
-              <span className="pointer-fine:hidden">No simulation settings stored yet.</span>
-              <span className="hidden pointer-fine:inline">
-                Use Import in the top bar to load simulation settings from an external JSON file.
-                Alternatively, store new settings from the Simulation page.
-              </span>
+            <p className="mt-2 max-w-sm text-sm leading-relaxed text-stone-600 pointer-coarse:hidden">
+              Use Import in the top bar to load simulation settings from an external JSON file.
+              Alternatively, store new settings from the Simulation page.
             </p>
           </div>
         ) : (

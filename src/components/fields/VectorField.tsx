@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react';
+import { SteppedNumberField } from '@/components/fields/SteppedNumberField';
 
 /** A 3D vector whose components are edited together, left to right as x, y, z. */
 interface Vector3 {
@@ -33,14 +34,13 @@ export const VectorField = ({ id, label, value, step, onChange }: Props) => {
       <span className="shrink-0">{label}</span>
       <div className="flex min-w-0 gap-1">
         {components.map((component) => (
-          <input
+          <SteppedNumberField
             key={component}
             id={`${id}-${component}`}
-            type="number"
-            step={step}
             value={value[component]}
+            step={step}
+            ariaLabel={`${label} ${component.toUpperCase()}`}
             onChange={(event) => onChange(component, event)}
-            aria-label={`${label} ${component.toUpperCase()}`}
             className="w-16 min-w-0 shrink rounded-md border border-stone-200 bg-white px-1.5 py-1 text-right font-mono text-xs text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:outline-none"
           />
         ))}

@@ -44,4 +44,25 @@ describe('VectorField', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
   });
+
+  it('does not forward an edit the browser reports as an empty string', () => {
+    const onChange = vi.fn();
+    renderVectorField(onChange);
+
+    fireEvent.change(screen.getByLabelText('Wind X'), { target: { value: '' } });
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('steps a component up by one step per wheel tick', () => {
+    const onChange = vi.fn((component: 'x' | 'y' | 'z', event: ChangeEvent<HTMLInputElement>) => {
+      expect(component).toBe('x');
+      expect(event.target.value).toBe('1.5');
+    });
+    renderVectorField(onChange);
+
+    fireEvent.wheel(screen.getByLabelText('Wind X'), { deltaY: -1 });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+  });
 });
