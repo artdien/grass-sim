@@ -6,6 +6,7 @@ import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/grass-sim/',
   plugins: [react(), tailwindcss(), glsl()],
   build: {
     chunkSizeWarningLimit: 2000,

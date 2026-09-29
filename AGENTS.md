@@ -1,6 +1,6 @@
 # grass-sim
 
-React 19 + TypeScript + Vite web app rendering a Three.js (WebGL) grass simulation: a noise-displaced heightfield terrain covered in an instanced grass blade field, lit by a shared hemispherical/diffuse/specular + HDR environment model against an HDR panorama background, with a configurable sidebar and a load/save settings page. Single package, no workspaces, no CI.
+React 19 + TypeScript + Vite web app rendering a Three.js (WebGL) grass simulation: a noise-displaced heightfield terrain covered in an instanced grass blade field, lit by a shared hemispherical/diffuse/specular + HDR environment model against an HDR panorama background, with a configurable sidebar and a load/save settings page. Single package, no workspaces; CI deploys to GitHub Pages (`.github/workflows/deploy.yaml`).
 
 ## src layout
 
@@ -28,6 +28,7 @@ New code goes in these buckets: route-level pages → `pages/`, app-level or reu
 - `npm run preview` — serve the production build locally
 - `npm run lint` / `npm run lint:fix` — ESLint (flat config, `eslint.config.js`)
 - `npm run format` — Prettier over the whole repo
+- CI: `deploy.yaml` builds and deploys to GitHub Pages on push to `main` (or manually); it runs `npm ci && npm run build`, so build/typecheck failures block deployment
 - `npm run test` — run the Vitest suite once (jsdom environment, React Testing Library); `npx vitest` runs it in watch mode
 
 Tests live next to their code as `src/**/*.test.{ts,tsx}` — jsdom environment with `@testing-library/jest-dom` matchers from `src/test/setup.ts` (both configured in `vite.config.ts` `test`). Import `describe`/`it`/`expect` from `'vitest'` — no globals are enabled. Test files are typechecked by `npm run build` and linted like the rest of `src/`. Test stores, parsing, and React components, plus the scene modules with plain logic — `lighting`, `movement`, and `screenshot` in `scene/`; the renderer itself isn't unit-tested in jsdom.
