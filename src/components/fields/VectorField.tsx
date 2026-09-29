@@ -34,9 +34,9 @@ export const VectorField = ({ id, label, help, value, step, onChange }: Props) =
   const components: Array<keyof Vector3> = ['x', 'y', 'z'];
 
   return (
-    <div className="flex items-center justify-between gap-2 text-sm text-stone-600">
+    <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-stone-600">
       <span className="shrink-0">{label}</span>
-      <div className="flex min-w-0 items-center gap-1.5">
+      <div className="flex shrink-0 items-center gap-1.5">
         <div className="flex min-w-0 gap-1">
           {components.map((component) => (
             <SteppedNumberField

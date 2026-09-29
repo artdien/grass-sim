@@ -20,9 +20,11 @@ interface Props {
 
 /** Labeled native color picker, matching the label rows of the settings sidebar. */
 export const ColorField = ({ id, label, help, value, onChange }: Props) => (
-  <div className="flex items-center justify-between gap-2 text-sm text-stone-600">
-    <label htmlFor={id}>{label}</label>
-    <span className="flex items-center gap-1.5">
+  <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-stone-600">
+    <label htmlFor={id} className="shrink-0">
+      {label}
+    </label>
+    <span className="flex shrink-0 items-center gap-1.5">
       <input
         id={id}
         type="color"

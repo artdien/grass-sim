@@ -34,9 +34,9 @@ export const ColorPairField = ({
   onBaseChange,
   onTipChange,
 }: Props) => (
-  <div className="flex items-center justify-between gap-2 text-sm text-stone-600">
+  <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-stone-600">
     <span className="shrink-0">{label}</span>
-    <div className="flex items-center gap-3">
+    <div className="flex shrink-0 items-center gap-3">
       <label className="flex items-center gap-1.5 text-xs text-stone-500">
         Base
         <input

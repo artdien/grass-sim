@@ -31,9 +31,11 @@ interface Props {
 /** Labeled native number input, matching the label rows of the settings sidebar. */
 export const NumberField = ({ id, label, help, value, min, max, step, onChange }: Props) => {
   return (
-    <div className="flex items-center justify-between gap-2 text-sm text-stone-600">
-      <label htmlFor={id}>{label}</label>
-      <span className="flex items-center gap-1.5">
+    <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-stone-600">
+      <label htmlFor={id} className="shrink-0">
+        {label}
+      </label>
+      <span className="flex shrink-0 items-center gap-1.5">
         <SteppedNumberField
           id={id}
           value={value}
