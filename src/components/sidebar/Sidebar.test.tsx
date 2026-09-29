@@ -49,10 +49,34 @@ describe('Sidebar', () => {
     );
     expect(screen.queryByText('Shadowing')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('separator')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Expand sidebar' }));
 
     expect(screen.queryByRole('button', { name: 'Save' })).toBeInTheDocument();
+  });
+
+  it('resizes by dragging the separator', () => {
+    const { container } = render(<Sidebar />);
+    const handle = screen.getByRole('separator', { name: 'Resize sidebar' });
+
+    fireEvent.pointerDown(handle, { clientX: 0 });
+    fireEvent.pointerMove(window, { clientX: 600 });
+    fireEvent.pointerUp(window);
+
+    expect(container.querySelector('aside')).toHaveStyle({ width: '600px' });
+    expect(handle).toHaveAttribute('aria-label', 'Resize sidebar');
+  });
+
+  it('clamps a drag below the minimum width to the minimum', () => {
+    const { container } = render(<Sidebar />);
+    const handle = screen.getByRole('separator', { name: 'Resize sidebar' });
+
+    fireEvent.pointerDown(handle, { clientX: 0 });
+    fireEvent.pointerMove(window, { clientX: 100 });
+    fireEvent.pointerUp(window);
+
+    expect(container.querySelector('aside')).toHaveStyle({ width: '224px' });
   });
 
   it('saves the current settings under the given name and closes the dialog', async () => {
