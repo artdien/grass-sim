@@ -66,7 +66,12 @@ export const Navbar = () => {
       className="flex items-center gap-4 border-b border-stone-200 bg-white px-4 py-3 sm:gap-8 sm:px-6"
     >
       <div className="flex items-center gap-2">
-        <img src="/icon.svg" alt="" className="h-9 w-9 shrink-0" aria-hidden="true" />
+        <img
+          src={`${import.meta.env.BASE_URL}icon.svg`}
+          alt=""
+          className="h-9 w-9 shrink-0"
+          aria-hidden="true"
+        />
         <span
           className="hidden text-base leading-tight font-semibold text-stone-900 pointer-fine:inline"
           aria-hidden="true"

@@ -4,8 +4,11 @@ import { LoadSettingsPage } from '@/pages/LoadSettingsPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { SimulationPage } from '@/pages/SimulationPage';
 
-/** App route table: the `App` layout route with `/simulation`, `/load-settings`, and a catch-all. */
-export const router = createBrowserRouter([
+/**
+ * App route table: the `App` layout route with `/simulation`, `/load-settings`, and a catch-all.
+ * `basename` tracks Vite's `base` so routes resolve under the GitHub Pages project path.
+ */
+const routes = [
   {
     path: '/',
     element: <App />,
@@ -28,4 +31,6 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+];
+
+export const router = createBrowserRouter(routes, { basename: import.meta.env.BASE_URL });
