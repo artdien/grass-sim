@@ -1,20 +1,13 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { isMobile } from '@/scene/mobile';
 
 /** World units per second while a movement key is held. */
 const SPEED = 10;
 
 /** Up vector in world coordinates, corresponds to Y axis */
 const WORLD_UP = new THREE.Vector3(0, 1, 0);
-
-/**
- * `true` when the primary input is a touch device (phone, tablet) — i.e. WASD
- * and the mouse are unavailable, so the scene must fall back to orbit-only
- * camera control. Deliberately independent of viewport width, so a phone in
- * landscape keeps the same controls as in portrait.
- */
-export const isMobile = (): boolean => window.matchMedia('(pointer: coarse)').matches;
 
 /**
  * Camera control: `update` advances the camera by the frame delta and

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { createMovement, isMobile } from '@/scene/movement';
+import { createMovement } from '@/scene/movement';
 
 // jsdom has no matchMedia; report the coarse-pointer result the test cares about.
 const stubMatchMedia = (matches: boolean) => {
@@ -12,20 +12,6 @@ const stubMatchMedia = (matches: boolean) => {
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
-});
-
-describe('isMobile', () => {
-  it('returns true when the coarse-pointer query matches', () => {
-    stubMatchMedia(true);
-
-    expect(isMobile()).toBe(true);
-  });
-
-  it('returns false when the coarse-pointer query does not match', () => {
-    stubMatchMedia(false);
-
-    expect(isMobile()).toBe(false);
-  });
 });
 
 describe('createMovement (first-person)', () => {

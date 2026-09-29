@@ -6,7 +6,8 @@ import { createTerrain } from '@/scene/terrain';
 import { createGrass } from '@/scene/grass';
 import { createEnvironment } from '@/scene/environment';
 import { registerSceneScreenshot, createSceneCapture } from '@/scene/screenshot';
-import { createMovement, isMobile } from '@/scene/movement';
+import { createMovement } from '@/scene/movement';
+import { isMobile } from '@/scene/mobile';
 
 /** EMA weight applied per frame when smoothing the FPS readout; smaller values react more slowly. */
 const FPS_ALPHA = 0.1;
