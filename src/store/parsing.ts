@@ -372,7 +372,7 @@ function parseSpecularLightingSettings(input: unknown): Result<LightingSettings[
   return { ok: true, data: { shininess, intensity } };
 }
 
-/** Parses the environment lighting section. Files saved before this term existed */
+/** Parses the environment lighting section. */
 function parseEnvironmentLightingSettings(input: unknown): Result<LightingSettings['environment']> {
   if (typeof input !== 'object' || input === null) {
     return { ok: false, error: 'The environment lighting settings are missing or invalid.' };

@@ -14,7 +14,7 @@ src/
 ├── components/     # app-level / reusable UI — solo components at the top (Navbar, LoadSettingsCard); one subfolder per component family (dialogs/, fields/, layout/) or feature (sidebar/)
 ├── pages/          # one component per route
 ├── store/          # Zustand stores for shared app state + supporting pure modules (e.g. parseSimulationSettings)
-├── assets/         # static sources — shaders/ (GLSL .vert/.frag and common/ .glsl chunks), envmaps/ (scene HDR), models/ (grassblade.glb)
+├── assets/         # static sources — shaders/ (GLSL .vert/.frag and common/ .glsl chunks), envmaps/ (scene HDR), models/ (grassblade.glb), scenes/ (bundled example settings)
 ├── test/           # test setup (jest-dom matchers)
 └── scene/          # all Three.js code — Scene (composition + loop) plus one module per entity: lighting, terrain, grass, environment, movement, screenshot
 ```

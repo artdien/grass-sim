@@ -15,7 +15,7 @@ const FPS_ALPHA = 0.1;
  * The Three.js scene: renders the settings-driven terrain with a grass blade over
  * an HDR environment background and exposes a render snapshot. Owns the
  * renderer/scene/camera, the render loop, and sizing, and is the glue that composes
- * the `Lighting`, `Terrain`, `Grass`, and `Environment` entities. Memoized because
+ * the `Lighting`, `Terrain`, `Grass`, `Environment`, and `Movement` entities. Memoized because
  * the renderer is decoupled from React re-renders, so any change forcing one is
  * immediately visible.
  */

@@ -16,11 +16,11 @@ description: Use when creating or modifying the Three.js scene in this app — r
 
 ## Workflow: adding a new scene element
 
-1. Decide the owner: default to the existing scene component (`src/scene/Scene.tsx`); split into a component of its own only when the entity has a distinct lifecycle or props of its own.
-2. Create the geometry / material / object in the effect (or a factory function called from it) and add it to the scene graph.
-3. Drive it from the rAF loop as needed. Animations must be **frame-rate independent**: use delta time (`clock.getDelta()`), never bare per-frame constants.
+1. Decide the owner: default to the existing scene module (`src/scene/Scene.tsx`); split into a module of its own in `src/scene/` — a `create*` factory + `dispose`, composed by `Scene` (like `terrain` and `grass`) — when the entity has a distinct lifecycle or settings of its own.
+2. Create the geometry / material / object in the factory (or the effect when it stays in `Scene`) and add it to the scene graph.
+3. Drive it from the rAF loop as needed. Animations must be **frame-rate independent**: use delta time (`THREE.Timer#getDelta`, as `Scene` does), never bare per-frame constants.
 4. Register every listener or subscription it needs; remove every one in the cleanup.
-5. If its size depends on the viewport, update it in the resize handler (alongside camera aspect / renderer size).
+5. If its size depends on the layout, update it in the `ResizeObserver` callback (alongside camera aspect / renderer size).
 6. Verify: `npm run lint`, `npm run build`, and a visual check on `npm run dev` (port 3000).
 
 ## Canonical setup/teardown pattern
@@ -33,7 +33,7 @@ useEffect(() => {
   if (!container) return;
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+  const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   container.appendChild(renderer.domElement);
 
@@ -42,24 +42,37 @@ useEffect(() => {
   const cube = new THREE.Mesh(geometry, material);
   scene.add(cube);
 
-  let rafId: number;
-  const clock = new THREE.Clock();
-  const animate = () => {
-    rafId = requestAnimationFrame(animate);
-    const dt = clock.getDelta();
-    // update scene with dt here
+  const timer = new THREE.Timer();
+  let animationFrameId: number;
+  const render = (frameTime: number) => {
+    animationFrameId = requestAnimationFrame(render);
+
+    timer.update(frameTime);
+    const delta = timer.getDelta();
+    // update scene with delta here
+
     renderer.render(scene, camera);
   };
-  animate();
+  render(performance.now());
 
-  const onResize = () => {
-    /* camera.aspect, updateProjectionMatrix, renderer.setSize */
-  };
-  window.addEventListener('resize', onResize);
+  // Track the container, not the window, so the canvas also resizes when the layout reflows.
+  const resizeObserver = new ResizeObserver(() => {
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    if (width === 0 || height === 0) {
+      return;
+    }
+
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
+  });
+  // Callback runs once on observe(), so the initial size is set up front.
+  resizeObserver.observe(container);
 
   return () => {
-    window.removeEventListener('resize', onResize);
-    cancelAnimationFrame(rafId);
+    cancelAnimationFrame(animationFrameId);
+    resizeObserver.disconnect();
     geometry.dispose();
     material.dispose();
     renderer.dispose();
@@ -74,6 +87,6 @@ useEffect(() => {
 - [ ] No `THREE.*` instances in React state or effect dependencies.
 - [ ] Any shared (Zustand) state the scene reads is fetched via `useStore.getState()` inside the loop, so the mount effect stays dependency-free and store updates can't recreate the renderer.
 - [ ] Animations use delta time, not per-frame constants.
-- [ ] Resize handler updates camera aspect + `updateProjectionMatrix()` + `renderer.setSize()`, and any viewport-relative object state.
+- [ ] The resize callback (a `ResizeObserver` on the container div, not a window listener) updates camera aspect + `updateProjectionMatrix()` + `renderer.setSize()`, and any layout-relative object state.
 - [ ] StrictMode-safe: re-running the effect from scratch produces an identical scene (no reliance on globals or previously leaked objects).
 - [ ] `npm run lint` and `npm run build` pass, and the change looks correct on the dev server.

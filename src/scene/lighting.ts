@@ -16,10 +16,10 @@ export interface LightingUniforms {
  * Shared lighting: a bag of shader uniforms plus a change-detecting sync.
  *
  * Lighting is scene-global (hemispherical ambient, diffuse, specular, and
- * environment-map reflection) and currently consumed only by the terrain, but
- * is kept in its own module so a future entity (e.g. grass) can spread the same
- * uniform objects into its own material — `apply` then updates every consumer
- * at once, since they all share these underlying uniform objects.
+ * environment-map reflection), so the module owns no material: the terrain and
+ * grass entities each spread the same uniform objects into their own materials,
+ * and `sync` updates every consumer at once, since they all share these
+ * underlying uniform objects.
  */
 export interface Lighting {
   /** The lighting uniform objects to spread into a `ShaderMaterial`. */

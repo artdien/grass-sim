@@ -22,7 +22,7 @@ description: Use when writing or modifying shaders for the Three.js scene in thi
 
 With `THREE.ShaderMaterial`, Three.js prepends a prologue that our files must neither redeclare nor shadow:
 
-- **Attributes** bound from `BufferGeometry` by key: `position`, `normal`, `uv`.
+- **Attributes** bound from `BufferGeometry` by key: `position`, `normal`, `uv` — and `tangent` (`vec4`) when the geometry carries tangents, as the grass blade model does and `grass.vert` uses.
 - **Uniforms** set by the renderer each frame: `modelMatrix`, `modelViewMatrix`, `projectionMatrix`, `viewMatrix`, `normalMatrix`, `cameraPosition`, `isOrthographic`.
 - `#version 300 es` and `precision` — both already provided.
 
@@ -38,26 +38,26 @@ Consequences:
 
 ## Reusable chunks
 
-Shared GLSL — noise, hashing, vector math — lives in `src/assets/shaders/*.glsl` and is inlined by `vite-plugin-glsl` at build time with the `#include` directive, **relative to the file doing the including**:
+Shared GLSL — noise, hashing, vector math — lives in **`src/assets/shaders/common/`** as `.glsl` chunks (the repo keeps `envmap`, `hash`, `lighting`, `math`, and `noise` there) and is inlined by `vite-plugin-glsl` at build time with the `#include` directive, **relative to the file doing the including**:
 
 ```glsl
 // terrain.vert
-#include "./noise.glsl"
+#include "./common/noise.glsl";
 
 void main() { ... }
 ```
 
-- Chunks may include chunks — the plugin inlines the whole tree recursively (a `noise.glsl` whose only line is `#include "./hash.glsl"` works).
+- Chunks may include chunks — the plugin inlines the whole tree recursively (`lighting.glsl` includes `./envmap.glsl`; a `noise.glsl` whose only line is `#include "./hash.glsl"` works).
 - A chunk included twice **warns** (default `warnDuplicatedImports: true`) and is not deduplicated by default — keep every chunk idempotent so it can be included from anywhere, guarded with `#ifndef NOISE_GLSL / #define NOISE_GLSL` around its body.
-- Repo style for the directive: `#include "./name.glsl";` — with quotes and semicolon.
+- Repo style for the directive: `#include "./common/name.glsl";` — with quotes and semicolon.
 
 ## Workflow: add a new shader pair
 
 1. Create `src/assets/shaders/<feature>.vert` and `<feature>.frag` — one pair per feature.
-2. Import both in the scene file with the `@/` alias — plain, no `?raw` — and reference shared GLSL from the shader source with `#include "./name.glsl";`.
+2. Import both in the scene entity module with the `@/` alias — plain, no `?raw` — and reference shared GLSL from the shader source with `#include "./common/name.glsl";`.
 3. Declare the interface top-of-file before the bodies: the shared `v` varyings (same name and type on both sides), the `u` uniforms JS will provide, the `a` attributes the geometry will provide.
 4. Vertex body: build `gl_Position` from the built-in matrices, hand state to the fragment via `v` varyings. Fragment body: write the `vFragColor` output.
-5. Create the material in the `useEffect` with `uniforms: { uName: { value: ... } }`; in the rAF loop mutate `material.uniforms.uName.value` in place — never recreate the material. Dispose the material in cleanup alongside its geometry.
+5. Create the material in the scene entity module (or the mount effect) with `uniforms: { uName: { value: ... } }`; in the rAF loop mutate `material.uniforms.uName.value` in place — never recreate the material. Dispose the material in cleanup alongside its geometry.
 6. Verify: `npm run lint`, `npm run build`, and a look on `npm run dev` (port 3000). A compile error shows up as a black screen + a console warning that includes the offending line number.
 
 ## Example pair
@@ -119,6 +119,6 @@ const material = new THREE.ShaderMaterial({
 - [ ] Varying names and types match 1:1 between the pair, `out` in `.vert` ↔ `in` in `.frag`.
 - [ ] No redeclaration of built-ins (`position`, `normal`, `uv`, `modelMatrix`, …, `precision`, `#version`).
 - [ ] Imports are plain (no `?raw`) through the `@/` alias; every custom geometry attribute key matches its shader declaration.
-- [ ] Reusable GLSL lives in `.glsl` chunks, included relatively, and is idempotent (`#ifndef`/`#define` guard).
+- [ ] Reusable GLSL lives in `.glsl` chunks under `src/assets/shaders/common/`, is included relatively with a semicolon, and is idempotent (`#ifndef`/`#define` guard).
 - [ ] Uniforms initialized with `{ value }` and mutated in place per frame; material disposed in scene cleanup.
 - [ ] `npm run lint` + `npm run build` pass and the change looks right on the dev server.

@@ -40,7 +40,7 @@ export interface Terrain {
  * Creates a `Terrain` from the initial `terrain` settings and the shared
  * `lightingUniforms` (from `createLighting`). The material's uniforms merge the
  * terrain-owned uniforms with `lightingUniforms`, so a single
- * `createLighting(...).apply` also updates the lighting this material responds to.
+ * `createLighting(...).sync` also updates the lighting this material responds to.
  */
 export const createTerrain = (
   settings: TerrainSettings,
