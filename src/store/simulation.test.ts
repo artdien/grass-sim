@@ -1,6 +1,11 @@
 import type { SimulationSettings, StoredSimulationSettings } from '@/types';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import goldenWheatFieldText from '@/assets/scenes/golden-wheat-field.json?raw';
+import frostedWinterGrassText from '@/assets/scenes/frosted-winter-grass.json?raw';
+import summerMeadowText from '@/assets/scenes/summer-meadow.json?raw';
+
+import { parseSimulationSettings } from '@/store/parsing';
 import { useSimulationStore } from '@/store/simulation';
 
 // The store replaces its state wholesale and never mutates it, so the initial
@@ -14,6 +19,18 @@ const buildEntry = (
 
 beforeEach(() => {
   useSimulationStore.setState({ activeSettings: initialActiveSettings, storedSettings: [] });
+});
+
+describe('bundled example scenes', () => {
+  it.each([
+    ['summer-meadow', summerMeadowText],
+    ['golden-wheat-field', goldenWheatFieldText],
+    ['frosted-winter-grass', frostedWinterGrassText],
+  ])('%s parses as a valid stored settings entry', (_, text) => {
+    const result = parseSimulationSettings(text);
+
+    expect(result.ok).toBe(true);
+  });
 });
 
 describe('saveSettings', () => {

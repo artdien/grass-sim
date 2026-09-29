@@ -1,5 +1,10 @@
 import { create } from 'zustand';
 
+import goldenWheatFieldText from '@/assets/scenes/golden-wheat-field.json?raw';
+import frostedWinterGrassText from '@/assets/scenes/frosted-winter-grass.json?raw';
+import summerMeadowText from '@/assets/scenes/summer-meadow.json?raw';
+
+import { parseSimulationSettings } from '@/store/parsing';
 import type { Result, SimulationSettings, StoredSimulationSettings } from '@/types';
 
 interface SimulationState {
@@ -34,6 +39,19 @@ interface SimulationState {
   /** Removes the stored entry with `name`. */
   deleteSettings: (name: string) => void;
 }
+
+/**
+ * The store's initial `storedSettings`, built from the bundled example scenes and parsed
+ * through the same path as a manual JSON import so they validate identically.
+ */
+const initialStoredSettings = [
+  goldenWheatFieldText,
+  summerMeadowText,
+  frostedWinterGrassText,
+].flatMap((text) => {
+  const result = parseSimulationSettings(text);
+  return result.ok ? [result.data] : [];
+});
 
 /** Zustand store: the active simulation settings plus the saved settings entries. */
 export const useSimulationStore = create<SimulationState>()((set, get) => ({
@@ -83,7 +101,7 @@ export const useSimulationStore = create<SimulationState>()((set, get) => ({
       },
     },
   },
-  storedSettings: [],
+  storedSettings: initialStoredSettings,
   updateActiveSettings: (settings) => set({ activeSettings: settings }),
   saveSettings: (name, image) => {
     const trimmedName = name.trim();
