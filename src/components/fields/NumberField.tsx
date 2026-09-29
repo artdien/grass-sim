@@ -28,14 +28,19 @@ interface Props {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
-/** Labeled native number input, matching the label rows of the settings sidebar. */
+/**
+ * Labeled native number input, one row at the settings sidebar's default width with the
+ * input and help icon right-aligned;
+ * below 250px of available width the input collapses to the row below, right-aligned,
+ * while the help icon stays on the label's row, at the right.
+ */
 export const NumberField = ({ id, label, help, value, min, max, step, onChange }: Props) => {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-stone-600">
+    <div className="@container flex flex-wrap items-center justify-between gap-2 text-sm text-stone-600">
       <label htmlFor={id} className="shrink-0">
         {label}
       </label>
-      <span className="flex shrink-0 items-center gap-1.5">
+      <span className="ml-auto flex shrink-0 items-center gap-1.5 @max-[250px]:order-2 @max-[250px]:w-full @max-[250px]:justify-end">
         <SteppedNumberField
           id={id}
           value={value}
@@ -45,8 +50,12 @@ export const NumberField = ({ id, label, help, value, min, max, step, onChange }
           onChange={onChange}
           className="w-24 rounded-md border border-stone-200 bg-white px-2 py-1 text-right font-mono text-xs text-stone-900 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:outline-none"
         />
-        {help ? <FieldHelp help={help} label={label} /> : null}
       </span>
+      {help ? (
+        <span className="shrink-0 @max-[250px]:order-1">
+          <FieldHelp help={help} label={label} />
+        </span>
+      ) : null}
     </div>
   );
 };
