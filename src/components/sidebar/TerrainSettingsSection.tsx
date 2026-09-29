@@ -61,6 +61,7 @@ export const TerrainSettingsSection = () => {
         <SliderField
           id="terrain-height"
           label="Height"
+          help="Height amplitude of the noise displacement."
           min={0}
           max={1}
           step={0.01}
@@ -71,6 +72,7 @@ export const TerrainSettingsSection = () => {
         <NumberField
           id="terrain-frequency"
           label="Frequency"
+          help="Spatial scale of the noise field; higher is finer. 0 is flat."
           min={0}
           max={MAX_TERRAIN_FREQUENCY}
           step={0.05}
@@ -81,6 +83,7 @@ export const TerrainSettingsSection = () => {
         <ColorField
           id="terrain-color"
           label="Color"
+          help="Base color of the terrain."
           value={activeSettings.terrain.color}
           onChange={handleTerrainColorChange}
         />

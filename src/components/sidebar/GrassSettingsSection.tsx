@@ -144,6 +144,7 @@ export const GrassSettingsSection = () => {
         <SliderField
           id="grass-blade-width"
           label="Width"
+          help="How wide the blade is."
           min={0}
           max={1}
           step={0.01}
@@ -154,6 +155,7 @@ export const GrassSettingsSection = () => {
         <SliderField
           id="grass-blade-height"
           label="Height"
+          help="How tall the blade is."
           min={0}
           max={5}
           step={0.05}
@@ -164,6 +166,7 @@ export const GrassSettingsSection = () => {
         <SliderField
           id="grass-blade-bending"
           label="Bending"
+          help="The blade's resting bend angle."
           min={0}
           max={45}
           step={1}
@@ -174,6 +177,7 @@ export const GrassSettingsSection = () => {
         <SliderField
           id="grass-height-randomness"
           label="Randomness"
+          help="How much the blade height varies between blades."
           min={0}
           max={1}
           step={0.05}
@@ -184,6 +188,7 @@ export const GrassSettingsSection = () => {
         <SliderField
           id="grass-thickening"
           label="Thickening"
+          help="How strongly the blade widens in view space as it turns edge-on."
           min={0}
           max={1}
           step={0.05}
@@ -196,6 +201,7 @@ export const GrassSettingsSection = () => {
         <SliderField
           id="grass-color-distribution"
           label="Distribution"
+          help="Spatial scale of the color-field variation."
           min={0}
           max={1}
           step={0.05}
@@ -206,6 +212,7 @@ export const GrassSettingsSection = () => {
         <SliderField
           id="grass-color-mix"
           label="Mix"
+          help="How strongly the two color palettes blend."
           min={0}
           max={1}
           step={0.05}
@@ -216,6 +223,7 @@ export const GrassSettingsSection = () => {
         <ColorPairField
           id="grass-color-1"
           label="Palette 1"
+          help="First blade color palette: base (ground) and tip color."
           baseValue={activeSettings.grass.baseColor1}
           tipValue={activeSettings.grass.tipColor1}
           onBaseChange={(event) => handleColorChange('baseColor1', event)}
@@ -225,6 +233,7 @@ export const GrassSettingsSection = () => {
         <ColorPairField
           id="grass-color-2"
           label="Palette 2"
+          help="Second blade color palette: base (ground) and tip color."
           baseValue={activeSettings.grass.baseColor2}
           tipValue={activeSettings.grass.tipColor2}
           onBaseChange={(event) => handleColorChange('baseColor2', event)}
@@ -236,6 +245,7 @@ export const GrassSettingsSection = () => {
         <SliderField
           id="grass-shadowing"
           label="Shadowing"
+          help="Exponent of the blade's shadowing toward its base."
           min={0}
           max={10}
           step={0.1}
@@ -246,6 +256,7 @@ export const GrassSettingsSection = () => {
         <SliderField
           id="grass-softness"
           label="Softness"
+          help="Exponent of the blade's half-lambertian diffuse wrap."
           min={0}
           max={3}
           step={0.1}

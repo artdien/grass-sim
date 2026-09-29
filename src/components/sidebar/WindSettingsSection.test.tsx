@@ -47,7 +47,15 @@ describe('WindSettingsSection', () => {
     render(<WindSettingsSection />);
 
     fireEvent.change(screen.getByLabelText('Velocity'), { target: { value: '1.5' } });
-
     expect(useSimulationStore.getState().activeSettings.wind.velocity).toBe(1);
+  });
+
+  it('explains the velocity field behind its help icon', () => {
+    render(<WindSettingsSection />);
+
+    const button = screen.getByRole('button', { name: /what velocity does/i });
+    fireEvent.click(button);
+
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Wind velocity: scales');
   });
 });

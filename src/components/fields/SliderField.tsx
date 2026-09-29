@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import type { ChangeEvent } from 'react';
+import { FieldHelp } from '@/components/fields/FieldHelp';
 import { useWheelStepper } from '@/components/fields/useWheelStepper';
 
 interface Props {
@@ -8,6 +9,9 @@ interface Props {
 
   /** Text shown to the left of the input. */
   label: string;
+
+  /** Optional explanation behind the help icon rendered next to the input. */
+  help?: string;
 
   /** Current value committed to the settings. */
   value: number;
@@ -26,24 +30,27 @@ interface Props {
 }
 
 /** Labeled native range input, matching the label rows of the settings sidebar. */
-export const SliderField = ({ id, label, value, min, max, step, onChange }: Props) => {
+export const SliderField = ({ id, label, help, value, min, max, step, onChange }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   useWheelStepper(inputRef, onChange);
 
   return (
-    <label htmlFor={id} className="flex items-center justify-between gap-2 text-sm text-stone-600">
-      {label}
-      <input
-        id={id}
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={onChange}
-        ref={inputRef}
-        className="w-24 cursor-pointer accent-green-600 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:outline-none"
-      />
-    </label>
+    <div className="flex items-center justify-between gap-2 text-sm text-stone-600">
+      <label htmlFor={id}>{label}</label>
+      <span className="flex items-center gap-1.5">
+        <input
+          id={id}
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={onChange}
+          ref={inputRef}
+          className="w-24 cursor-pointer accent-green-600 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:outline-none"
+        />
+        {help ? <FieldHelp help={help} label={label} /> : null}
+      </span>
+    </div>
   );
 };

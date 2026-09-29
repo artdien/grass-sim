@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react';
+import { FieldHelp } from '@/components/fields/FieldHelp';
 
 interface Props {
   /** Unique id prefix; each picker is bound to `${id}-base` and `${id}-tip`. */
@@ -6,6 +7,9 @@ interface Props {
 
   /** Text shown to the left of the pickers, e.g. "Palette 1". */
   label: string;
+
+  /** Optional explanation behind the help icon rendered next to the pickers. */
+  help?: string;
 
   /** Current base color as a hex string (#rrggbb). */
   baseValue: string;
@@ -24,13 +28,14 @@ interface Props {
 export const ColorPairField = ({
   id,
   label,
+  help,
   baseValue,
   tipValue,
   onBaseChange,
   onTipChange,
 }: Props) => (
   <div className="flex items-center justify-between gap-2 text-sm text-stone-600">
-    <span>{label}</span>
+    <span className="shrink-0">{label}</span>
     <div className="flex items-center gap-3">
       <label className="flex items-center gap-1.5 text-xs text-stone-500">
         Base
@@ -52,6 +57,7 @@ export const ColorPairField = ({
           className="h-7 w-10 cursor-pointer rounded-md border border-stone-200 bg-white p-0.5 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:outline-none"
         />
       </label>
+      {help ? <FieldHelp help={help} label={label} /> : null}
     </div>
   </div>
 );

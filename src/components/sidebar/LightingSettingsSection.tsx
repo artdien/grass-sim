@@ -121,6 +121,7 @@ export const LightingSettingsSection = () => {
         <ColorField
           id="lighting-sky-color"
           label="Sky color"
+          help="Hemisphere light: the color cast from the sky."
           value={activeSettings.lighting.hemisphere.skyColor}
           onChange={(event) => handleHemisphereColorChange('skyColor', event)}
         />
@@ -128,6 +129,7 @@ export const LightingSettingsSection = () => {
         <ColorField
           id="lighting-ground-color"
           label="Ground color"
+          help="Hemisphere light: the color cast from the ground."
           value={activeSettings.lighting.hemisphere.groundColor}
           onChange={(event) => handleHemisphereColorChange('groundColor', event)}
         />
@@ -137,6 +139,7 @@ export const LightingSettingsSection = () => {
         <ColorField
           id="lighting-light-color"
           label="Light color"
+          help="Diffuse (lambertian) directional light: its color."
           value={activeSettings.lighting.diffuse.color}
           onChange={handleDiffuseColorChange}
         />
@@ -144,6 +147,7 @@ export const LightingSettingsSection = () => {
         <VectorField
           id="lighting-direction"
           label="Direction"
+          help="Diffuse directional light: the direction the light travels toward the scene."
           step={0.1}
           value={activeSettings.lighting.diffuse.direction}
           onChange={handleDirectionChange}
@@ -154,6 +158,7 @@ export const LightingSettingsSection = () => {
         <NumberField
           id="lighting-shininess"
           label="Shininess"
+          help="Specular exponent (≥ 1): controls highlight tightness."
           min={1}
           step={1}
           value={activeSettings.lighting.specular.shininess}
@@ -163,6 +168,7 @@ export const LightingSettingsSection = () => {
         <SliderField
           id="lighting-intensity"
           label="Intensity"
+          help="Specular contribution multiplier."
           min={0}
           max={1}
           step={0.01}
@@ -175,6 +181,7 @@ export const LightingSettingsSection = () => {
         <SliderField
           id="lighting-environment-strength"
           label="Strength"
+          help="Environment-map (reflection) contribution multiplier."
           min={0}
           max={1}
           step={0.01}

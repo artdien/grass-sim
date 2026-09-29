@@ -52,6 +52,7 @@ export const WindSettingsSection = () => {
         <SliderField
           id="wind-velocity"
           label="Velocity"
+          help="Wind velocity: scales both the bend noise and the blade lean."
           min={0}
           max={1}
           step={0.05}
@@ -62,6 +63,7 @@ export const WindSettingsSection = () => {
         <SliderField
           id="wind-randomness"
           label="Randomness"
+          help="Wind randomness: how much the bending varies from blade to blade."
           min={0}
           max={1}
           step={0.05}
@@ -72,6 +74,7 @@ export const WindSettingsSection = () => {
         <SliderField
           id="wind-angle"
           label="Angle"
+          help="Direction the wind blows toward."
           min={0}
           max={360}
           step={1}
