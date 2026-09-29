@@ -26,7 +26,7 @@ describe('GrassSettingsSection', () => {
 
     fireEvent.change(screen.getByLabelText('Width'), { target: { value: '0' } });
 
-    expect(useSimulationStore.getState().activeSettings.grass.bladeWidth).toBe(0.2);
+    expect(useSimulationStore.getState().activeSettings.grass.bladeWidth).toBe(0.5);
   });
 
   it('keeps the blade width at its maximum of 1 when input is pushed beyond it', () => {
@@ -44,8 +44,8 @@ describe('GrassSettingsSection', () => {
 
     const grass = useSimulationStore.getState().activeSettings.grass;
     expect(grass.bladeBending).toBe(30);
-    expect(grass.bladeWidth).toBe(0.2);
-    expect(grass.bladeHeight).toBe(1.5);
+    expect(grass.bladeWidth).toBe(0.5);
+    expect(grass.bladeHeight).toBe(4.5);
   });
 
   it('keeps the blade bending at its maximum of 45 degrees when input is pushed beyond it', () => {
@@ -80,7 +80,7 @@ describe('GrassSettingsSection', () => {
 
     const grass = useSimulationStore.getState().activeSettings.grass;
     expect(grass.baseColor1).toBe('#ff0000');
-    expect(grass.tipColor1).toBe('#aada7c');
-    expect(grass.baseColor2).toBe('#6ca03f');
+    expect(grass.tipColor1).toBe('#e6cc66');
+    expect(grass.baseColor2).toBe('#806633');
   });
 });

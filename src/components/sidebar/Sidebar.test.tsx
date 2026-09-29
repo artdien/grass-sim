@@ -67,8 +67,8 @@ describe('Sidebar', () => {
     const [stored] = useSimulationStore.getState().storedSettings;
     expect(stored.name).toBe('Meadow');
     expect(stored.image).toBe('png');
-    expect(stored.settings.wind.velocity).toBe(0.2);
-    expect(stored.settings.grass.bladeWidth).toBe(0.2);
+    expect(stored.settings.wind.velocity).toBe(0.5);
+    expect(stored.settings.grass.bladeWidth).toBe(0.5);
   });
 
   it('refuses to save an empty name and keeps the dialog open', async () => {

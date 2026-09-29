@@ -44,6 +44,6 @@ describe('TerrainSettingsSection', () => {
 
     const terrain = useSimulationStore.getState().activeSettings.terrain;
     expect(terrain.color).toBe('#112233');
-    expect(terrain.height).toBe(0.01);
+    expect(terrain.height).toBe(0.25);
   });
 });

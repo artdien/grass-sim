@@ -21,7 +21,7 @@ describe('LightingSettingsSection', () => {
     const lighting = useSimulationStore.getState().activeSettings.lighting;
     expect(lighting.hemisphere.skyColor).toBe('#112233');
     expect(lighting.hemisphere.groundColor).toBe('#856a4f');
-    expect(lighting.diffuse.color).toBe('#ffffff');
+    expect(lighting.diffuse.color).toBe('#ff7800');
   });
 
   it('commits a diffuse light color change, touching only that field', () => {
@@ -31,7 +31,7 @@ describe('LightingSettingsSection', () => {
 
     const lighting = useSimulationStore.getState().activeSettings.lighting;
     expect(lighting.diffuse.color).toBe('#ff8800');
-    expect(lighting.hemisphere.skyColor).toBe('#87ceeb');
+    expect(lighting.hemisphere.skyColor).toBe('#99c1f1');
   });
 
   it('commits a light direction component, leaving the other two untouched', () => {
@@ -42,7 +42,7 @@ describe('LightingSettingsSection', () => {
     const direction = useSimulationStore.getState().activeSettings.lighting.diffuse.direction;
     expect(direction.y).toBe(0.3);
     expect(direction.x).toBe(-0.5);
-    expect(direction.z).toBe(0.5);
+    expect(direction.z).toBe(-0.5);
   });
 
   it('keeps the last direction component when the input is cleared, since it would read as a zero', () => {

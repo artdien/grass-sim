@@ -16,12 +16,12 @@ describe('WindSettingsSection', () => {
   it('commits a valid velocity change to wind.velocity, leaving the other wind fields alone', () => {
     render(<WindSettingsSection />);
 
-    fireEvent.change(screen.getByLabelText('Velocity'), { target: { value: '0.5' } });
+    fireEvent.change(screen.getByLabelText('Velocity'), { target: { value: '0.75' } });
 
     const wind = useSimulationStore.getState().activeSettings.wind;
-    expect(wind.velocity).toBe(0.5);
-    expect(wind.randomness).toBe(1);
-    expect(wind.angle).toBe(0);
+    expect(wind.velocity).toBe(0.75);
+    expect(wind.randomness).toBe(0.45);
+    expect(wind.angle).toBe(115);
   });
 
   it('commits a valid randomness change to wind.randomness', () => {
@@ -39,8 +39,8 @@ describe('WindSettingsSection', () => {
 
     const wind = useSimulationStore.getState().activeSettings.wind;
     expect(wind.angle).toBe(90);
-    expect(wind.velocity).toBe(0.2);
-    expect(wind.randomness).toBe(1);
+    expect(wind.velocity).toBe(0.5);
+    expect(wind.randomness).toBe(0.45);
   });
 
   it('keeps the velocity at its maximum when input is pushed beyond it', () => {

@@ -64,8 +64,8 @@ const createOrbitMovement = (
   controls.maxPolarAngle = Math.PI / 2;
 
   // Start the orbit a few meters back from the target so the field fills the view.
-  camera.position.set(0, 5, 0);
-  controls.target.set(1, 5, 1);
+  camera.position.set(0, 7.5, 0);
+  controls.target.set(0, 7.5, 1);
   controls.update();
 
   return {

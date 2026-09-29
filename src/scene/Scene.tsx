@@ -40,8 +40,8 @@ export const Scene = memo(() => {
     container.appendChild(renderer.domElement);
 
     // Start the view a few meters back from the field, facing its center.
-    camera.position.set(0, 5, 0);
-    camera.lookAt(1, 5, 1);
+    camera.position.set(0, 7.5, 0);
+    camera.lookAt(0, 7.5, 1);
 
     // Created after the initial camera placement: on mobile the orbit controls
     // reposition the camera and override the placement above.

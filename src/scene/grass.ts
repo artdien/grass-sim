@@ -9,7 +9,7 @@ import grassVertexShader from '@/assets/shaders/grass.vert';
 import grassFragmentShader from '@/assets/shaders/grass.frag';
 
 // Blades per tile.
-const BLADES_PER_TILE = 4096;
+const GRASS_BLADES_PER_TILE = 5000;
 
 // Side length of a grass tile in world units, hard-coded.
 const GRASS_TILE_SIZE = 10;
@@ -171,7 +171,7 @@ export const createGrass = (
     const grid: THREE.InstancedMesh[] = [];
     for (let x = 0; x < tilesPerAxis; x++) {
       for (let z = 0; z < tilesPerAxis; z++) {
-        const tile = new THREE.InstancedMesh(geometry, material, BLADES_PER_TILE);
+        const tile = new THREE.InstancedMesh(geometry, material, GRASS_BLADES_PER_TILE);
         tile.position.set(-halfSize + (x + 0.5) * tileSize, 0, -halfSize + (z + 0.5) * tileSize);
         tile.boundingSphere = tileBoundingSphere;
         grid.push(tile);

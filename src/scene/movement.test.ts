@@ -68,7 +68,7 @@ describe('createMovement (orbit)', () => {
     // Pan is deliberately unavailable on touch devices (there is no WASD there).
     expect(orbited[0].enablePan).toBe(false);
     expect(camera.position.x).toBeCloseTo(0);
-    expect(camera.position.y).toBeCloseTo(5);
+    expect(camera.position.y).toBeCloseTo(7.5);
     expect(camera.position.z).toBeCloseTo(0);
 
     motion.update(0.1);
