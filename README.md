@@ -1,12 +1,9 @@
 # grass-sim
 
-A real-time grass simulation rendered via WebGL using Three.js, built with React, TypeScript, and Vite. The scene is a noise-displaced heightfield terrain covered by a large field of instanced grass blades that bend and sway in a configurable wind, lit against an HDR environment map and its matching panorama background. Below is a demonstration of this simulation, with the grass bending in the wind as the camera moves through the scene:
+A real-time grass simulation rendered via WebGL using Three.js, built with React, TypeScript, and Vite. The scene is a noise-displaced heightfield terrain covered by a large field of instanced grass blades that bend and sway in a configurable wind, lit against an HDR environment map and its matching panorama background. Below is a demonstration of this simulation:
 
 <p align="center">
-  TODO: demo.gif
-  <!-- 
   <img src="docs/demo.gif" />
-  -->
 </p>
 
 ## Overview
