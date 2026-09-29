@@ -11,11 +11,16 @@ import { createMovement, isMobile } from '@/scene/movement';
 /** EMA weight applied per frame when smoothing the FPS readout; smaller values react more slowly. */
 const FPS_ALPHA = 0.1;
 
+/** The scene builds on WebGL 2, so mounting only proceeds when a context can be created. */
+const isWebGL2Supported = () => document.createElement('canvas').getContext('webgl2') !== null;
+
 /**
  * The Three.js scene: renders the settings-driven terrain with a grass blade over
  * an HDR environment background and exposes a render snapshot. Owns the
  * renderer/scene/camera, the render loop, and sizing, and is the glue that composes
- * the `Lighting`, `Terrain`, `Grass`, `Environment`, and `Movement` entities. Memoized because
+ * the `Lighting`, `Terrain`, `Grass`, `Environment`, and `Movement` entities.
+ * Requires WebGL 2: when the browser cannot create a WebGL 2 context the renderer
+ * is not mounted and an overlay message is shown instead. Memoized because
  * the renderer is decoupled from React re-renders, so any change forcing one is
  * immediately visible.
  */
@@ -25,10 +30,11 @@ export const Scene = memo(() => {
   const hintRef = useRef<HTMLSpanElement>(null);
   // Stable for the mount's lifetime; must match the control chosen in the effect.
   const [mobile] = useState(isMobile);
+  const [webGL2Supported] = useState(isWebGL2Supported);
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) {
+    if (!container || !webGL2Supported) {
       return;
     }
 
@@ -148,24 +154,37 @@ export const Scene = memo(() => {
 
       container.removeChild(renderer.domElement);
     };
-  }, []);
+  }, [webGL2Supported]);
 
   return (
     <div ref={containerRef} className="relative h-full min-h-full w-full overflow-hidden">
-      <span
-        ref={fpsRef}
-        className="pointer-events-none absolute top-3 right-3 z-10 rounded-md bg-stone-950/60 px-2 py-0.5 font-mono text-xs text-stone-300 tabular-nums select-none"
-      >
-        -- FPS
-      </span>
-      <span
-        ref={hintRef}
-        className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-md bg-stone-950/60 px-2 py-0.5 font-mono text-xs text-stone-300 tabular-nums select-none"
-      >
-        {mobile
-          ? 'Drag to look around · Pinch or scroll to zoom'
-          : 'Click to look around · WASD move · E/Q up/down · ESC releases the mouse'}
-      </span>
+      {webGL2Supported ? (
+        <>
+          <span
+            ref={fpsRef}
+            className="pointer-events-none absolute top-3 right-3 z-10 rounded-md bg-stone-950/60 px-2 py-0.5 font-mono text-xs text-stone-300 tabular-nums select-none"
+          >
+            -- FPS
+          </span>
+          <span
+            ref={hintRef}
+            className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-md bg-stone-950/60 px-2 py-0.5 font-mono text-xs text-stone-300 tabular-nums select-none"
+          >
+            {mobile
+              ? 'Drag to look around · Pinch or scroll to zoom'
+              : 'Click to look around · WASD move · E/Q up/down · ESC releases the mouse'}
+          </span>
+        </>
+      ) : (
+        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center p-6">
+          <p
+            role="alert"
+            className="max-w-md rounded-xl bg-stone-950/80 px-6 py-4 text-base leading-tight text-stone-300"
+          >
+            This web app requires WebGL 2, which this browser does not support.
+          </p>
+        </div>
+      )}
     </div>
   );
 });
