@@ -8,7 +8,7 @@ import path from 'path';
 export default defineConfig({
   plugins: [react(), tailwindcss(), glsl()],
   build: {
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 2000,
   },
   resolve: {
     alias: {
