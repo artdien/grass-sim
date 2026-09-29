@@ -43,7 +43,12 @@ export const Scene = memo(() => {
     scene.background = new THREE.Color('#000000');
 
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    // Anti-aliasing costs fill rate that weak mobile GPUs don't have to spare
+    const renderer = new THREE.WebGLRenderer({
+      antialias: !isMobile(),
+      powerPreference: 'high-performance',
+      stencil: false,
+    });
     container.appendChild(renderer.domElement);
 
     // Start the view a few meters back from the field, facing its center.
