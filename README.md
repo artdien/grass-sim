@@ -1,5 +1,7 @@
 # grass-sim
 
+**Notice**: This app may lag when using Firefox on macOS. It runs normally in Safari and Chrome on macOS, and across all browsers on Windows and Linux.
+
 A real-time grass simulation rendered via WebGL using Three.js, built with React, TypeScript, and Vite. The scene is a noise-displaced heightfield terrain covered by a large field of instanced grass blades that bend and sway in a configurable wind, lit against an HDR environment map and its matching panorama background. Below is a demonstration of this simulation:
 
 <p align="center">
