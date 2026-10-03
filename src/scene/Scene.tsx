@@ -49,6 +49,9 @@ export const Scene = memo(() => {
       powerPreference: 'high-performance',
       stencil: false,
     });
+    // Cap the fill rate on high-DPI displays; the renderer otherwise draws at full devicePixelRatio.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
     container.appendChild(renderer.domElement);
 
     // Start the view a few meters back from the field, facing its center.
