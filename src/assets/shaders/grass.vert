@@ -105,10 +105,9 @@ void main() {
   vec3 bezierDerivative = cubicBezierCurveDerivative(p0, p1, p2, p3, localHeight);
   vec3 localNormal = normalize(cross(vec3(1.0, 0.0, 0.0), bezierDerivative));
 
-  // TBN Basis: Handle non-uniform scaling using the world normal matrix.
-  // The normal matrix provided by Three.js is the viewspace normal matrix,
-  // which would lead to wrong results.
-  mat3 worldNormalMatrix = transpose(inverse(mat3(worldModelMatrix)));
+  // TBN Basis: `worldModelMatrix` is a product of pure rotations, so the normal
+  // matrix (inverse transpose) reduces to itself, thus no inverse needed.
+  mat3 worldNormalMatrix = mat3(worldModelMatrix);
 
   // Invert the tangent to align with the positive World X-axis
   vec3 worldNormal = normalize(worldNormalMatrix * localNormal);
@@ -119,7 +118,9 @@ void main() {
 
   vec4 viewPosition = viewMatrix * vec4(worldPosition, 1.0);
   vec3 viewDirection = normalize(cameraPosition - worldPosition);
-  vec3 viewNormal = normalize(transpose(inverse(mat3(viewMatrix * worldModelMatrix))) * localNormal);
+  // `viewMatrix`'s linear part is also a pure rotation, so the same inverse-
+  // transpose reduction holds, thus no 4×4 product or inverse needed.
+  vec3 viewNormal = normalize(mat3(viewMatrix) * worldNormal);
 
   // 0.0 -> edge-on/perpendicular, 1.0 -> flat-facing.
   float facingPercent = abs(dot(viewNormal, viewDirection));
