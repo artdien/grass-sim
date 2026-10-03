@@ -87,13 +87,10 @@ export const Scene = memo(() => {
     });
 
     const timer = new THREE.Timer();
-    let animationFrameId: number;
     let hasPreviousFrame = false;
     let smoothedDelta: number | null = null;
 
-    const render = (frameTime: number) => {
-      animationFrameId = requestAnimationFrame(render);
-
+    renderer.setAnimationLoop((frameTime: number) => {
       timer.update(frameTime);
       const delta = timer.getDelta();
 
@@ -115,8 +112,7 @@ export const Scene = memo(() => {
         fpsRef.current.textContent = `${Math.round(1 / smoothedDelta)} FPS`;
       }
       hasPreviousFrame = true;
-    };
-    render(performance.now());
+    });
 
     registerSceneScreenshot(createSceneCapture(renderer, scene, camera));
 
@@ -149,7 +145,7 @@ export const Scene = memo(() => {
     document.addEventListener('pointerlockchange', onPointerLockChange);
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      renderer.setAnimationLoop(null);
 
       registerSceneScreenshot(null);
       resizeObserver.disconnect();
