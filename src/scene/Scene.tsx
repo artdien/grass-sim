@@ -100,6 +100,8 @@ export const Scene = memo(() => {
       lighting.sync(settings.lighting);
 
       movement.update(delta);
+      // Thinning uses the camera's position after the movement applied, for this frame.
+      grass.updateDensity(camera.position);
       renderer.render(scene, camera);
 
       // Update the counter imperatively.

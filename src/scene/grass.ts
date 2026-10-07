@@ -3,6 +3,7 @@ import type { LightingUniforms } from '@/scene/lighting';
 import type { GrassSettings, TerrainSettings, WindSettings } from '@/types';
 import { loadGrassBlade } from '@/scene/grassblade';
 import { TERRAIN_SIZE } from '@/scene/terrain';
+import { isMobile } from '@/scene/mobile';
 
 // Assets
 import grassVertexShader from '@/assets/shaders/grass.vert';
@@ -13,6 +14,17 @@ const GRASS_BLADES_PER_TILE = 5000;
 
 // Side length of a grass tile in world units, hard-coded.
 const GRASS_TILE_SIZE = 10;
+
+/**
+ * Tiles thin their blades with the camera distance: full density within the
+ * near distance, easing down to this fraction of the blades by the far
+ * distance where they stay. Nothing is exposed by the thinning, as the terrain
+ * beneath the blades is opaque.
+ */
+const GRASS_DENSITY_FLOOR = 0.1;
+
+const GRASS_DENSITY_NEAR_DISTANCE = isMobile() ? 25 : 50;
+const GRASS_DENSITY_FAR_DISTANCE = isMobile() ? 50 : 100;
 
 /**
  * The grass: a grid of instanced blades covering the terrain — one
@@ -42,6 +54,13 @@ export interface Grass {
 
   /** Sets the environment texture the material samples through `uEnvMap`. */
   setEnvironmentMap: (texture: THREE.Texture) => void;
+
+  /**
+   * Thins the blades each tile draws in proportion to the camera's distance,
+   * from full density near the camera down to a floor; a no-op before the blade
+   * arrives.
+   */
+  updateDensity: (cameraPosition: THREE.Vector3) => void;
 
   /**
    * Frees the geometry, the material (textures included), and the tiles'
@@ -179,6 +198,23 @@ export const createGrass = (
     }
     root.add(...grid);
     return grid;
+  };
+
+  // Blades within a tile are uniformly random (the blade's position is a pure
+  // PCG function of its instance ID), so drawing a prefix of the instances
+  // thins the blade field uniformly rather than clustering it in a corner.
+  const updateDensity = (cameraPosition: THREE.Vector3) => {
+    for (const tile of tiles) {
+      const falloff =
+        1.0 -
+        THREE.MathUtils.smoothstep(
+          cameraPosition.distanceTo(tile.position),
+          GRASS_DENSITY_NEAR_DISTANCE,
+          GRASS_DENSITY_FAR_DISTANCE,
+        );
+      const density = GRASS_DENSITY_FLOOR + (1.0 - GRASS_DENSITY_FLOOR) * falloff;
+      tile.count = Math.round(GRASS_BLADES_PER_TILE * density);
+    }
   };
 
   const disposeTiles = () => {
@@ -340,6 +376,7 @@ export const createGrass = (
     root,
     sync,
     setEnvironmentMap,
+    updateDensity,
     dispose,
   };
 };

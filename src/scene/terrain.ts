@@ -7,14 +7,12 @@ import type { TerrainSettings } from '@/types';
 import terrainVertexShader from '@/assets/shaders/terrain.vert';
 import terrainFragmentShader from '@/assets/shaders/terrain.frag';
 
-/** Side length of the terrain plane in world units on non-mobile devices. */
-export const TERRAIN_SIZE_DEFAULT = 200;
-
-/** Side length on mobile devices; smaller to reduce load, since the camera can't move around anyway. */
-export const TERRAIN_SIZE_MOBILE = 100;
-
-/** Side length for the current device, selected once at load; the grass lays its tile grid over it. */
-export const TERRAIN_SIZE = isMobile() ? TERRAIN_SIZE_MOBILE : TERRAIN_SIZE_DEFAULT;
+/**
+ * Side length of the terrain plane in world units, selected once at load; the
+ * grass lays its tile grid over it. The mobile size is smaller to reduce load,
+ * since the camera can't move around anyway.
+ */
+export const TERRAIN_SIZE = isMobile() ? 100 : 200;
 
 /** Grid subdivisions of the terrain plane per edge, hard-coded. */
 const TERRAIN_SEGMENTS = 512;
