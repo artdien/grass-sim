@@ -124,7 +124,7 @@ export interface StoredSimulationSettings {
   /** Entry name; also the download file name (without extension). */
   name: string;
 
-  /** Base64-encoded PNG snapshot of the scene, without the `data:` prefix. */
+  /** Base64-encoded WebP snapshot of the scene, without the `data:` prefix. */
   image: string;
 
   /** The simulation settings this entry loads. */

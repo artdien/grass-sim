@@ -5,10 +5,10 @@
 import type * as THREE from 'three';
 import type { Result } from '@/types';
 
-/** Result type for a screenshot: either contains the data as base64 PNG or an error */
+/** Result type for a screenshot: either contains the data as base64 WebP or an error */
 export type ScreenshotResult = Result<string, 'CAPTURE_NOT_REGISTERED' | 'CAPTURE_FAILED'>;
 
-/** A mounted scene's capture: render once and return a fixed-width base64 PNG. */
+/** A mounted scene's capture: render once and return a fixed-width base64 WebP. */
 export type ScreenshotCapture = (width: number) => Promise<ScreenshotResult>;
 
 let capture: ScreenshotCapture | null = null;
@@ -22,7 +22,7 @@ export const registerSceneScreenshot = (fn: ScreenshotCapture | null) => {
 };
 
 /**
- * Returns the current render as a fixed-width base64 PNG (no data-URL prefix),
+ * Returns the current render as a fixed-width base64 WebP (no data-URL prefix),
  * or a Result error: `CAPTURE_NOT_REGISTERED` when no capture is registered,
  * `CAPTURE_FAILED` (with the underlying error logged) when the capture throws.
  */
@@ -55,7 +55,7 @@ export const createSceneCapture = (
   return async (width: number) => {
     renderer.render(scene, camera);
 
-    const source = renderer.domElement.toDataURL('image/png');
+    const source = renderer.domElement.toDataURL('image/webp');
     const image = new Image();
     image.src = source;
     await image.decode();
@@ -73,6 +73,6 @@ export const createSceneCapture = (
       return { ok: true, data: source.split(',')[1] ?? '' };
     }
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
-    return { ok: true, data: canvas.toDataURL('image/png').split(',')[1] ?? '' };
+    return { ok: true, data: canvas.toDataURL('image/webp').split(',')[1] ?? '' };
   };
 };

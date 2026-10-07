@@ -47,7 +47,7 @@ export const LoadSettingsCard = ({ entry, onLoad, onDownload, onAskDelete }: Pro
       </header>
 
       <img
-        src={`data:image/png;base64,${entry.image}`}
+        src={`data:image/webp;base64,${entry.image}`}
         alt={`Render screenshot of ${entry.name}`}
         className="aspect-video w-full bg-stone-100 object-cover"
       />
