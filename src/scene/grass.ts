@@ -28,16 +28,17 @@ const GRASS_DENSITY_FAR_DISTANCE = isMobile() ? 50 : 100;
 
 /**
  * The grass: a grid of instanced blades covering the terrain — one
- * `InstancedMesh` per tile, each blade from `grassblade.glb` standing along
+ * `InstancedMesh` per tile, each blade standing along
  * the +Y axis at the model origin and rendered through the shared grass
  * shader.
  *
  * Owns the grass shader material (grass.vert/grass.frag, modeled on the
  * terrain's, with the blade's normal map applied through a world-space TBN
  * basis), the per-tile bounding spheres that drive the per-tile frustum
- * culling, and disposal; the blade itself is loaded by the `grassblade`
- * module. Like the terrain, it sits at the terrain height of its own position
- * and is lit by the shared lighting uniforms and the HDR environment map.
+ * culling, and disposal; the blades themselves (full-poly for the near tiles,
+ * low-poly for the far) are loaded by the `grassblade` module. Like the
+ * terrain, it sits at the terrain height of its own position and is lit by the
+ * shared lighting uniforms and the HDR environment map.
  */
 export interface Grass {
   /** The group the tiles are attached to; the owner adds it to the scene. */
@@ -57,8 +58,9 @@ export interface Grass {
 
   /**
    * Thins the blades each tile draws in proportion to the camera's distance,
-   * from full density near the camera down to a floor; a no-op before the blade
-   * arrives.
+   * from full density near the camera down to a floor, and switches each tile
+   * from the full-poly to the low-poly blade as it thins; a no-op before the
+   * blade arrives.
    */
   updateDensity: (cameraPosition: THREE.Vector3) => void;
 
@@ -158,6 +160,11 @@ export const createGrass = (
   });
 
   let tiles: THREE.InstancedMesh[] = [];
+  // The blades' two poly levels; both are loaded together, so once either is
+  // set the other is too. The tiles start on the full-poly geometry and are
+  // reassigned in `updateDensity` as they distance from the camera.
+  let highGeometry: THREE.BufferGeometry | null = null;
+  let lowGeometry: THREE.BufferGeometry | null = null;
 
   let syncedHeight = terrain.height;
   let syncedFrequency = terrain.frequency;
@@ -190,6 +197,8 @@ export const createGrass = (
     const grid: THREE.InstancedMesh[] = [];
     for (let x = 0; x < tilesPerAxis; x++) {
       for (let z = 0; z < tilesPerAxis; z++) {
+        // Tiles default to the full-poly blade; `updateDensity` reassigns the far
+        // ones to the low-poly geometry as the camera moves.
         const tile = new THREE.InstancedMesh(geometry, material, GRASS_BLADES_PER_TILE);
         tile.position.set(-halfSize + (x + 0.5) * tileSize, 0, -halfSize + (z + 0.5) * tileSize);
         tile.boundingSphere = tileBoundingSphere;
@@ -203,17 +212,28 @@ export const createGrass = (
   // Blades within a tile are uniformly random (the blade's position is a pure
   // PCG function of its instance ID), so drawing a prefix of the instances
   // thins the blade field uniformly rather than clustering it in a corner.
+  //
+  // The same near→far cutoff that drives the density also drives the poly level:
+  // a tile is "far" once its density has begun dropping (past the near distance),
+  // so it switches to the low-poly blade — the blades there are already thinned
+  // and seen from farther away, so the lower triangle count suffices.
   const updateDensity = (cameraPosition: THREE.Vector3) => {
     for (const tile of tiles) {
+      const distance = cameraPosition.distanceTo(tile.position);
       const falloff =
         1.0 -
         THREE.MathUtils.smoothstep(
-          cameraPosition.distanceTo(tile.position),
+          distance,
           GRASS_DENSITY_NEAR_DISTANCE,
           GRASS_DENSITY_FAR_DISTANCE,
         );
       const density = GRASS_DENSITY_FLOOR + (1.0 - GRASS_DENSITY_FLOOR) * falloff;
       tile.count = Math.round(GRASS_BLADES_PER_TILE * density);
+
+      const chosen = distance > GRASS_DENSITY_NEAR_DISTANCE ? lowGeometry : highGeometry;
+      if (chosen !== null && tile.geometry !== chosen) {
+        tile.geometry = chosen;
+      }
     }
   };
 
@@ -230,7 +250,9 @@ export const createGrass = (
     if (blade.normalMap !== null) {
       grassUniforms.uNormalMap.value = blade.normalMap;
     }
-    tiles = createTileGrid(TERRAIN_SIZE, GRASS_TILE_SIZE, blade.geometry);
+    highGeometry = blade.highGeometry;
+    lowGeometry = blade.lowGeometry;
+    tiles = createTileGrid(TERRAIN_SIZE, GRASS_TILE_SIZE, blade.highGeometry);
   });
 
   let syncedWindVelocity = wind.velocity;
