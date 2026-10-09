@@ -28,6 +28,7 @@ const isWebGL2Supported = () => document.createElement('canvas').getContext('web
 export const Scene = memo(() => {
   const containerRef = useRef<HTMLDivElement>(null);
   const fpsRef = useRef<HTMLSpanElement>(null);
+  const trianglesRef = useRef<HTMLSpanElement>(null);
   const hintRef = useRef<HTMLSpanElement>(null);
   // Stable for the mount's lifetime; must match the control chosen in the effect.
   const [mobile] = useState(isMobile);
@@ -103,6 +104,10 @@ export const Scene = memo(() => {
       // Thinning uses the camera's position after the movement applied, for this frame.
       grass.updateDensity(camera.position);
       renderer.render(scene, camera);
+      // Read after this frame's render: the info counters are reset per frame.
+      if (trianglesRef.current !== null) {
+        trianglesRef.current.textContent = `${renderer.info.render.triangles.toLocaleString()} triangles`;
+      }
 
       // Update the counter imperatively.
       // Routing it through React state would force a re-render at display refresh rate.
@@ -167,6 +172,12 @@ export const Scene = memo(() => {
     <div ref={containerRef} className="relative h-full min-h-full w-full overflow-hidden">
       {webGL2Supported ? (
         <>
+          <span
+            ref={trianglesRef}
+            className="pointer-events-none absolute top-3 left-3 z-10 rounded-md bg-stone-950/60 px-2 py-0.5 font-mono text-xs text-stone-300 tabular-nums select-none"
+          >
+            0 triangles
+          </span>
           <span
             ref={fpsRef}
             className="pointer-events-none absolute top-3 right-3 z-10 rounded-md bg-stone-950/60 px-2 py-0.5 font-mono text-xs text-stone-300 tabular-nums select-none"
